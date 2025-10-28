@@ -10,14 +10,18 @@ public class EstadisticaJugadorPartido {
 
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "idJugador")
-    private Jugador jugador;
+    private long idPartido;
 
     @Id
+    private long idJugador;
+
     @ManyToOne
     @JoinColumn(name = "partido_id")
     private Partido partido;
+
+    @ManyToOne
+    @JoinColumn(name = "jugador_id")
+    private Jugador jugador;
 
     private int golesAnotados;
     private int golesRecibidos; // Solo para porteros
