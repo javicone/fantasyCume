@@ -8,8 +8,16 @@ import java.util.Optional;
 
 @Repository
 public interface AlineacionRepository extends JpaRepository<Alineacion, Long> {
+
+
+    // obtener alineacion de usuario por jornada
+    Alineacion findByUsuarioNombreUsuarioAndJornadaIdJornada(String nombreUsuario, Long idJornada);
+    
     // Buscar alineaciones por usuario
     List<Alineacion> findByUsuarioIdUsuario(Long idUsuario);
+
+    //Buscar alineaciones por nombre de usuario
+    List<Alineacion> findByUsuarioNombreUsuario(String nombreUsuario);
 
     // Buscar alineaciones por jornada
     List<Alineacion> findByJornadaIdJornada(Long idJornada);
@@ -23,12 +31,9 @@ public interface AlineacionRepository extends JpaRepository<Alineacion, Long> {
     // Buscar las mejores alineaciones de una jornada (ordenadas por puntos)
     List<Alineacion> findByJornadaIdJornadaOrderByPuntosJornadaDesc(Long idJornada);
 
-    // Buscar alineaciones con puntos superiores a un valor
-    List<Alineacion> findByPuntosJornadaGreaterThanEqual(int puntos);
 
     // Verificar si un usuario ya tiene alineación en una jornada
     boolean existsByUsuarioIdUsuarioAndJornadaIdJornada(Long idUsuario, Long idJornada);
 
-    // Contar alineaciones de un usuario
-    long countByUsuarioIdUsuario(Long idUsuario);
+
 }

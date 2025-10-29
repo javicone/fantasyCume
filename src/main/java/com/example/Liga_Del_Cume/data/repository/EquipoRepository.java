@@ -7,10 +7,15 @@ import java.util.List;
 
 @Repository
 public interface EquipoRepository extends JpaRepository<Equipo, Long> {
-    // Buscar equipos por liga
-    List<Equipo> findByLigaIdLigaCume(Long idLiga);
 
     // Buscar equipo por nombre
     Equipo findByNombreEquipo(String nombreEquipo);
+
+    // Ignora mayúsculas/minúsculas
+    Equipo findByNombreEquipoIgnoreCase(String nombreEquipo);
+
+    // Búsqueda parcial (por ejemplo, "Real" devuelve "Real Cume", "Real Mérida"...)
+    List<Equipo> findByNombreEquipoContainingIgnoreCase(String nombreParcial);
+
 }
 

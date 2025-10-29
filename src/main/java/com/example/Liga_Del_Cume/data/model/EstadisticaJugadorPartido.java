@@ -27,7 +27,7 @@ public class EstadisticaJugadorPartido {
     private int golesRecibidos; // Solo para porteros
     private int asistencias;
     private int tarjetaAmarillas;
-    private int tarjetaRojas;
+    private boolean tarjetaRojas;
     private boolean minMinutosJugados; // true si ha jugado más de 25 minutos, false en caso contrario
     private int puntosJornada;
 

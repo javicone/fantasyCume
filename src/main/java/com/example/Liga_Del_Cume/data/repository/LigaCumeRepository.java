@@ -5,4 +5,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LigaCumeRepository extends JpaRepository<LigaCume, Long> {
+    // Buscar liga por nombre
+    LigaCume findByNombreLigaCume(String nombreLigaCume);
+
+
 }

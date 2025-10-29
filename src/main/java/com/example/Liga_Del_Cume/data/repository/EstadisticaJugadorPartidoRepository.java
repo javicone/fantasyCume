@@ -7,10 +7,11 @@ import java.util.List;
 
 @Repository
 public interface EstadisticaJugadorPartidoRepository extends JpaRepository<EstadisticaJugadorPartido, Long> {
-    // Buscar estadísticas por jugador
-    List<EstadisticaJugadorPartido> findByJugadorIdJugador(Long idJugador);
+    // Obtenemos todas las estadisticas de un jugador
+    List<EstadisticaJugadorPartido> findByJugadorNombreJugador(String nombreJugador);
 
-    // Buscar estadísticas por partido
+    //
+    // Obtenemos las estadisticas de todos los jugadores de un partido
     List<EstadisticaJugadorPartido> findByPartidoIdPartido(Long idPartido);
 }
 

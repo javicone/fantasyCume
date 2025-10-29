@@ -9,7 +9,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
-
+    
     // Relación N a 1: Muchos usuarios pertenecen a una liga
     @ManyToOne
     @JoinColumn(name = "liga_id")
