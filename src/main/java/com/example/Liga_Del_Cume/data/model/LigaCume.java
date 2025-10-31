@@ -9,6 +9,9 @@ public class LigaCume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLigaCume;
+
+    private String nombreLigaCume;
+
     private Long presupuestoMaximo;
     // Relación 1 a N: Una liga tiene muchos equipos
     @OneToMany(mappedBy = "liga", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,4 +42,11 @@ public class LigaCume {
     public void setUsuarios(List<Usuario> usuarios) { this.usuarios = usuarios; }
     public List<Jornada> getJornadas() { return jornadas; }
     public void setJornadas(List<Jornada> jornadas) { this.jornadas = jornadas; }
+    public String getNombreLiga() {
+        return nombreLigaCume;
+    }
+    public void setNombreLiga(String nombreLiga) {
+        this.nombreLigaCume = nombreLiga;
+    }
+
 }

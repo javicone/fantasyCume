@@ -13,6 +13,9 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
     // Buscar jugadores por equipo
     List<Jugador> findByEquipoNombreEquipo(String nombreEquipo);
 
+    //BUSCAR JUGADORES POR EQUIPO ORDENADOS POR NOMBRE
+    List<Jugador> findByEquipoIdEquipo(Long idEquipo);
+
     // Buscar jugador por nombre exacto
     Jugador findByNombreJugador(String nombreJugador);
 

@@ -18,7 +18,7 @@ public class Alineacion {
     @JoinColumn(name = "idJornada")
     private Jornada jornada;
 
-    private int puntosJornada;
+    private int puntosTotalesJornada;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -56,11 +56,11 @@ public class Alineacion {
     }
 
     public int getPuntosJornada() {
-        return puntosJornada;
+        return puntosTotalesJornada;
     }
 
     public void setPuntosJornada(int puntosJornada) {
-        this.puntosJornada = puntosJornada;
+        this.puntosTotalesJornada = puntosJornada;
     }
 
     public List<Jugador> getJugadores() {

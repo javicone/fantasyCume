@@ -3,34 +3,32 @@ package com.example.Liga_Del_Cume.data.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-
 public class EstadisticasJugadorPartidoId implements Serializable {
-    private long jugador;
-    private long partido;
+    private long idJugador;
+    private long idPartido;
 
-    public EstadisticasJugadorPartidoId(){
-
+    public EstadisticasJugadorPartidoId() {
     }
 
-    public EstadisticasJugadorPartidoId(long jugador, long partido) {
-        this.jugador = jugador;
-        this.partido = partido;
+    public EstadisticasJugadorPartidoId(long idJugador, long idPartido) {
+        this.idJugador = idJugador;
+        this.idPartido = idPartido;
     }
 
-    public long getJugador() {
-        return jugador;
+    public long getIdJugador() {
+        return idJugador;
     }
 
-    public void setJugador(long jugador) {
-        this.jugador = jugador;
+    public void setIdJugador(long idJugador) {
+        this.idJugador = idJugador;
     }
 
-    public long getPartido() {
-        return partido;
+    public long getIdPartido() {
+        return idPartido;
     }
 
-    public void setPartido(long partido) {
-        this.partido = partido;
+    public void setIdPartido(long idPartido) {
+        this.idPartido = idPartido;
     }
 
     @Override
@@ -38,11 +36,11 @@ public class EstadisticasJugadorPartidoId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EstadisticasJugadorPartidoId that = (EstadisticasJugadorPartidoId) o;
-        return jugador == that.jugador && partido == that.partido;
+        return idJugador == that.idJugador && idPartido == that.idPartido;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jugador, partido);
+        return Objects.hash(idJugador, idPartido);
     }
 }

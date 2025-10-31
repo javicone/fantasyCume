@@ -12,7 +12,7 @@ public interface AlineacionRepository extends JpaRepository<Alineacion, Long> {
 
     // obtener alineacion de usuario por jornada
     Alineacion findByUsuarioNombreUsuarioAndJornadaIdJornada(String nombreUsuario, Long idJornada);
-    
+
     // Buscar alineaciones por usuario
     List<Alineacion> findByUsuarioIdUsuario(Long idUsuario);
 

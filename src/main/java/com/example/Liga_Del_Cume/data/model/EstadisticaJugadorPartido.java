@@ -88,11 +88,11 @@ public class EstadisticaJugadorPartido {
         this.tarjetaAmarillas = tarjetaAmarillas;
     }
 
-    public int getTarjetaRojas() {
+    public boolean isTarjetaRojas() {
         return tarjetaRojas;
     }
 
-    public void setTarjetaRojas(int tarjetaRojas) {
+    public void setTarjetaRojas(boolean tarjetaRojas) {
         this.tarjetaRojas = tarjetaRojas;
     }
 
