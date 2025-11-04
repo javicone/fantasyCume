@@ -17,10 +17,10 @@ public class Jugador {
     @JoinColumn(name = "equipo_id")
     private Equipo equipo;
 
-    @ManyToMany(mappedBy = "jugadores", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "jugadores", fetch = FetchType.EAGER)
     private List<Alineacion> alineaciones = new ArrayList<>();
 
-    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<EstadisticaJugadorPartido> estadisticas = new ArrayList<>();
 
     private float precioMercado;
@@ -90,5 +90,18 @@ public class Jugador {
 
     public void setEsPortero(boolean esPortero) {
         this.esPortero = esPortero;
+    }
+
+    @Override
+    public String toString() {
+        return "Jugador{" +
+                "idJugador=" + idJugador +
+                ", equipo=" + equipo +
+                ", alineaciones=" + alineaciones.size() +
+                ", estadisticas=" + estadisticas.size() +
+                ", precioMercado=" + precioMercado +
+                ", nombreJugador='" + nombreJugador + '\'' +
+                ", esPortero=" + esPortero +
+                '}';
     }
 }

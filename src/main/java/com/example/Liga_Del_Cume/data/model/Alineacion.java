@@ -10,17 +10,17 @@ public class Alineacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAlineacion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "idJornada")
     private Jornada jornada;
 
     private int puntosTotalesJornada;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "alineacion_jugadores",
             joinColumns = @JoinColumn(name = "alineacion_id"),
@@ -55,11 +55,11 @@ public class Alineacion {
         this.jornada = jornada;
     }
 
-    public int getPuntosJornada() {
+    public int getPuntosTotalesJornada() {
         return puntosTotalesJornada;
     }
 
-    public void setPuntosJornada(int puntosJornada) {
+    public void setPuntosTotalesJornada(int puntosJornada) {
         this.puntosTotalesJornada = puntosJornada;
     }
 

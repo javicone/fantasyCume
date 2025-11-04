@@ -4,6 +4,7 @@ import com.example.Liga_Del_Cume.data.model.EstadisticaJugadorPartido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EstadisticaJugadorPartidoRepository extends JpaRepository<EstadisticaJugadorPartido, Long> {
@@ -15,5 +16,11 @@ public interface EstadisticaJugadorPartidoRepository extends JpaRepository<Estad
     //
     // Obtenemos las estadisticas de todos los jugadores de un partido
     List<EstadisticaJugadorPartido> findByPartidoIdPartido(Long idPartido);
+
+    // Obtenemos las estadisticas de un jugador en un partido específico
+    EstadisticaJugadorPartido findByJugadorIdJugadorAndPartidoJornadaIdJornada(Long idJugador, Long idJornada);
+
+
+
 }
 

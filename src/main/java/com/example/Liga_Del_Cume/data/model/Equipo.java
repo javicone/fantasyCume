@@ -11,7 +11,7 @@ public class Equipo {
     private Long idEquipo;
 
     // Relación N a 1: Muchos equipos pertenecen a una liga
-    @ManyToOne (fetch =  FetchType.LAZY)
+    @ManyToOne (fetch =  FetchType.EAGER)
     @JoinColumn(name = "liga_id")
     private LigaCume liga;
     private String escudoURL;
@@ -21,10 +21,10 @@ public class Equipo {
     @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Jugador> jugadores = new ArrayList<>();
 
-    @OneToMany(mappedBy="equipoLocal", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="equipoLocal", fetch = FetchType.EAGER)
     private List<Partido> partidosLocal;
 
-    @OneToMany(mappedBy="equipoVisitante", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="equipoVisitante", fetch = FetchType.EAGER)
     private List<Partido> partidosVisitante;
     public Equipo() {}
 

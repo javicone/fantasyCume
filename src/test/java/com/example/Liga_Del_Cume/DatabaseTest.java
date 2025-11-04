@@ -198,7 +198,7 @@ public class DatabaseTest {
 
         System.out.println("✓ Alineación del usuario: " + alineacion.getUsuario().getNombreUsuario());
         System.out.println("  - Jornada ID: " + alineacion.getJornada().getIdJornada());
-        System.out.println("  - Puntos totales: " + alineacion.getPuntosJornada());
+        System.out.println("  - Puntos totales: " + alineacion.getPuntosTotalesJornada());
         System.out.println("  - Jugadores:");
         for (Jugador j : alineacion.getJugadores()) {
             System.out.println("    * " + j.getNombreJugador());
