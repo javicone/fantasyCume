@@ -39,4 +39,16 @@ public class Jornada {
     public void setPartidos(List<Partido> partidos) { this.partidos = partidos; }
     public List<Alineacion> getAlineaciones() { return alineaciones; }
     public void setAlineaciones(List<Alineacion> alineaciones) { this.alineaciones = alineaciones; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Jornada jornada = (Jornada) o;
+        return Objects.equals(idJornada, jornada.idJornada) && Objects.equals(liga, jornada.liga) && Objects.equals(partidos, jornada.partidos) && Objects.equals(alineaciones, jornada.alineaciones);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idJornada, liga, partidos, alineaciones);
+    }
 }

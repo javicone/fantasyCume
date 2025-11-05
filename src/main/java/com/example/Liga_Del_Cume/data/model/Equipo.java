@@ -51,4 +51,16 @@ public class Equipo {
     public void setEscudoURL(String escudoURL) {
         this.escudoURL = escudoURL;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Equipo equipo = (Equipo) o;
+        return Objects.equals(idEquipo, equipo.idEquipo) && Objects.equals(liga, equipo.liga) && Objects.equals(escudoURL, equipo.escudoURL) && Objects.equals(nombreEquipo, equipo.nombreEquipo) && Objects.equals(jugadores, equipo.jugadores) && Objects.equals(partidosLocal, equipo.partidosLocal) && Objects.equals(partidosVisitante, equipo.partidosVisitante);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idEquipo, liga, escudoURL, nombreEquipo, jugadores, partidosLocal, partidosVisitante);
+    }
 }

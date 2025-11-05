@@ -56,4 +56,16 @@ public class Partido {
     public void setGolesVisitante(int golesVisitante) { this.golesVisitante = golesVisitante; }
     public List<EstadisticaJugadorPartido> getEstadisticas() { return estadisticas; }
     public void setEstadisticas(List<EstadisticaJugadorPartido> estadisticas) { this.estadisticas = estadisticas; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Partido partido = (Partido) o;
+        return golesLocal == partido.golesLocal && golesVisitante == partido.golesVisitante && Objects.equals(idPartido, partido.idPartido) && Objects.equals(jornada, partido.jornada) && Objects.equals(equipoLocal, partido.equipoLocal) && Objects.equals(equipoVisitante, partido.equipoVisitante) && Objects.equals(estadisticas, partido.estadisticas);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idPartido, jornada, equipoLocal, equipoVisitante, estadisticas, golesLocal, golesVisitante);
+    }
 }

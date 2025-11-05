@@ -351,10 +351,14 @@ public class UseCasesTest {
         // Crear datos de prueba
         LigaCume liga = crearLigaTest();
         Jornada jornada = crearJornadaTest(liga);
+        Jornada jornada2 = crearJornadaTest(liga);
         Equipo equipo1 = crearEquipoTest("Mallorca", liga);
         Equipo equipo2 = crearEquipoTest("Almería", liga);
         Jugador jugador = crearJugadorTest("Vedat Muriqi", false, equipo1, 7000000);
         Partido partido = crearPartidoTest(jornada, equipo1, equipo2, 3, 1);
+        Partido partido2 = crearPartidoTest(jornada2, equipo2, equipo1, 3, 3);
+
+
         Usuario user = crearUsuarioTest("Usuario Estadisticas", liga, 0);
 
         EstadisticaJugadorPartido nuevaEstadistica = new EstadisticaJugadorPartido();
@@ -370,7 +374,7 @@ public class UseCasesTest {
 
         EstadisticaJugadorPartido nuevaEstadistica2 = new EstadisticaJugadorPartido();
         nuevaEstadistica2.setJugador(jugador);
-        nuevaEstadistica2.setPartido(partido);
+        nuevaEstadistica2.setPartido(partido2);
         nuevaEstadistica2.setGolesAnotados(23);
         nuevaEstadistica2.setAsistencias(12);
         nuevaEstadistica2.setTarjetaRojas(false);  // 0 = no tiene tarjeta roja
@@ -384,8 +388,11 @@ public class UseCasesTest {
         assertNotNull(estadisticaGuardada.getJugador(), "La estadística debe tener un jugador");
         assertNotNull(estadisticaGuardada.getPartido(), "La estadística debe tener un ID");
         assertNotNull(estadisticaGuardada.getJugador(), "La estadística debe tener un jugador asociado");
+        estadisticaRepository.flush();
 
-        assertEquals(2, jugador.getEstadisticas().size());
+// Ahora la consulta debe encontrar las 2 estadísticas
+        List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
+        assertEquals(2, stats.size(), "Debe haber 2 estadísticas para el jugador");
         System.out.println("✓ Estadística agregada exitosamente");
         System.out.println("  Jugador: " + estadisticaGuardada.getJugador().getNombreJugador());
         System.out.println("  Goles: " + estadisticaGuardada.getGolesAnotados());
@@ -881,6 +888,7 @@ public class UseCasesTest {
         est1.setPuntosJornada(17);
         estadisticaRepository.save(est1);
 
+
         EstadisticaJugadorPartido est2 = new EstadisticaJugadorPartido();
         est2.setJugador(jugador2);
         est2.setPartido(partido);
@@ -914,11 +922,12 @@ public class UseCasesTest {
         alineacion.setPuntosTotalesJornada(29); // 17 + 14 - 2
         alineacion = alineacionRepository.save(alineacion);
 
+        alineacionRepository.flush();
         Alineacion alineacionConsultada = alineacionRepository.findById(alineacion.getIdAlineacion()).orElse(null);
         assertNotNull(alineacionConsultada, "La alineación debe existir");
 
         System.out.println("✓ Detalle de alineación:");
-        System.out.println("tamaño de la alineacion" + alineacionConsultada.getJugadores().size());
+        System.out.println("tamaño de la alineacion " + alineacionConsultada.getJugadores().size());
         System.out.println("  Usuario: " + alineacionConsultada.getUsuario().getNombreUsuario());
         System.out.println("  Jornada: " + alineacionConsultada.getJornada().getIdJornada());
         System.out.println("  Puntos totales: " + alineacionConsultada.getPuntosTotalesJornada());
@@ -936,8 +945,6 @@ public class UseCasesTest {
                     System.out.println("      Tarjetas amarillas: " + stat.getTarjetaAmarillas());
                     System.out.println("      Tarjeta roja: " + (stat.isTarjetaRojas() ? "Sí" : "No"));
                     System.out.println("      Puntos: " + stat.getPuntosJornada());
-                    break;
-
             }
         }
 

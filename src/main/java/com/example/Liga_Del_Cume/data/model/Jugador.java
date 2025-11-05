@@ -3,6 +3,7 @@ package com.example.Liga_Del_Cume.data.model;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // Entidad que representa un jugador dentro de un equipo
 @Entity
@@ -17,7 +18,7 @@ public class Jugador {
     @JoinColumn(name = "equipo_id")
     private Equipo equipo;
 
-    @ManyToMany(mappedBy = "jugadores", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "jugadores")
     private List<Alineacion> alineaciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -103,5 +104,17 @@ public class Jugador {
                 ", nombreJugador='" + nombreJugador + '\'' +
                 ", esPortero=" + esPortero +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Jugador jugador = (Jugador) o;
+        return Float.compare(precioMercado, jugador.precioMercado) == 0 && esPortero == jugador.esPortero && Objects.equals(idJugador, jugador.idJugador) && Objects.equals(equipo, jugador.equipo) && Objects.equals(alineaciones, jugador.alineaciones) && Objects.equals(estadisticas, jugador.estadisticas) && Objects.equals(nombreJugador, jugador.nombreJugador);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idJugador, equipo, alineaciones, estadisticas, precioMercado, nombreJugador, esPortero);
     }
 }

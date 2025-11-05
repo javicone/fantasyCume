@@ -49,4 +49,15 @@ public class LigaCume {
         this.nombreLigaCume = nombreLiga;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LigaCume ligaCume = (LigaCume) o;
+        return Objects.equals(idLigaCume, ligaCume.idLigaCume) && Objects.equals(nombreLigaCume, ligaCume.nombreLigaCume) && Objects.equals(presupuestoMaximo, ligaCume.presupuestoMaximo) && Objects.equals(equipos, ligaCume.equipos) && Objects.equals(usuarios, ligaCume.usuarios) && Objects.equals(jornadas, ligaCume.jornadas);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idLigaCume, nombreLigaCume, presupuestoMaximo, equipos, usuarios, jornadas);
+    }
 }

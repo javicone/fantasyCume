@@ -2,6 +2,8 @@ package com.example.Liga_Del_Cume.data.model;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @IdClass(EstadisticasJugadorPartidoId.class) // <--- ¡AQUÍ ESTÁ!
 // Le dice a JPA: "Usa OrderItemId para gestionar
@@ -9,18 +11,15 @@ import jakarta.persistence.*;
 public class EstadisticaJugadorPartido {
 
 
-    @Id
-    private long idPartido;
 
     @Id
-    private long idJugador;
-
     @ManyToOne
-    @JoinColumn(name = "partido_id")
+    @JoinColumn(name = "partido_id", insertable = true, updatable = false)
     private Partido partido;
 
+    @Id
     @ManyToOne
-    @JoinColumn(name = "jugador_id")
+    @JoinColumn(name = "jugador_id", insertable = true, updatable = false)
     private Jugador jugador;
 
     private int golesAnotados;
@@ -110,5 +109,17 @@ public class EstadisticaJugadorPartido {
 
     public void setPuntosJornada(int puntosJornada) {
         this.puntosJornada = puntosJornada;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        EstadisticaJugadorPartido that = (EstadisticaJugadorPartido) o;
+        return golesAnotados == that.golesAnotados && golesRecibidos == that.golesRecibidos && asistencias == that.asistencias && tarjetaAmarillas == that.tarjetaAmarillas && tarjetaRojas == that.tarjetaRojas && minMinutosJugados == that.minMinutosJugados && puntosJornada == that.puntosJornada && Objects.equals(partido, that.partido) && Objects.equals(jugador, that.jugador);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(partido, jugador, golesAnotados, golesRecibidos, asistencias, tarjetaAmarillas, tarjetaRojas, minMinutosJugados, puntosJornada);
     }
 }
