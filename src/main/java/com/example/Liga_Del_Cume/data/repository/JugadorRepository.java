@@ -1,5 +1,6 @@
 package com.example.Liga_Del_Cume.data.repository;
 
+import com.example.Liga_Del_Cume.data.model.Alineacion;
 import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.Jugador;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -69,5 +70,10 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
     //buscar jugadores porteros ordenados por precio de mercado ascendente
     List<Jugador> findByEsPorteroOrderByPrecioMercadoAsc(boolean esPortero);
 
-}
+    //buscar porteros ordenados por puntos en todas las jornadas descendentes
+    List<Jugador> findByEsPorteroOrderByEstadisticasPuntosJornadaDesc(boolean esPortero);
 
+    // Buscar jugadores y ordenarlos por puntos en todas las jornadas
+    List<Jugador> findAllByOrderByEstadisticasPuntosJornadaDesc();
+
+}

@@ -91,18 +91,31 @@ public class CRUDTests {
 
         // CREATE
         Equipo equipo = new Equipo();
-        equipo.setNombreEquipo("Athletic Club");
+        equipo.setNombreEquipo("FC Barcelona");
         equipo.setEscudoURL("http://ejemplo.com/escudo.png");
         equipo.setLiga(liga);
         equipo = equipoRepository.save(equipo);
         assertNotNull(equipo.getIdEquipo(), "El ID del equipo debe generarse automáticamente");
         System.out.println("✓ CREATE: Equipo creado con ID: " + equipo.getIdEquipo());
 
+        Equipo equipo2 = new Equipo();
+        equipo2.setNombreEquipo("Athletic Club");
+        equipo2.setEscudoURL("http://ejemplo.com/escudo.png");
+        equipo2.setLiga(liga);
+        equipo2 = equipoRepository.save(equipo2);
+        assertNotNull(equipo2.getIdEquipo(), "El ID del equipo debe generarse automáticamente");
+        System.out.println("✓ CREATE: Equipo creado con ID: " + equipo.getIdEquipo());
+
+
         // READ
         Optional<Equipo> equipoLeido = equipoRepository.findById(equipo.getIdEquipo());
+        Optional<Equipo> equipoLeido2 = equipoRepository.findById(equipo2.getIdEquipo());
         assertTrue(equipoLeido.isPresent(), "El equipo debe encontrarse en la base de datos");
-        assertEquals("Athletic Club", equipoLeido.get().getNombreEquipo());
+        assertTrue(equipoLeido2.isPresent(), "El equipo2 debe encontrarse en la base de datos");
+        assertEquals("FC Barcelona", equipoLeido.get().getNombreEquipo());
+        assertEquals("Athletic Club", equipoLeido2.get().getNombreEquipo());
         System.out.println("✓ READ: Equipo encontrado: " + equipoLeido.get().getNombreEquipo());
+        System.out.println("✓ READ: Equipo2 encontrado: " + equipoLeido2.get().getNombreEquipo());
 
         // UPDATE
         equipo.setNombreEquipo("Athletic Club Bilbao");

@@ -697,6 +697,258 @@ public class UseCasesTest {
     // ========================================
 
     @Test
+    public void testBuscarJugadoresConMayoresPuntos() {
+        System.out.println("\n=== TEST: 7.2 Buscar jugadores ordenados por puntos totales ===");
+
+        // Crear datos de prueba
+        LigaCume liga = crearLigaTest();
+        Jornada jornada1 = crearJornadaTest(liga);
+        Jornada jornada2 = crearJornadaTest(liga);
+
+        Equipo equipo1 = crearEquipoTest("Real Madrid", liga);
+        Equipo equipo2 = crearEquipoTest("Barcelona", liga);
+
+        Partido partido1 = crearPartidoTest(jornada1, equipo1, equipo2, 3, 1);
+        Partido partido2 = crearPartidoTest(jornada2, equipo1, equipo2, 2, 2);
+
+        // Crear jugadores
+        Jugador jugador1 = crearJugadorTest("Vinicius Jr", false, equipo1, 100000000);
+        Jugador jugador2 = crearJugadorTest("Bellingham", false, equipo1, 120000000);
+        Jugador jugador3 = crearJugadorTest("Lewandowski", false, equipo2, 45000000);
+        Jugador portero1 = crearJugadorTest("Courtois", true, equipo1, 35000000);
+
+        // Crear estadísticas jornada 1
+        EstadisticaJugadorPartido est1J1 = new EstadisticaJugadorPartido();
+        est1J1.setJugador(jugador1);
+        est1J1.setPartido(partido1);
+        est1J1.setGolesAnotados(2);
+        est1J1.setAsistencias(1);
+        est1J1.setTarjetaAmarillas(0);
+        est1J1.setTarjetaRojas(false);
+        est1J1.setMinMinutosJugados(true);
+        est1J1.setGolesRecibidos(0);
+        est1J1.setPuntosJornada(17);
+        estadisticaRepository.save(est1J1);
+
+        EstadisticaJugadorPartido est2J1 = new EstadisticaJugadorPartido();
+        est2J1.setJugador(jugador2);
+        est2J1.setPartido(partido1);
+        est2J1.setGolesAnotados(1);
+        est2J1.setAsistencias(2);
+        est2J1.setTarjetaAmarillas(1);
+        est2J1.setTarjetaRojas(false);
+        est2J1.setMinMinutosJugados(true);
+        est2J1.setGolesRecibidos(0);
+        est2J1.setPuntosJornada(14);
+        estadisticaRepository.save(est2J1);
+
+        EstadisticaJugadorPartido est3J1 = new EstadisticaJugadorPartido();
+        est3J1.setJugador(jugador3);
+        est3J1.setPartido(partido1);
+        est3J1.setGolesAnotados(1);
+        est3J1.setAsistencias(0);
+        est3J1.setTarjetaAmarillas(0);
+        est3J1.setTarjetaRojas(false);
+        est3J1.setMinMinutosJugados(true);
+        est3J1.setGolesRecibidos(0);
+        est3J1.setPuntosJornada(8);
+        estadisticaRepository.save(est3J1);
+
+        EstadisticaJugadorPartido estP1J1 = new EstadisticaJugadorPartido();
+        estP1J1.setJugador(portero1);
+        estP1J1.setPartido(partido1);
+        estP1J1.setGolesAnotados(0);
+        estP1J1.setAsistencias(0);
+        estP1J1.setTarjetaAmarillas(0);
+        estP1J1.setTarjetaRojas(false);
+        estP1J1.setMinMinutosJugados(true);
+        estP1J1.setGolesRecibidos(1);
+        estP1J1.setPuntosJornada(4);
+        estadisticaRepository.save(estP1J1);
+
+        // Crear estadísticas jornada 2
+        EstadisticaJugadorPartido est1J2 = new EstadisticaJugadorPartido();
+        est1J2.setJugador(jugador1);
+        est1J2.setPartido(partido2);
+        est1J2.setGolesAnotados(1);
+        est1J2.setAsistencias(0);
+        est1J2.setTarjetaAmarillas(0);
+        est1J2.setTarjetaRojas(false);
+        est1J2.setMinMinutosJugados(true);
+        est1J2.setGolesRecibidos(0);
+        est1J2.setPuntosJornada(8);
+        estadisticaRepository.save(est1J2);
+
+        EstadisticaJugadorPartido est2J2 = new EstadisticaJugadorPartido();
+        est2J2.setJugador(jugador2);
+        est2J2.setPartido(partido2);
+        est2J2.setGolesAnotados(1);
+        est2J2.setAsistencias(1);
+        est2J2.setTarjetaAmarillas(0);
+        est2J2.setTarjetaRojas(false);
+        est2J2.setMinMinutosJugados(true);
+        est2J2.setGolesRecibidos(0);
+        est2J2.setPuntosJornada(11);
+        estadisticaRepository.save(est2J2);
+
+        EstadisticaJugadorPartido est3J2 = new EstadisticaJugadorPartido();
+        est3J2.setJugador(jugador3);
+        est3J2.setPartido(partido2);
+        est3J2.setGolesAnotados(2);
+        est3J2.setAsistencias(0);
+        est3J2.setTarjetaAmarillas(0);
+        est3J2.setTarjetaRojas(false);
+        est3J2.setMinMinutosJugados(true);
+        est3J2.setGolesRecibidos(0);
+        est3J2.setPuntosJornada(14);
+        estadisticaRepository.save(est3J2);
+
+        EstadisticaJugadorPartido estP1J2 = new EstadisticaJugadorPartido();
+        estP1J2.setJugador(portero1);
+        estP1J2.setPartido(partido2);
+        estP1J2.setGolesAnotados(0);
+        estP1J2.setAsistencias(0);
+        estP1J2.setTarjetaAmarillas(0);
+        estP1J2.setTarjetaRojas(false);
+        estP1J2.setMinMinutosJugados(true);
+        estP1J2.setGolesRecibidos(2);
+        estP1J2.setPuntosJornada(2);
+        estadisticaRepository.save(estP1J2);
+
+        // Buscar todos los jugadores ordenados por puntos
+        List<Jugador> jugadoresOrdenados = jugadorRepository.findAllByOrderByEstadisticasPuntosJornadaDesc();
+
+        assertFalse(jugadoresOrdenados.isEmpty(), "Debe haber jugadores");
+
+        System.out.println("✓ Jugadores ordenados por puntos totales:");
+        System.out.println("================================================");
+        for (Jugador jugador : jugadoresOrdenados) {
+            List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
+            int puntosTotal = stats.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+            System.out.println("  " + jugador.getNombreJugador() +
+                             " (" + jugador.getEquipo().getNombreEquipo() + ")" +
+                             (jugador.isEsPortero() ? " [PORTERO]" : " [CAMPO]") +
+                             " - Total: " + puntosTotal + " puntos");
+        }
+        System.out.println("================================================");
+
+        // Verificar el orden (Vinicius: 25, Bellingham: 25, Lewandowski: 22, Courtois: 6)
+        Jugador primero = jugadoresOrdenados.get(0);
+        List<EstadisticaJugadorPartido> statsPrimero = estadisticaRepository.findByJugadorIdJugador(primero.getIdJugador());
+        int puntosPrimero = statsPrimero.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+
+        Jugador ultimo = jugadoresOrdenados.get(jugadoresOrdenados.size() - 1);
+        List<EstadisticaJugadorPartido> statsUltimo = estadisticaRepository.findByJugadorIdJugador(ultimo.getIdJugador());
+        int puntosUltimo = statsUltimo.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+
+        assertTrue(puntosPrimero >= puntosUltimo, "Los jugadores deben estar ordenados por puntos descendente");
+    }
+
+    @Test
+    public void testBuscarPorterosConMayoresPuntos() {
+        System.out.println("\n=== TEST: 7.3 Buscar porteros ordenados por puntos totales ===");
+
+        // Crear datos de prueba
+        LigaCume liga = crearLigaTest();
+        Jornada jornada1 = crearJornadaTest(liga);
+        Jornada jornada2 = crearJornadaTest(liga);
+
+        Equipo equipo1 = crearEquipoTest("Real Madrid", liga);
+        Equipo equipo2 = crearEquipoTest("Barcelona", liga);
+        Equipo equipo3 = crearEquipoTest("Atletico Madrid", liga);
+
+        Partido partido1 = crearPartidoTest(jornada1, equipo1, equipo2, 0, 0);
+        Partido partido2 = crearPartidoTest(jornada2, equipo1, equipo3, 1, 3);
+
+        // Crear porteros
+        Jugador portero1 = crearJugadorTest("Courtois", true, equipo1, 35000000);
+        Jugador portero2 = crearJugadorTest("Ter Stegen", true, equipo2, 30000000);
+        Jugador portero3 = crearJugadorTest("Oblak", true, equipo3, 40000000);
+
+        // Crear estadísticas jornada 1
+        EstadisticaJugadorPartido est1J1 = new EstadisticaJugadorPartido();
+        est1J1.setJugador(portero1);
+        est1J1.setPartido(partido1);
+        est1J1.setGolesAnotados(0);
+        est1J1.setAsistencias(0);
+        est1J1.setTarjetaAmarillas(0);
+        est1J1.setTarjetaRojas(false);
+        est1J1.setMinMinutosJugados(true);
+        est1J1.setGolesRecibidos(0);
+        est1J1.setPuntosJornada(10); // Portería a cero
+        estadisticaRepository.save(est1J1);
+
+        EstadisticaJugadorPartido est2J1 = new EstadisticaJugadorPartido();
+        est2J1.setJugador(portero2);
+        est2J1.setPartido(partido1);
+        est2J1.setGolesAnotados(0);
+        est2J1.setAsistencias(0);
+        est2J1.setTarjetaAmarillas(0);
+        est2J1.setTarjetaRojas(false);
+        est2J1.setMinMinutosJugados(true);
+        est2J1.setGolesRecibidos(0);
+        est2J1.setPuntosJornada(10); // Portería a cero
+        estadisticaRepository.save(est2J1);
+
+        // Crear estadísticas jornada 2
+        EstadisticaJugadorPartido est1J2 = new EstadisticaJugadorPartido();
+        est1J2.setJugador(portero1);
+        est1J2.setPartido(partido2);
+        est1J2.setGolesAnotados(0);
+        est1J2.setAsistencias(0);
+        est1J2.setTarjetaAmarillas(0);
+        est1J2.setTarjetaRojas(false);
+        est1J2.setMinMinutosJugados(true);
+        est1J2.setGolesRecibidos(3);
+        est1J2.setPuntosJornada(-1); // -3 por goles recibidos + 2 por jugar
+        estadisticaRepository.save(est1J2);
+
+        EstadisticaJugadorPartido est3J2 = new EstadisticaJugadorPartido();
+        est3J2.setJugador(portero3);
+        est3J2.setPartido(partido2);
+        est3J2.setGolesAnotados(0);
+        est3J2.setAsistencias(0);
+        est3J2.setTarjetaAmarillas(0);
+        est3J2.setTarjetaRojas(false);
+        est3J2.setMinMinutosJugados(true);
+        est3J2.setGolesRecibidos(1);
+        est3J2.setPuntosJornada(4); // -1 por gol recibido + 5 por menos de 2 goles
+        estadisticaRepository.save(est3J2);
+
+        // Buscar porteros ordenados por puntos
+        List<Jugador> porterosOrdenados = jugadorRepository.findByEsPorteroOrderByEstadisticasPuntosJornadaDesc(true);
+
+        assertFalse(porterosOrdenados.isEmpty(), "Debe haber porteros");
+
+        System.out.println("✓ Porteros ordenados por puntos totales:");
+        System.out.println("================================================");
+        for (Jugador portero : porterosOrdenados) {
+            List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(portero.getIdJugador());
+            int puntosTotal = stats.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+            System.out.println("  " + portero.getNombreJugador() +
+                             " (" + portero.getEquipo().getNombreEquipo() + ")" +
+                             " - Total: " + puntosTotal + " puntos");
+        }
+        System.out.println("================================================");
+
+        // Verificar que todos son porteros
+        for (Jugador jugador : porterosOrdenados) {
+            assertTrue(jugador.isEsPortero(), "Todos deben ser porteros");
+        }
+
+        // Verificar el orden (Ter Stegen: 10, Courtois: 9, Oblak: 4)
+        Jugador primerPortero = porterosOrdenados.get(0);
+        List<EstadisticaJugadorPartido> statsPrimero = estadisticaRepository.findByJugadorIdJugador(primerPortero.getIdJugador());
+        int puntosPrimero = statsPrimero.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+
+        Jugador ultimoPortero = porterosOrdenados.get(porterosOrdenados.size() - 1);
+        List<EstadisticaJugadorPartido> statsUltimo = estadisticaRepository.findByJugadorIdJugador(ultimoPortero.getIdJugador());
+        int puntosUltimo = statsUltimo.stream().mapToInt(EstadisticaJugadorPartido::getPuntosJornada).sum();
+
+        assertTrue(puntosPrimero >= puntosUltimo, "Los porteros deben estar ordenados por puntos descendente");
+    }
+
+    @Test
     public void testFuncionalidad8_ConsultarRankingUsuarios() {
         System.out.println("\n=== TEST: 8. Ver clasificación general ===");
 
