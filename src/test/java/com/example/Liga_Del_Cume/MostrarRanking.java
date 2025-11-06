@@ -183,10 +183,23 @@ public class MostrarRanking {
         Alineacion alin1_3 = crearAlineacion(usuario3, jornada1,
                 List.of(athleticPortero, realJug1, athleticJug2, realJug2, athleticJug3), 48);
 
+        // Actualizar puntos acumulados de usuarios
+        usuario1.setPuntosAcumulados(usuario1.getPuntosAcumulados() + alin1_1.getPuntosTotalesJornada());
+        usuarioRepository.save(usuario1);
+        usuario2.setPuntosAcumulados(usuario2.getPuntosAcumulados() + alin1_2.getPuntosTotalesJornada());
+        usuarioRepository.save(usuario2);
+        usuario3.setPuntosAcumulados(usuario3.getPuntosAcumulados() + alin1_3.getPuntosTotalesJornada());
+        usuarioRepository.save(usuario3);
+
         // ASSERTS JORNADA 1: Verificar puntos de alineaciones
         assertEquals(48, alin1_1.getPuntosTotalesJornada(), "Usuario 1 debe tener 48 puntos en jornada 1");
         assertEquals(42, alin1_2.getPuntosTotalesJornada(), "Usuario 2 debe tener 42 puntos en jornada 1");
         assertEquals(48, alin1_3.getPuntosTotalesJornada(), "Usuario 3 debe tener 48 puntos en jornada 1");
+
+        // ASSERTS JORNADA 1: Verificar puntos acumulados
+        assertEquals(48, usuario1.getPuntosAcumulados(), "Usuario 1 debe tener 48 puntos acumulados");
+        assertEquals(42, usuario2.getPuntosAcumulados(), "Usuario 2 debe tener 42 puntos acumulados");
+        assertEquals(48, usuario3.getPuntosAcumulados(), "Usuario 3 debe tener 48 puntos acumulados");
 
         // ASSERTS: Verificar estadísticas individuales de jugadores
         assertEquals(4, est1_1.getPuntosJornada(), "Unai Simón debe tener 4 puntos");
@@ -243,10 +256,6 @@ public class MostrarRanking {
         EstadisticaJugadorPartido est2_7 = crearEstadistica(athleticJug2, partido2, 0, 0, 1, 0, false, true, 6);
         EstadisticaJugadorPartido est2_8 = crearEstadistica(athleticJug4, partido2, 0, 0, 0, 0, false, true, 3);
 
-        // Actualizar puntos acumulados de usuarios
-        usuario1.setPuntosAcumulados(usuario1.getPuntosAcumulados() + 48);
-        usuario2.setPuntosAcumulados(usuario2.getPuntosAcumulados() + 42);
-        usuario3.setPuntosAcumulados(usuario3.getPuntosAcumulados() + 48);
 
         // Crear alineaciones Jornada 2
         System.out.println("\n👥 Alineaciones de usuarios:");

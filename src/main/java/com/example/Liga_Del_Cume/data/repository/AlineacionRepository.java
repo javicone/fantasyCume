@@ -28,12 +28,11 @@ public interface AlineacionRepository extends JpaRepository<Alineacion, Long> {
     // Buscar alineaciones de un usuario ordenadas por puntos descendente
     List<Alineacion> findByUsuarioIdUsuarioOrderByPuntosTotalesJornadaDesc(Long idUsuario);
 
-    // Buscar las mejores alineaciones de una jornada (ordenadas por puntos)
-    List<Alineacion> findByJornadaIdJornadaOrderByPuntosTotalesJornadaDesc(Long idJornada);
-
-
     // Verificar si un usuario ya tiene alineación en una jornada
     boolean existsByUsuarioIdUsuarioAndJornadaIdJornada(Long idUsuario, Long idJornada);
 
+
+    // Buscar alineaciones por jornada y ordenarlas por puntos de forma descendente
+    List<Alineacion> findByJornadaIdJornadaOrderByPuntosTotalesJornadaDesc(Long idJornada);
 
 }
