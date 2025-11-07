@@ -21,7 +21,7 @@ public class Jugador {
     @ManyToMany(mappedBy = "jugadores")
     private List<Alineacion> alineaciones = new ArrayList<>();
 
-    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "jugador", fetch = FetchType.EAGER)
     private List<EstadisticaJugadorPartido> estadisticas = new ArrayList<>();
 
     private float precioMercado;
