@@ -20,49 +20,81 @@ public class LigaService {
     private LigaCumeRepository ligaCumeRepository;
 
     /**
-     * Crea una nueva liga con nombre y presupuesto máximo
+     * Crea una nueva liga con nombre y presupuesto máximo.
+     * @param nombre Nombre de la liga.
+     * @param presupuesto Presupuesto máximo permitido para la liga.
+     * @return La liga creada y persistida en la base de datos.
+     * @throws RuntimeException si ya existe una liga con ese nombre o el presupuesto es inválido.
      */
     public LigaCume crearLiga(String nombre, Long presupuesto) {
+        if(ligaCumeRepository.findByNombreLigaCume(nombre) != null) {
+            throw new RuntimeException("Ya existe una liga con el nombre: " + nombre);
+        }
+        if(presupuesto == null) {
+            throw new RuntimeException("El presupuesto máximo tiene que ser no nulo o mayor a 0");
+        }
         LigaCume liga = new LigaCume();
         liga.setNombreLiga(nombre);
-        liga.setPresupuestoMaximo(presupuesto);
+
+        if( presupuesto < 1000000)
+        {
+            liga.setPresupuestoMaximo(1000000L);
+
+        }
+        else {
+            liga.setPresupuestoMaximo(presupuesto);
+        }
         return ligaCumeRepository.save(liga);
     }
 
     /**
-     * Obtiene una liga por su ID
+     * Obtiene una liga por su nombre.
+     * @param nombre Nombre de la liga a buscar.
+     * @return La liga encontrada.
+     * @throws RuntimeException si no se encuentra la liga.
      */
-    public LigaCume obtenerLiga(Long id) {
-        return ligaCumeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Liga no encontrada con ID: " + id));
+    public LigaCume obtenerLiga(String nombre) {
+        LigaCume liga = ligaCumeRepository.findByNombreLigaCume(nombre);
+        if (liga == null) {
+            throw new RuntimeException("Liga no encontrada con nombre: " + nombre);
+        }
+        return liga;
     }
 
     /**
-     * Lista todas las ligas disponibles
+     * Lista todas las ligas disponibles en la base de datos.
+     * @return Lista de todas las ligas.
      */
     public List<LigaCume> listarTodasLasLigas() {
         return ligaCumeRepository.findAll();
     }
 
     /**
-     * Modifica los datos de una liga existente
+     * Modifica los datos de una liga existente.
+     * @param id Identificador de la liga a modificar.
+     * @param nuevoNombre Nuevo nombre para la liga.
+     * @param nuevoPresupuesto Nuevo presupuesto máximo para la liga.
+     * @return La liga modificada y persistida.
+     * @throws RuntimeException si la liga no existe o los datos son nulos.
      */
     public LigaCume modificarLiga(Long id, String nuevoNombre, Long nuevoPresupuesto) {
-        LigaCume liga = obtenerLiga(id);
-        if (nuevoNombre != null) {
+        LigaCume liga = ligaCumeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Liga no encontrada con ID: " + id));
+        if (nuevoNombre != null && nuevoPresupuesto != null) {
             liga.setNombreLiga(nuevoNombre);
-        }
-        if (nuevoPresupuesto != null) {
             liga.setPresupuestoMaximo(nuevoPresupuesto);
+        }
+        else{
+            throw new RuntimeException("Nombre de liga o presupuesto nulo");
         }
         return ligaCumeRepository.save(liga);
     }
 
     /**
-     * Elimina una liga por su ID
+     * Elimina una liga por su ID.
+     * @param id Identificador de la liga a eliminar.
      */
     public void eliminarLiga(Long id) {
         ligaCumeRepository.deleteById(id);
     }
 }
-
