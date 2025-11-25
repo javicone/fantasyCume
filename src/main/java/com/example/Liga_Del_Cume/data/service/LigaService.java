@@ -39,7 +39,6 @@ public class LigaService {
         if( presupuesto < 1000000)
         {
             liga.setPresupuestoMaximo(1000000L);
-
         }
         else {
             liga.setPresupuestoMaximo(presupuesto);

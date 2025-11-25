@@ -30,7 +30,8 @@ public class Jugador {
 
     public Jugador() {}
 
-    public Jugador(String nombreJugador, boolean esPortero, Equipo equipo) {
+    public Jugador(String nombreJugador, boolean esPortero, Equipo equipo, float precioMercado) {
+        this.precioMercado = precioMercado;
         this.nombreJugador = nombreJugador;
         this.esPortero = esPortero;
         this.equipo = equipo;
