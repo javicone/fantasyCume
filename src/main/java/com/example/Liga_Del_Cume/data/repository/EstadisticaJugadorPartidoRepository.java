@@ -20,7 +20,11 @@ public interface EstadisticaJugadorPartidoRepository extends JpaRepository<Estad
     // Obtenemos las estadisticas de un jugador en un partido específico
     EstadisticaJugadorPartido findByJugadorIdJugadorAndPartidoJornadaIdJornada(Long idJugador, Long idJornada);
 
+    //Encontrar estadistica por jugador y partido
+    EstadisticaJugadorPartido findByJugadorIdJugadorAndPartidoIdPartido(Long idJugador, Long idPartido);
 
+    // Obtenemos todas las estadisticas de una jornada
+    List<EstadisticaJugadorPartido> findByPartidoJornadaIdJornada(Long idJornada);
 
 }
 
