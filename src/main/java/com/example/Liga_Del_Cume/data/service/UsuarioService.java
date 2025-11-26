@@ -86,7 +86,7 @@ public class UsuarioService {
         }
 
         // Validación: verificar que no exista otro usuario con el mismo email
-        Optional<Usuario> usuarioPorEmail = usuarioRepository.findByEmailUsuario(emailLimpio);
+        Optional<Usuario> usuarioPorEmail = usuarioRepository.findByEmail(emailLimpio);
         if (usuarioPorEmail.isPresent()) {
 
             throw new UsuarioException(
@@ -481,7 +481,7 @@ public class UsuarioService {
         }
 
         // Validación 3: Buscar el usuario por email
-        Usuario usuario = usuarioRepository.findByEmailUsuario(emailLimpio)
+        Usuario usuario = usuarioRepository.findByEmail(emailLimpio)
                 .orElseThrow(() -> new UsuarioException(
                         "No existe ningún usuario con el email: " + emailLimpio
                 ));

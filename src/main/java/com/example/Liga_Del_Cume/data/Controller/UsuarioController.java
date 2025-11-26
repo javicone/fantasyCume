@@ -100,9 +100,19 @@ public class UsuarioController {
             // Aquí implementarás la lógica de registro usando el UsuarioService
             try{
                 Usuario user = usuarioService.darDeAltaUsuario(nombreUsuario, email, password);
-
+                System.out.println(user.toString());
+                if(user!=null)
+                {
+                    redirectAttributes.addFlashAttribute("message", "Registro exitoso. Bienvenido " + user.getNombreUsuario());
+                    redirectAttributes.addFlashAttribute("messageType", "success");
+                    return "redirect:/";
+                }
             }
-
+            catch (UsuarioException e) {
+                redirectAttributes.addFlashAttribute("message", "Error al registrar usuario: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("messageType", "danger");
+                return "redirect:/";
+            }
             // Usuario nuevoUsuario = usuarioService.crearUsuario(nombreUsuario, email, password);
 
             redirectAttributes.addFlashAttribute("message", "Registro exitoso. Funcionalidad en desarrollo");

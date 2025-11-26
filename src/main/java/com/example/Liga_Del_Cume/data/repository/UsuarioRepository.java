@@ -14,7 +14,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Buscar usuario por nombre
     Optional<Usuario> findByNombreUsuario(String nombreUsuario);
 
-    Optional<Usuario> findByEmailUsuario(String emailUsuario);
+    Optional<Usuario> findByEmail(String emailUsuario);
 
     // Buscar usuarios ordenados por puntos acumulados (ranking)
     List<Usuario> findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(Long idLiga);

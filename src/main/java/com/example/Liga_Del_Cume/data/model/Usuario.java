@@ -30,7 +30,7 @@ public class Usuario {
         this.liga = liga;
     }
 
-    public Usuario(String nombreUsusario, String password, String email) {
+    public Usuario(String nombreUsuario, String email, String password) {
         this.nombreUsuario = nombreUsuario;
         this.password = password;
         this.email = email;
