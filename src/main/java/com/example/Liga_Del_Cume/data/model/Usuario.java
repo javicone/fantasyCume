@@ -18,7 +18,7 @@ public class Usuario {
     private String nombreUsuario;
     private String password;
     private int puntosAcumulados;
-
+    private String email;
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alineacion> alineaciones = new ArrayList<>();
 
@@ -29,6 +29,16 @@ public class Usuario {
         this.puntosAcumulados = puntosAcumulados;
         this.liga = liga;
     }
+
+    public Usuario(String nombreUsusario, String password, String email) {
+        this.nombreUsuario = nombreUsuario;
+        this.password = password;
+        this.email = email;
+        this.puntosAcumulados = 0;
+        this.liga = null;
+    }
+
+
 
     // Getters y Setters
     public Long getIdUsuario() { return idUsuario; }
@@ -43,16 +53,36 @@ public class Usuario {
     public void setPuntosAcumulados(int puntosAcumulados) { this.puntosAcumulados = puntosAcumulados; }
     public List<Alineacion> getAlineaciones() { return alineaciones; }
     public void setAlineaciones(List<Alineacion> alineaciones) { this.alineaciones = alineaciones; }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Usuario usuario = (Usuario) o;
-        return puntosAcumulados == usuario.puntosAcumulados && Objects.equals(idUsuario, usuario.idUsuario) && Objects.equals(liga, usuario.liga) && Objects.equals(nombreUsuario, usuario.nombreUsuario) && Objects.equals(password, usuario.password) && Objects.equals(alineaciones, usuario.alineaciones);
+        return puntosAcumulados == usuario.puntosAcumulados && Objects.equals(idUsuario, usuario.idUsuario) && Objects.equals(liga, usuario.liga) && Objects.equals(nombreUsuario, usuario.nombreUsuario) && Objects.equals(password, usuario.password) && Objects.equals(email, usuario.email) && Objects.equals(alineaciones, usuario.alineaciones);
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "idUsuario=" + idUsuario +
+                ", liga=" + liga +
+                ", nombreUsuario='" + nombreUsuario + '\'' +
+                ", password='" + password + '\'' +
+                ", puntosAcumulados=" + puntosAcumulados +
+                ", email='" + email + '\'' +
+                ", alineaciones=" + alineaciones +
+                '}';
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idUsuario, liga, nombreUsuario, password, puntosAcumulados, alineaciones);
+        return Objects.hash(idUsuario, liga, nombreUsuario, password, puntosAcumulados, email, alineaciones);
     }
 }

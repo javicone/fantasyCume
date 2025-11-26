@@ -1,4 +1,4 @@
-package com.example.Liga_Del_Cume.data.service.exceptions;
+package com.example.Liga_Del_Cume.data.exceptions;
 
 /**
  * Excepción personalizada para errores relacionados con estadísticas

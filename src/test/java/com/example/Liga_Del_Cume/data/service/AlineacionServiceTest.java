@@ -4,7 +4,7 @@ import com.example.Liga_Del_Cume.data.model.*;
 import com.example.Liga_Del_Cume.data.repository.AlineacionRepository;
 import com.example.Liga_Del_Cume.data.repository.JornadaRepository;
 import com.example.Liga_Del_Cume.data.repository.UsuarioRepository;
-import com.example.Liga_Del_Cume.data.service.exceptions.AlineacionException;
+import com.example.Liga_Del_Cume.data.exceptions.AlineacionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

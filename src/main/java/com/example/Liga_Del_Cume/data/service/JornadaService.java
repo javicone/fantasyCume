@@ -5,7 +5,7 @@ import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.model.Partido;
 import com.example.Liga_Del_Cume.data.repository.JornadaRepository;
 import com.example.Liga_Del_Cume.data.repository.LigaCumeRepository;
-import com.example.Liga_Del_Cume.data.service.exceptions.JornadaException;
+import com.example.Liga_Del_Cume.data.exceptions.JornadaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

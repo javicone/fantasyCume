@@ -9,7 +9,7 @@ import com.example.Liga_Del_Cume.data.model.Usuario;
 import com.example.Liga_Del_Cume.data.repository.AlineacionRepository;
 import com.example.Liga_Del_Cume.data.repository.UsuarioRepository;
 import com.example.Liga_Del_Cume.data.repository.JornadaRepository;
-import com.example.Liga_Del_Cume.data.service.exceptions.AlineacionException;
+import com.example.Liga_Del_Cume.data.exceptions.AlineacionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

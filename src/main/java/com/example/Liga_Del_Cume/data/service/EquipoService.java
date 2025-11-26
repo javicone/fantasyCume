@@ -4,7 +4,7 @@ import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.repository.EquipoRepository;
 import com.example.Liga_Del_Cume.data.repository.LigaCumeRepository;
-import com.example.Liga_Del_Cume.data.service.exceptions.EquipoException;
+import com.example.Liga_Del_Cume.data.exceptions.EquipoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

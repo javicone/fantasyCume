@@ -7,7 +7,7 @@ import com.example.Liga_Del_Cume.data.repository.EstadisticaJugadorPartidoReposi
 import com.example.Liga_Del_Cume.data.repository.JugadorRepository;
 import com.example.Liga_Del_Cume.data.repository.PartidoRepository;
 import com.example.Liga_Del_Cume.data.repository.JornadaRepository;
-import com.example.Liga_Del_Cume.data.service.exceptions.EstadisticaException;
+import com.example.Liga_Del_Cume.data.exceptions.EstadisticaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
