@@ -209,7 +209,7 @@ public class EstadisticaService {
                 ));
 
         // Validación 4: Verificar que el partido exista
-        Partido partido = partidoRepository.findById(partidoId)
+        partidoRepository.findById(partidoId)
                 .orElseThrow(() -> new EstadisticaException(
                     "No existe ningún partido con ID: " + partidoId
                 ));
@@ -330,7 +330,7 @@ public class EstadisticaService {
         }
 
         // Validación 3: Verificar que el jugador exista
-        Jugador jugador = jugadorRepository.findById(jugadorId)
+        jugadorRepository.findById(jugadorId)
                 .orElseThrow(() -> new EstadisticaException(
                     "No existe ningún jugador con ID: " + jugadorId
                 ));
@@ -369,7 +369,7 @@ public class EstadisticaService {
         }
 
         // Validación 3: Verificar que el partido exista
-        Partido partido = partidoRepository.findById(partidoId)
+        partidoRepository.findById(partidoId)
                 .orElseThrow(() -> new EstadisticaException(
                     "No existe ningún partido con ID: " + partidoId
                 ));
@@ -422,7 +422,7 @@ public class EstadisticaService {
                 ));
 
         // Validación 4: Verificar que el partido exista
-        Partido partido = partidoRepository.findById(partidoId)
+        partidoRepository.findById(partidoId)
                 .orElseThrow(() -> new EstadisticaException(
                     "No existe ningún partido con ID: " + partidoId
                 ));

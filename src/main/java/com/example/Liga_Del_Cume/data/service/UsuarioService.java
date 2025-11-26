@@ -56,6 +56,7 @@ public class UsuarioService {
      * @return Usuario creado y guardado en la base de datos
      * @throws UsuarioException Si alguna validación falla
      */
+
     public Usuario darDeAltaUsuario(String nombre, String email, String password) {
         // Validación: nombre no nulo y no vacío
         validarNombreNoVacio(nombre);
@@ -64,6 +65,7 @@ public class UsuarioService {
         String nombreLimpio = nombre.trim();
 
         // Validación: longitud mínima del nombre
+
         if (nombreLimpio.length() < 3) {
             throw new UsuarioException(
                     "El nombre del usuario debe tener al menos 3 caracteres. Nombre recibido: '" + nombre + "'"
@@ -75,6 +77,7 @@ public class UsuarioService {
             throw new UsuarioException("El email no puede ser nulo o vacío");
         }
 
+
         String emailLimpio = email.trim();
 
         // Validación: contraseña no nula o vacía
@@ -85,10 +88,12 @@ public class UsuarioService {
         // Validación: verificar que no exista otro usuario con el mismo email
         Optional<Usuario> usuarioPorEmail = usuarioRepository.findByEmailUsuario(emailLimpio);
         if (usuarioPorEmail.isPresent()) {
+
             throw new UsuarioException(
                     "Ya existe un usuario con el email: " + emailLimpio
             );
         }
+
 
         // Validación: verificar que no exista otro usuario con el mismo nombre
         Optional<Usuario> usuarioPorNombre = usuarioRepository.findByNombreUsuario(nombreLimpio);
@@ -100,6 +105,7 @@ public class UsuarioService {
 
         // Crear el usuario
         Usuario usuario = new Usuario(nombreLimpio, emailLimpio, password);
+
 
         // Guardar y retornar el usuario creado
         return usuarioRepository.save(usuario);
@@ -144,7 +150,9 @@ public class UsuarioService {
                 // Validación 4: Verificar longitud mínima del nombre
                 if (nuevoNombreLimpio.length() < 3) {
                     throw new UsuarioException(
+
                             "El nombre del usuario debe tener al menos 3 caracteres. Nombre recibido: '" + nuevoNombre + "'"
+
                     );
                 }
 
@@ -154,10 +162,12 @@ public class UsuarioService {
                     if (usuarioDuplicadoOpt.isPresent()) {
                         Usuario usuarioDuplicado = usuarioDuplicadoOpt.get();
                         if (usuarioDuplicado.getLiga() != null &&
+
                                 usuarioDuplicado.getLiga().getIdLigaCume().equals(usuario.getLiga().getIdLigaCume())) {
                             throw new UsuarioException(
                                     "Ya existe otro usuario con el nombre '" + nuevoNombreLimpio +
                                             "' en esta liga. Los nombres de usuario deben ser únicos."
+
                             );
                         }
                     }
@@ -439,6 +449,7 @@ public class UsuarioService {
     }
 
 
+
     /**
      * Autentica un usuario verificando sus credenciales
      *
@@ -470,7 +481,7 @@ public class UsuarioService {
         }
 
         // Validación 3: Buscar el usuario por email
-        Usuario usuario = usuarioRepository.findByEmail(emailLimpio)
+        Usuario usuario = usuarioRepository.findByEmailUsuario(emailLimpio)
                 .orElseThrow(() -> new UsuarioException(
                         "No existe ningún usuario con el email: " + emailLimpio
                 ));
@@ -504,3 +515,4 @@ public class UsuarioService {
                 .orElseThrow(() -> new UsuarioException("No existe ninguna liga con ID: " + ligaId));
     }
 }
+
