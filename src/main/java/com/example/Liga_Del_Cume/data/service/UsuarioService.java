@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Servicio para gestionar usuarios (managers) de las ligas fantasy
@@ -58,18 +59,14 @@ public class UsuarioService {
      * @throws UsuarioException Si alguna validación falla
      */
     public Usuario darDeAltaUsuario(String nombre, LigaCume liga, int puntosIniciales) {
-        // Validación 1: Verificar que el nombre no sea nulo o vacío
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new UsuarioException("El nombre del usuario no puede ser nulo o vacío");
-        }
+        // Validación: nombre no nulo y no vacío (se usa helper para evitar duplicación)
+        validarNombreNoVacio(nombre);
 
-        // Validación 2: Verificar que el nombre no contenga solo espacios
-        if (nombre.trim().length() == 0) {
-            throw new UsuarioException("El nombre del usuario no puede contener solo espacios en blanco");
-        }
+        // Normalizar el nombre una sola vez
+        String nombreLimpio = nombre.trim();
 
         // Validación 3: Verificar longitud mínima del nombre (nombres significativos)
-        if (nombre.trim().length() < 3) {
+        if (nombreLimpio.length() < 3) {
             throw new UsuarioException(
                 "El nombre del usuario debe tener al menos 3 caracteres. Nombre recibido: '" + nombre + "'"
             );
@@ -81,28 +78,19 @@ public class UsuarioService {
         }
 
         // Validación 5: Verificar que la liga tenga un ID válido
-        if (liga.getIdLigaCume() == null) {
-            throw new UsuarioException("La liga debe tener un ID válido. Asegúrese de que la liga existe en la base de datos.");
-        }
-
-        if (liga.getIdLigaCume() <= 0) {
-            throw new UsuarioException("El ID de la liga debe ser un valor positivo: " + liga.getIdLigaCume());
-        }
+        validarIdPositivo(liga.getIdLigaCume(), "ID de la liga");
 
         // Validación 6: Verificar que la liga exista en la base de datos
-        LigaCume ligaExistente = ligaCumeRepository.findById(liga.getIdLigaCume())
-                .orElseThrow(() -> new UsuarioException(
-                    "No existe ninguna liga con ID: " + liga.getIdLigaCume()
-                ));
+        LigaCume ligaExistente = obtenerLigaExistentePorId(liga.getIdLigaCume());
 
         // Validación 7: Verificar que no exista otro usuario con el mismo nombre en la liga
-        // Los nombres de usuario deben ser únicos dentro de cada liga
-        Usuario usuarioExistente = usuarioRepository.findByNombreUsuario(nombre.trim());
-        if (usuarioExistente != null) {
-            // Verificar si el usuario existente está en la misma liga
-            if (usuarioExistente.getLiga().getIdLigaCume().equals(liga.getIdLigaCume())) {
+        Optional<Usuario> usuarioExistenteOpt = usuarioRepository.findByNombreUsuario(nombreLimpio);
+        if (usuarioExistenteOpt.isPresent()) {
+            Usuario usuarioExistente = usuarioExistenteOpt.get();
+            if (usuarioExistente.getLiga() != null &&
+                usuarioExistente.getLiga().getIdLigaCume().equals(liga.getIdLigaCume())) {
                 throw new UsuarioException(
-                    "Ya existe un usuario con el nombre '" + nombre +
+                    "Ya existe un usuario con el nombre '" + nombreLimpio +
                     "' en esta liga. Los nombres de usuario deben ser únicos dentro de cada liga."
                 );
             }
@@ -116,7 +104,7 @@ public class UsuarioService {
         }
 
         // Si todas las validaciones pasan, crear el usuario
-        Usuario usuario = new Usuario(nombre.trim(), puntosIniciales, ligaExistente);
+        Usuario usuario = new Usuario(nombreLimpio, puntosIniciales, ligaExistente);
 
         // Guardar y retornar el usuario creado
         return usuarioRepository.save(usuario);
@@ -129,13 +117,12 @@ public class UsuarioService {
      * Es flexible: puede modificar solo el nombre, solo los puntos, o ambos.
      *
      * Validaciones:
-     * 1. Verifica que el ID no sea nulo
-     * 2. Verifica que el ID sea un valor positivo
-     * 3. Verifica que el usuario exista en la base de datos
-     * 4. Si se proporciona nombre, verifica que no esté vacío y tenga longitud mínima
-     * 5. Si se proporciona nombre, verifica que no exista otro usuario con ese nombre
-     * 6. Si se proporciona puntos, verifica que no sean negativos
-     * 7. Verifica que al menos uno de los parámetros tenga un valor válido
+     * 1. Verifica que el ID no sea nulo y positivo
+     * 2. Verifica que el usuario exista en la base de datos
+     * 3. Si se proporciona nombre, verifica que no esté vacío y tenga longitud mínima
+     * 4. Si se proporciona nombre, verifica que no exista otro usuario con ese nombre
+     * 5. Si se proporciona puntos, verifica que no sean negativos
+     * 6. Verifica que al menos uno de los parámetros tenga un valor válido
      *
      * @param id ID del usuario a modificar
      * @param nuevoNombre Nuevo nombre del usuario (null si no se desea cambiar)
@@ -144,15 +131,8 @@ public class UsuarioService {
      * @throws UsuarioException Si alguna validación falla
      */
     public Usuario modificarUsuario(Long id, String nuevoNombre, Integer nuevosPuntos) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (id == null) {
-            throw new UsuarioException("El ID del usuario no puede ser nulo");
-        }
-
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (id <= 0) {
-            throw new UsuarioException("El ID del usuario debe ser un valor positivo: " + id);
-        }
+        // Validación 1: Verificar que el ID no sea nulo y positivo
+        validarIdPositivo(id, "ID del usuario");
 
         // Validación 3: Verificar que el usuario exista
         Usuario usuario = usuarioRepository.findById(id)
@@ -164,30 +144,35 @@ public class UsuarioService {
         boolean cambiosRealizados = false;
 
         // Modificar el nombre si se proporciona
-        if (nuevoNombre != null && !nuevoNombre.trim().isEmpty()) {
-            // Validación 4: Verificar longitud mínima del nombre
-            if (nuevoNombre.trim().length() < 3) {
-                throw new UsuarioException(
-                    "El nombre del usuario debe tener al menos 3 caracteres. Nombre recibido: '" + nuevoNombre + "'"
-                );
-            }
-
-            // Validación 5: Verificar que no exista otro usuario con el mismo nombre en la misma liga
-            // Solo verificar si el nombre es diferente al actual
-            if (!usuario.getNombreUsuario().equalsIgnoreCase(nuevoNombre.trim())) {
-                Usuario usuarioDuplicado = usuarioRepository.findByNombreUsuario(nuevoNombre.trim());
-                if (usuarioDuplicado != null &&
-                    usuarioDuplicado.getLiga().getIdLigaCume().equals(usuario.getLiga().getIdLigaCume())) {
+        if (nuevoNombre != null) {
+            String nuevoNombreLimpio = nuevoNombre.trim();
+            if (!nuevoNombreLimpio.isEmpty()) {
+                // Validación 4: Verificar longitud mínima del nombre
+                if (nuevoNombreLimpio.length() < 3) {
                     throw new UsuarioException(
-                        "Ya existe otro usuario con el nombre '" + nuevoNombre +
-                        "' en esta liga. Los nombres de usuario deben ser únicos."
+                        "El nombre del usuario debe tener al menos 3 caracteres. Nombre recibido: '" + nuevoNombre + "'"
                     );
                 }
-            }
 
-            // Aplicar el cambio de nombre
-            usuario.setNombreUsuario(nuevoNombre.trim());
-            cambiosRealizados = true;
+                // Validación 5: Verificar que no exista otro usuario con el mismo nombre en la misma liga
+                if (!usuario.getNombreUsuario().equalsIgnoreCase(nuevoNombreLimpio)) {
+                    Optional<Usuario> usuarioDuplicadoOpt = usuarioRepository.findByNombreUsuario(nuevoNombreLimpio);
+                    if (usuarioDuplicadoOpt.isPresent()) {
+                        Usuario usuarioDuplicado = usuarioDuplicadoOpt.get();
+                        if (usuarioDuplicado.getLiga() != null &&
+                            usuarioDuplicado.getLiga().getIdLigaCume().equals(usuario.getLiga().getIdLigaCume())) {
+                            throw new UsuarioException(
+                                "Ya existe otro usuario con el nombre '" + nuevoNombreLimpio +
+                                "' en esta liga. Los nombres de usuario deben ser únicos."
+                            );
+                        }
+                    }
+                }
+
+                // Aplicar el cambio de nombre
+                usuario.setNombreUsuario(nuevoNombreLimpio);
+                cambiosRealizados = true;
+            }
         }
 
         // Modificar los puntos si se proporcionan
@@ -224,23 +209,15 @@ public class UsuarioService {
      * - Esta operación es irreversible
      *
      * Validaciones:
-     * 1. Verifica que el ID no sea nulo
-     * 2. Verifica que el ID sea un valor positivo
-     * 3. Verifica que el usuario exista en la base de datos
+     * 1. Verifica que el ID no sea nulo y positivo
+     * 2. Verifica que el usuario exista en la base de datos
      *
      * @param id ID del usuario a eliminar
      * @throws UsuarioException Si alguna validación falla
      */
     public void eliminarUsuario(Long id) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (id == null) {
-            throw new UsuarioException("El ID del usuario no puede ser nulo");
-        }
-
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (id <= 0) {
-            throw new UsuarioException("El ID del usuario debe ser un valor positivo: " + id);
-        }
+        // Validación 1: Verificar que el ID no sea nulo y positivo
+        validarIdPositivo(id, "ID del usuario");
 
         // Validación 3: Verificar que el usuario exista antes de intentar eliminarlo
         Usuario usuario = usuarioRepository.findById(id)
@@ -252,8 +229,8 @@ public class UsuarioService {
         // Se podría agregar validación adicional si se desea prevenir eliminación
         // de usuarios con alineaciones en jornadas evaluadas
 
-        // Si todas las validaciones pasan, eliminar el usuario
-        usuarioRepository.deleteById(id);
+        // Si todas las validaciones pasan, eliminar el usuario (usar la entidad para evitar warning de variable sin usar)
+        usuarioRepository.delete(usuario);
     }
 
     /**
@@ -275,23 +252,11 @@ public class UsuarioService {
      * @throws UsuarioException Si alguna validación falla
      */
     public List<Usuario> listarUsuariosPorLiga(Long ligaId) {
-        // Validación 1: Verificar que el ID de la liga no sea nulo
-        if (ligaId == null) {
-            throw new UsuarioException("El ID de la liga no puede ser nulo");
-        }
+        // Validación 1: Verificar que el ID de la liga no sea nulo y positivo
+        validarIdPositivo(ligaId, "ID de la liga");
 
-        // Validación 2: Verificar que el ID de la liga sea un valor positivo
-        if (ligaId <= 0) {
-            throw new UsuarioException(
-                "El ID de la liga debe ser un valor positivo: " + ligaId
-            );
-        }
-
-        // Validación 3: Verificar que la liga exista
-        LigaCume liga = ligaCumeRepository.findById(ligaId)
-                .orElseThrow(() -> new UsuarioException(
-                    "No existe ninguna liga con ID: " + ligaId
-                ));
+        // Verificar que la liga exista (llamada sin asignar variable para evitar warning)
+        obtenerLigaExistentePorId(ligaId);
 
         // Buscar y retornar todos los usuarios de la liga
         return usuarioRepository.findByLigaIdLigaCume(ligaId);
@@ -304,24 +269,16 @@ public class UsuarioService {
      * Es un método básico de consulta útil para operaciones individuales.
      *
      * Validaciones:
-     * 1. Verifica que el ID no sea nulo
-     * 2. Verifica que el ID sea un valor positivo
-     * 3. Verifica que el usuario exista en la base de datos
+     * 1. Verifica que el ID no sea nulo y positivo
+     * 2. Verifica que el usuario exista en la base de datos
      *
      * @param id ID del usuario que se desea obtener
      * @return Usuario encontrado con todos sus datos
      * @throws UsuarioException Si alguna validación falla
      */
     public Usuario obtenerUsuario(Long id) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (id == null) {
-            throw new UsuarioException("El ID del usuario no puede ser nulo");
-        }
-
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (id <= 0) {
-            throw new UsuarioException("El ID del usuario debe ser un valor positivo: " + id);
-        }
+        // Validación 1: Verificar que el ID no sea nulo y positivo
+        validarIdPositivo(id, "ID del usuario");
 
         // Validación 3: Buscar y verificar que el usuario exista
         return usuarioRepository.findById(id)
@@ -337,35 +294,24 @@ public class UsuarioService {
      * Se usa típicamente después de calcular los puntos de una alineación en una jornada.
      *
      * Validaciones:
-     * 1. Verifica que el ID del usuario no sea nulo
-     * 2. Verifica que el ID sea un valor positivo
-     * 3. Verifica que el usuario exista (usa obtenerUsuario con sus validaciones)
-     * 4. Verifica que los puntos a sumar sean válidos (pueden ser negativos para penalizaciones)
-     * 5. Verifica que el resultado final no sea negativo
+     * 1. Verifica que el ID del usuario no sea nulo y positivo
+     * 2. Verifica que el usuario exista (usa obtenerUsuario con sus validaciones)
+     * 3. Verifica que los puntos a sumar sean válidos (pueden ser negativos para penalizaciones)
+     * 4. Verifica que el resultado final no sea negativo
      *
      * @param usuarioId ID del usuario
      * @param puntosASumar Puntos a añadir (positivos para sumar, negativos para penalizar)
      * @throws UsuarioException Si alguna validación falla
      */
     public void actualizarPuntosAcumulados(Long usuarioId, int puntosASumar) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (usuarioId == null) {
-            throw new UsuarioException("El ID del usuario no puede ser nulo");
-        }
-
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (usuarioId <= 0) {
-            throw new UsuarioException("El ID del usuario debe ser un valor positivo: " + usuarioId);
-        }
-
-        // Validación 3: Obtener el usuario (valida existencia)
+        // Evitar validación duplicada: obtenerUsuario ya valida el id
         Usuario usuario = obtenerUsuario(usuarioId);
 
         // Calcular los nuevos puntos totales
         int puntosActuales = usuario.getPuntosAcumulados();
         int puntosNuevos = puntosActuales + puntosASumar;
 
-        // Validación 5: Verificar que el resultado final no sea negativo
+        // Validación: Verificar que el resultado final no sea negativo
         if (puntosNuevos < 0) {
             throw new UsuarioException(
                 "El resultado de actualizar puntos no puede ser negativo. " +
@@ -396,23 +342,11 @@ public class UsuarioService {
      * @throws UsuarioException Si alguna validación falla
      */
     public List<Usuario> obtenerRankingLiga(Long ligaId) {
-        // Validación 1: Verificar que el ID de la liga no sea nulo
-        if (ligaId == null) {
-            throw new UsuarioException("El ID de la liga no puede ser nulo");
-        }
+        // Validación 1: Verificar que el ID de la liga no sea nulo y positivo
+        validarIdPositivo(ligaId, "ID de la liga");
 
-        // Validación 2: Verificar que el ID de la liga sea un valor positivo
-        if (ligaId <= 0) {
-            throw new UsuarioException(
-                "El ID de la liga debe ser un valor positivo: " + ligaId
-            );
-        }
-
-        // Validación 3: Verificar que la liga exista
-        LigaCume liga = ligaCumeRepository.findById(ligaId)
-                .orElseThrow(() -> new UsuarioException(
-                    "No existe ninguna liga con ID: " + ligaId
-                ));
+        // Validación 3: Verificar que la liga exista (llamada sin asignar variable para evitar warning)
+        obtenerLigaExistentePorId(ligaId);
 
         // Obtener y retornar el ranking (usuarios ordenados por puntos descendente)
         return usuarioRepository.findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(ligaId);
@@ -452,18 +386,13 @@ public class UsuarioService {
      * @throws UsuarioException Si el nombre no es válido
      */
     public Usuario buscarUsuarioPorNombre(String nombre) {
-        // Validación 1: Verificar que el nombre no sea nulo o vacío
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new UsuarioException("El nombre del usuario no puede ser nulo o vacío para realizar la búsqueda");
-        }
+        // Usar helper para validar de forma consistente que el nombre no sea nulo ni vacío
+        validarNombreNoVacio(nombre);
 
-        // Validación 2: Verificar que el nombre no contenga solo espacios
-        if (nombre.trim().length() == 0) {
-            throw new UsuarioException("El nombre del usuario no puede contener solo espacios en blanco");
-        }
+        String nombreLimpio = nombre.trim();
 
         // Buscar el usuario por nombre
-        return usuarioRepository.findByNombreUsuario(nombre.trim());
+        return usuarioRepository.findByNombreUsuario(nombreLimpio).orElse(null);
     }
 
     /**
@@ -482,21 +411,11 @@ public class UsuarioService {
      * @throws UsuarioException Si alguna validación falla
      */
     public int contarUsuariosPorLiga(Long ligaId) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (ligaId == null) {
-            throw new UsuarioException("El ID de la liga no puede ser nulo");
-        }
+        // Validación 1: Verificar que el ID no sea nulo y positivo
+        validarIdPositivo(ligaId, "ID de la liga");
 
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (ligaId <= 0) {
-            throw new UsuarioException("El ID de la liga debe ser un valor positivo: " + ligaId);
-        }
-
-        // Validación 3: Verificar que la liga exista
-        ligaCumeRepository.findById(ligaId)
-                .orElseThrow(() -> new UsuarioException(
-                    "No existe ninguna liga con ID: " + ligaId
-                ));
+        // Verificar que la liga exista
+        obtenerLigaExistentePorId(ligaId);
 
         // Contar y retornar los usuarios de la liga
         List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
@@ -510,30 +429,39 @@ public class UsuarioService {
      * Útil para resetear estadísticas o comenzar una nueva temporada.
      *
      * Validaciones:
-     * 1. Verifica que el ID no sea nulo
-     * 2. Verifica que el ID sea un valor positivo
-     * 3. Verifica que el usuario exista
+     * 1. Verifica que el ID no sea nulo y positivo
+     * 2. Verifica que el usuario exista
      *
      * @param usuarioId ID del usuario
      * @throws UsuarioException Si alguna validación falla
      */
     public void resetearPuntos(Long usuarioId) {
-        // Validación 1: Verificar que el ID no sea nulo
-        if (usuarioId == null) {
-            throw new UsuarioException("El ID del usuario no puede ser nulo");
-        }
-
-        // Validación 2: Verificar que el ID sea un valor positivo
-        if (usuarioId <= 0) {
-            throw new UsuarioException("El ID del usuario debe ser un valor positivo: " + usuarioId);
-        }
-
-        // Validación 3: Obtener el usuario (valida existencia)
+        // Evitar validación duplicada: obtenerUsuario ya valida el id
         Usuario usuario = obtenerUsuario(usuarioId);
 
         // Resetear los puntos a cero
         usuario.setPuntosAcumulados(0);
         usuarioRepository.save(usuario);
     }
-}
 
+    // Métodos auxiliares para evitar duplicación de condiciones y validar de forma centralizada
+    private void validarNombreNoVacio(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new UsuarioException("El nombre del usuario no puede ser nulo o vacío");
+        }
+    }
+
+    private void validarIdPositivo(Long id, String campo) {
+        if (id == null) {
+            throw new UsuarioException(campo + " no puede ser nulo");
+        }
+        if (id <= 0) {
+            throw new UsuarioException(campo + " debe ser un valor positivo: " + id);
+        }
+    }
+
+    private LigaCume obtenerLigaExistentePorId(Long ligaId) {
+        return ligaCumeRepository.findById(ligaId)
+                .orElseThrow(() -> new UsuarioException("No existe ninguna liga con ID: " + ligaId));
+    }
+}
