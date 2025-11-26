@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Liga - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --blanco: #FFFFFF;
+            --rojo-vibrante: #FF3333;
+            --rojo-oscuro: #6B1515;
+            --gris-base: #E2E8F0;
+            --gris-borde: #CBD5E1;
+            --gris-texto: #64748B;
+        }
+
+        body {
+            background: var(--gris-base);
+            min-height: 100vh;
+            color: var(--rojo-oscuro);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--rojo-vibrante) 0%, var(--rojo-oscuro) 100%);
+            padding: 3rem 0;
+            color: var(--blanco);
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(255, 51, 51, 0.3);
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .search-box {
+            background: var(--blanco);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(203, 213, 225, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            border: 2px solid var(--gris-borde);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--rojo-vibrante);
+            box-shadow: 0 0 0 0.2rem rgba(255, 51, 51, 0.25);
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--rojo-vibrante) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 51, 51, 0.4);
+            color: var(--blanco);
+        }
+
+        .btn-back {
+            background: var(--blanco);
+            color: var(--rojo-vibrante);
+            border: 2px solid var(--rojo-vibrante);
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: var(--rojo-vibrante);
+            color: var(--blanco);
+            transform: translateY(-2px);
+        }
+
+        .league-list-card {
+            background: var(--blanco);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--gris-borde);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .league-list-card:hover {
+            border-color: var(--rojo-vibrante);
+            box-shadow: 0 10px 30px rgba(255, 51, 51, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .league-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--blanco) 0%, var(--gris-base) 100%);
+            border-bottom: 2px solid var(--gris-borde);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .league-header:hover {
+            background: linear-gradient(135deg, var(--gris-base) 0%, var(--blanco) 100%);
+        }
+
+        .league-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--rojo-oscuro);
+            margin: 0;
+        }
+
+        .league-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gris-texto);
+            font-size: 0.95rem;
+        }
+
+        .stat-item i {
+            color: var(--rojo-vibrante);
+            font-size: 1.1rem;
+        }
+
+        .btn-join {
+            background: linear-gradient(135deg, var(--rojo-vibrante) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-join:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 51, 51, 0.4);
+            color: var(--blanco);
+        }
+
+        .btn-toggle {
+            background: transparent;
+            border: 2px solid var(--gris-borde);
+            color: var(--gris-texto);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle:hover {
+            border-color: var(--rojo-vibrante);
+            color: var(--rojo-vibrante);
+        }
+
+        .league-details {
+            padding: 1.5rem;
+            background: var(--blanco);
+            border-top: 1px solid var(--gris-borde);
+        }
+
+        .detail-row {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--rojo-oscuro);
+            margin-bottom: 0.3rem;
+        }
+
+        .detail-value {
+            color: var(--gris-texto);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background: var(--blanco);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(203, 213, 225, 0.3);
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: var(--gris-texto);
+            margin-bottom: 1rem;
+        }
+
+        .badge-users {
+            background: linear-gradient(135deg, var(--rojo-vibrante) 0%, var(--rojo-oscuro) 100%);
+            color: var(--blanco);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .alert-custom {
+            border-radius: 10px;
+            border: 2px solid var(--rojo-vibrante);
+            background: rgba(255, 51, 51, 0.1);
+            color: var(--rojo-oscuro);
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="header-title">
+                        <i class="bi bi-search me-2"></i>
+                        Buscar Liga
+                    </h1>
+                    <p class="header-subtitle mb-0">Encuentra la liga perfecta para competir</p>
+                </div>
+                <a href="/liga" class="btn-back">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Volver
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <!-- Barra de búsqueda -->
+        <div class="search-box">
+            <form action="/liga/buscar/resultado" method="get" class="row g-3">
+                <div class="col-md-9">
+                    <input type="text"
+                           class="form-control search-input"
+                           name="nombre"
+                           placeholder="Buscar liga por nombre..."
+                           th:value="${busqueda}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-search w-100">
+                        <i class="bi bi-search me-2"></i>
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Mensajes de alerta -->
+        <div th:if="${error}" class="alert alert-custom alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Lista de ligas -->
+        <div th:if="${ligas != null and !ligas.isEmpty()}">
+            <h3 class="mb-4" style="color: var(--rojo-oscuro); font-weight: 700;">
+                <i class="bi bi-trophy-fill me-2" style="color: var(--rojo-vibrante);"></i>
+                Ligas Disponibles
+                <span class="badge-users ms-2" th:text="${ligas.size()} + ' ligas encontradas'"></span>
+            </h3>
+
+            <div th:each="liga, iterStat : ${ligas}" class="league-list-card">
+                <div class="league-header"
+                     data-bs-toggle="collapse"
+                     th:attr="data-bs-target='#liga' + ${iterStat.index}">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div class="flex-grow-1">
+                            <h5 class="league-name">
+                                <i class="bi bi-trophy-fill me-2" style="color: var(--rojo-vibrante);"></i>
+                                <span th:text="${liga.nombreLiga}">Liga CUME 2024</span>
+                            </h5>
+                            <div class="league-stats">
+                                <div class="stat-item">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span th:text="${liga.usuarios.size()} + ' participantes'">5 participantes</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="bi bi-cash-stack"></i>
+                                    <span th:text="'Presupuesto: ' + ${liga.presupuestoMaximo} + '€'">Presupuesto: 1000000€</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <span th:text="${liga.jornadas.size()} + ' jornadas'">10 jornadas</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button class="btn btn-join"
+                                    type="button"
+                                    onclick="unirseALiga(event)"
+                                    th:attr="data-liga-id=${liga.idLigaCume}">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                Unirse
+                            </button>
+                            <button class="btn btn-toggle">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse" th:id="'liga' + ${iterStat.index}">
+                    <div class="league-details">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-info-circle-fill me-2" style="color: var(--rojo-vibrante);"></i>
+                                        Nombre de la Liga
+                                    </div>
+                                    <div class="detail-value" th:text="${liga.nombreLiga}">Liga CUME</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-people-fill me-2" style="color: var(--rojo-vibrante);"></i>
+                                        Participantes
+                                    </div>
+                                    <div class="detail-value" th:text="${liga.usuarios.size()} + ' usuarios activos'">5 usuarios activos</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-shield-fill-check me-2" style="color: var(--rojo-vibrante);"></i>
+                                        Equipos Disponibles
+                                    </div>
+                                    <div class="detail-value" th:text="${liga.equipos.size()} + ' equipos'">20 equipos</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-cash-stack me-2" style="color: var(--rojo-vibrante);"></i>
+                                        Presupuesto Máximo
+                                    </div>
+                                    <div class="detail-value" th:text="${liga.presupuestoMaximo} + '€'">1.000.000€</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-calendar-event me-2" style="color: var(--rojo-vibrante);"></i>
+                                        Jornadas Totales
+                                    </div>
+                                    <div class="detail-value" th:text="${liga.jornadas.size()} + ' jornadas programadas'">10 jornadas programadas</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">
+                                        <i class="bi bi-hash me-2" style="color: var(--rojo-vibrante);"></i>
+                                        ID de la Liga
+                                    </div>
+                                    <div class="detail-value" th:text="'#' + ${liga.idLigaCume}">#12345</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de participantes -->
+                        <div class="mt-3" th:if="${!liga.usuarios.isEmpty()}">
+                            <div class="detail-label mb-2">
+                                <i class="bi bi-people-fill me-2" style="color: var(--rojo-vibrante);"></i>
+                                Participantes Actuales
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-light text-dark border"
+                                      th:each="usuario : ${liga.usuarios}"
+                                      th:text="${usuario.nombreUsuario}"
+                                      style="font-size: 0.9rem; padding: 0.5rem 0.8rem; border-color: var(--gris-borde);">
+                                    Usuario
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sin resultados -->
+        <div th:if="${ligas == null or ligas.isEmpty()}" class="no-results">
+            <i class="bi bi-inbox"></i>
+            <h4 style="color: var(--rojo-oscuro); font-weight: 700;">No se encontraron ligas</h4>
+            <p class="text-muted mb-0">
+                <span th:if="${busqueda != null}">
+                    No hay ligas que coincidan con "<strong th:text="${busqueda}"></strong>"
+                </span>
+                <span th:if="${busqueda == null}">
+                    Aún no hay ligas disponibles. ¡Sé el primero en crear una!
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para unirse -->
+    <div class="modal fade" id="joinModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--rojo-vibrante) 0%, var(--rojo-oscuro) 100%); color: white; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Unirse a Liga
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <p style="color: var(--gris-texto); font-size: 1.1rem;">¿Deseas unirte a esta liga?</p>
+                    <form id="joinForm" method="post">
+                        <input type="hidden" name="usuarioId" value="1" id="usuarioId">
+                    </form>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 1rem 2rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-join" onclick="submitJoin()">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedLigaId = null;
+        const joinModal = new bootstrap.Modal(document.getElementById('joinModal'));
+
+        function unirseALiga(event) {
+            event.stopPropagation();
+            const ligaId = event.currentTarget.getAttribute('data-liga-id');
+            selectedLigaId = ligaId;
+
+            const form = document.getElementById('joinForm');
+            form.action = '/liga/' + ligaId + '/unirse';
+
+            joinModal.show();
+        }
+
+        function submitJoin() {
+            document.getElementById('joinForm').submit();
+        }
+
+        // Cambiar icono del botón toggle
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('.btn-toggle i');
+                if (icon) {
+                    const target = this.getAttribute('data-bs-target');
+                    const collapse = document.querySelector(target);
+
+                    collapse.addEventListener('shown.bs.collapse', function() {
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-up');
+                    });
+
+                    collapse.addEventListener('hidden.bs.collapse', function() {
+                        icon.classList.remove('bi-chevron-up');
+                        icon.classList.add('bi-chevron-down');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

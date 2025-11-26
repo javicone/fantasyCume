@@ -494,6 +494,30 @@ public class UsuarioService {
         return usuario;
     }
 
+    /**
+     * Busca un usuario por su ID
+     *
+     * @param id ID del usuario
+     * @return Usuario encontrado
+     * @throws UsuarioException Si el usuario no existe
+     */
+    public Usuario buscarUsuarioPorId(Long id) {
+        return obtenerUsuario(id);
+    }
+
+    /**
+     * Obtiene el ranking de usuarios por liga ordenado por puntos descendentes
+     *
+     * Alias del método obtenerRankingLiga para compatibilidad con el controlador
+     *
+     * @param ligaId ID de la liga
+     * @return Lista de usuarios ordenados por puntos
+     * @throws UsuarioException Si la liga no existe
+     */
+    public List<Usuario> obtenerRankingPorLiga(Long ligaId) {
+        return obtenerRankingLiga(ligaId);
+    }
+
     // Métodos auxiliares para evitar duplicación de condiciones y validar de forma centralizada
     private void validarNombreNoVacio(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
