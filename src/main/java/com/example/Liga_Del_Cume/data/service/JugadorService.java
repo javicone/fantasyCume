@@ -60,7 +60,7 @@ public class JugadorService {
             throw new IllegalArgumentException("El precio no puede ser negativo");
         }
 
-        Jugador jugador = new Jugador(nombre, esPortero, equipo, precio);
+        Jugador jugador = new Jugador(nombre, esPortero, equipo, precio, "");
         return jugadorRepository.save(jugador);
     }
 

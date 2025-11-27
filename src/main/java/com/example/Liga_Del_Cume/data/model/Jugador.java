@@ -13,6 +13,7 @@ public class Jugador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idJugador;
 
+    private String avatarUrl;
     // Relación N a 1: Muchos jugadores pertenecen a un equipo
     @ManyToOne
     @JoinColumn(name = "equipo_id")
@@ -30,13 +31,20 @@ public class Jugador {
 
     public Jugador() {}
 
-    public Jugador(String nombreJugador, boolean esPortero, Equipo equipo, float precioMercado) {
+    public Jugador(String nombreJugador, boolean esPortero, Equipo equipo, float precioMercado, String url) {
         this.precioMercado = precioMercado;
         this.nombreJugador = nombreJugador;
         this.esPortero = esPortero;
         this.equipo = equipo;
+        this.avatarUrl= url;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
     // Getters y Setters
     public Long getIdJugador() {
         return idJugador;
