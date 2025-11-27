@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!-- Fragmento del Menú Lateral -->
+<div th:fragment="menuLateral" class="sidebar">
+    <div class="sidebar-header">
+        <h3>Mis Ligas</h3>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a th:href="@{/liga/{id}/ranking(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'ranking'} ? 'active' : ''">
+            <i class="bi bi-trophy-fill"></i>
+            Ranking
+        </a>
+
+        <a th:href="@{/liga/{id}/historial(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'historial'} ? 'active' : ''">
+            <i class="bi bi-clock-history"></i>
+            Historial De Alineaciones
+        </a>
+
+        <a th:href="@{/liga/{id}/alineacion-futura(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'alineacion'} ? 'active' : ''">
+            <i class="bi bi-people-fill"></i>
+            Alineación Futura
+        </a>
+
+        <a th:href="@{/liga/{id}/clasificacion(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'clasificacion'} ? 'active' : ''">
+            <i class="bi bi-bar-chart-fill"></i>
+            Clasificación
+        </a>
+
+        <a th:href="@{/liga/{id}/resultados(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'resultados'} ? 'active' : ''">
+            <i class="bi bi-calendar-check"></i>
+            Ver Resultados
+        </a>
+
+        <a th:href="@{/liga/{id}/estadisticas(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'estadisticas'} ? 'active' : ''">
+            <i class="bi bi-graph-up"></i>
+            Ver Estadísticas Jugadores
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <div class="nav-section-title">OPCIONES ADMIN</div>
+
+        <a href="#" class="nav-item nav-item-danger">
+            <i class="bi bi-box-arrow-right"></i>
+            CERRAR SESIÓN
+        </a>
+
+        <a th:href="@{/liga/{id}/abandonar(id=${ligaId})}"
+           class="nav-item nav-item-danger"
+           onclick="return confirm('¿Estás seguro de que deseas abandonar esta liga?');">
+            <i class="bi bi-door-open"></i>
+            ABANDONAR LIGA
+        </a>
+    </nav>
+</div>
+
+<!-- Estilos del Menú -->
+<style th:fragment="menuStyles">
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 230px;
+        height: 100vh;
+        background: linear-gradient(180deg, #8B2A8B 0%, #D946A6 50%, #FF3366 100%);
+        padding: 0;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-header {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1.5rem 1rem;
+        text-align: center;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-header h3 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .sidebar-nav {
+        padding: 0.5rem 0;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.9rem 1.2rem;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        margin: 0.2rem 0;
+    }
+
+    .nav-item i {
+        margin-right: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-left-color: white;
+        padding-left: 1.5rem;
+    }
+
+    .nav-item.active {
+        background: rgba(255, 51, 51, 0.4);
+        border-left-color: #FFFFFF;
+        box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.5);
+    }
+
+    .nav-divider {
+        height: 2px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0.5rem;
+    }
+
+    .nav-section-title {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 1rem 1.2rem 0.5rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .nav-item-danger {
+        color: #FFD4D4;
+    }
+
+    .nav-item-danger:hover {
+        background: rgba(255, 51, 51, 0.3);
+        color: white;
+    }
+
+    /* Scrollbar personalizada */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+    }
+</style>
+</body>
+</html>
+

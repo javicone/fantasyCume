@@ -518,6 +518,49 @@ public class UsuarioService {
         return obtenerRankingLiga(ligaId);
     }
 
+    /**
+     * Suscribe un usuario a una liga específica
+     *
+     * Este método asocia un usuario a una liga y reinicia sus puntos acumulados a cero.
+     * Se utiliza principalmente cuando un usuario crea o se une a una liga.
+     *
+     * Validaciones:
+     * 1. Verifica que el ID del usuario no sea nulo y sea positivo
+     * 2. Verifica que el usuario exista en la base de datos
+     * 3. Verifica que el ID de la liga no sea nulo y sea positivo
+     * 4. Verifica que la liga exista en la base de datos
+     *
+     * @param usuarioId ID del usuario a suscribir
+     * @param ligaId ID de la liga a la que se suscribe
+     * @return Usuario actualizado con la nueva liga
+     * @throws UsuarioException Si alguna validación falla
+     */
+    public Usuario suscribirUsuarioALiga(Long usuarioId, Long ligaId) {
+        // Validación: ID del usuario
+        validarIdPositivo(usuarioId, "ID del usuario");
+
+        // Validación: El usuario debe existir
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioException(
+                        "No existe ningún usuario con ID: " + usuarioId
+                ));
+
+        // Validación: ID de la liga
+        validarIdPositivo(ligaId, "ID de la liga");
+
+        // Validación: La liga debe existir
+        LigaCume liga = obtenerLigaExistentePorId(ligaId);
+
+        // Asociar el usuario a la liga
+        usuario.setLiga(liga);
+
+        // Reiniciar puntos acumulados a cero (el usuario comienza desde cero en la nueva liga)
+        usuario.setPuntosAcumulados(0);
+
+        // Guardar y retornar el usuario actualizado
+        return usuarioRepository.save(usuario);
+    }
+
     // Métodos auxiliares para evitar duplicación de condiciones y validar de forma centralizada
     private void validarNombreNoVacio(String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {

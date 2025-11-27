@@ -1,5 +1,6 @@
 package com.example.Liga_Del_Cume.data.Controller;
 
+import com.example.Liga_Del_Cume.data.exceptions.UsuarioException;
 import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.model.Usuario;
 import com.example.Liga_Del_Cume.data.service.LigaService;
@@ -69,36 +70,57 @@ public class LigaController {
     /**
      * Muestra el formulario para crear una nueva liga
      *
+     * @param usuarioId ID del usuario que crea la liga (desde sesión o parámetro)
      * @param model Modelo para pasar datos a la vista
      * @return Vista del formulario de creación
      */
     @GetMapping("/crear")
-    public String mostrarFormularioCrear(Model model) {
+    public String mostrarFormularioCrear(
+            @RequestParam(value = "usuarioId", required = false) Long usuarioId,
+            Model model) {
         model.addAttribute("liga", new LigaCume());
+        model.addAttribute("usuarioId", usuarioId);
         return "crearLiga";
     }
 
     /**
-     * Procesa la creación de una nueva liga
+     * Procesa la creación de una nueva liga y suscribe al usuario creador
      *
      * @param nombreLiga Nombre de la liga
      * @param presupuestoMaximo Presupuesto máximo de la liga
+     * @param usuarioId ID del usuario que crea la liga
      * @param redirectAttributes Atributos para redirección
-     * @return Redirección a la lista de ligas
+     * @return Redirección a la liga creada
      */
     @PostMapping("/crear")
     public String crearLiga(
             @RequestParam("nombreLiga") String nombreLiga,
             @RequestParam("presupuestoMaximo") Double presupuestoMaximo,
+            @RequestParam(value = "usuarioId", required = false) Long usuarioId,
             RedirectAttributes redirectAttributes) {
         try {
+            // Crear la liga
             LigaCume liga = ligaService.darDeAltaLiga(nombreLiga, presupuestoMaximo);
-            redirectAttributes.addFlashAttribute("success",
-                "Liga '" + nombreLiga + "' creada exitosamente");
-            return "redirect:/liga/" + liga.getIdLigaCume();
+
+            // Si hay un usuario, suscribirlo a la liga automáticamente
+            if (usuarioId != null) {
+                try {
+                    usuarioService.suscribirUsuarioALiga(usuarioId, liga.getIdLigaCume());
+                    redirectAttributes.addFlashAttribute("success",
+                        "Liga '" + nombreLiga + "' creada exitosamente. ¡Bienvenido como miembro fundador!");
+                } catch (UsuarioException e) {
+                    redirectAttributes.addFlashAttribute("warning",
+                        "Liga creada, pero hubo un error al suscribirte: " + e.getMessage());
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("success",
+                    "Liga '" + nombreLiga + "' creada exitosamente");
+            }
+
+            return "liga";
         } catch (LigaException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/liga/crear";
+            return "redirect:/liga/crear" + (usuarioId != null ? "?usuarioId=" + usuarioId : "");
         }
     }
 
@@ -258,25 +280,6 @@ public class LigaController {
         }
     }
 
-    /**
-     * Muestra el ranking de usuarios de una liga
-     *
-     * @param id ID de la liga
-     * @param model Modelo para pasar datos a la vista
-     * @return Vista del ranking
-     */
-    @GetMapping("/{id}/ranking")
-    public String verRanking(@PathVariable Long id, Model model) {
-        try {
-            LigaCume liga = ligaService.buscarLigaPorId(id);
-            List<Usuario> ranking = usuarioService.obtenerRankingPorLiga(id);
-            model.addAttribute("liga", liga);
-            model.addAttribute("ranking", ranking);
-            return "ranking";
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al cargar el ranking: " + e.getMessage());
-            return "redirect:/liga/" + id;
-        }
-    }
+    // NOTA: El endpoint /{id}/ranking ahora está manejado por RankingController
 }
 

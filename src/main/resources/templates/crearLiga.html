@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Liga - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --blanco: #FFFFFF;
+            --rojo-vibrante: #FF3333;
+            --rojo-oscuro: #6B1515;
+            --gris-base: #E2E8F0;
+            --gris-borde: #CBD5E1;
+            --gris-texto: #64748B;
+        }
+
+        body {
+            background: var(--blanco);
+            min-height: 100vh;
+            color: var(--rojo-oscuro);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--gris-base) 0%, var(--blanco) 50%, var(--gris-base) 100%);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 49px,
+                    var(--gris-borde) 49px,
+                    var(--gris-borde) 50px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--rojo-oscuro) 0%, var(--rojo-vibrante) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(107, 21, 21, 0.3);
+            padding: 1rem 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--blanco) !important;
+        }
+
+        .navbar-brand i {
+            color: var(--blanco);
+            margin-right: 10px;
+        }
+
+        .container-custom {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: var(--blanco);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(107, 21, 21, 0.15);
+            padding: 3rem;
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+            border: 2px solid var(--gris-borde);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--rojo-vibrante), var(--rojo-oscuro));
+        }
+
+        .form-title {
+            color: var(--rojo-oscuro);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            color: var(--gris-texto);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-label {
+            color: var(--rojo-oscuro);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--gris-borde);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--blanco);
+            color: var(--rojo-oscuro);
+        }
+
+        .form-control:focus {
+            border-color: var(--rojo-vibrante);
+            box-shadow: 0 0 0 0.2rem rgba(255, 51, 51, 0.15);
+            background-color: var(--blanco);
+        }
+
+        .form-control::placeholder {
+            color: var(--gris-texto);
+            opacity: 0.7;
+        }
+
+        .input-group-text {
+            background-color: var(--gris-base);
+            border: 2px solid var(--gris-borde);
+            border-right: none;
+            color: var(--rojo-oscuro);
+            font-weight: 600;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--rojo-vibrante);
+            background-color: rgba(255, 51, 51, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--rojo-vibrante), var(--rojo-oscuro));
+            border: none;
+            padding: 0.9rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 51, 51, 0.3);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 51, 51, 0.4);
+            background: linear-gradient(135deg, var(--rojo-oscuro), var(--rojo-vibrante));
+        }
+
+        .btn-secondary {
+            background-color: var(--gris-base);
+            border: 2px solid var(--gris-borde);
+            color: var(--rojo-oscuro);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gris-borde);
+            border-color: var(--gris-texto);
+            color: var(--rojo-oscuro);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: #198754;
+            border-left: 4px solid #198754;
+        }
+
+        .alert-danger {
+            background-color: rgba(255, 51, 51, 0.1);
+            color: var(--rojo-vibrante);
+            border-left: 4px solid var(--rojo-vibrante);
+        }
+
+        .info-box {
+            background-color: var(--gris-base);
+            border-left: 4px solid var(--rojo-vibrante);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box i {
+            color: var(--rojo-vibrante);
+            margin-right: 0.5rem;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--rojo-oscuro);
+            font-size: 0.9rem;
+        }
+
+        .field-icon {
+            color: var(--rojo-vibrante);
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 2rem 1.5rem;
+                margin-top: 2rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary {
+                font-size: 1rem;
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-trophy-fill"></i>
+                Liga del Cume
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <div class="container container-custom">
+        <div class="form-container">
+            <!-- Título -->
+            <h1 class="form-title">
+                <i class="bi bi-plus-circle-fill field-icon"></i>
+                Crear Nueva Liga
+            </h1>
+            <p class="form-subtitle">Conviértete en el administrador de tu propia liga de fantasía</p>
+
+            <!-- Mensajes de Alerta -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${success}"></span>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="bi bi-info-circle-fill"></i>
+                <p><strong>Nota:</strong> Al crear la liga, automáticamente te convertirás en miembro fundador de la misma.</p>
+            </div>
+
+            <!-- Formulario -->
+            <form th:action="@{/liga/crear}" method="post">
+                <!-- Campo Nombre de la Liga -->
+                <div class="mb-4">
+                    <label for="nombreLiga" class="form-label">
+                        <i class="bi bi-trophy field-icon"></i>
+                        Nombre de la Liga
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="nombreLiga"
+                        name="nombreLiga"
+                        placeholder="Ej: Liga de los Campeones 2024-25"
+                        required
+                        minlength="3"
+                        maxlength="100">
+                    <small class="form-text text-muted">El nombre debe tener entre 3 y 100 caracteres</small>
+                </div>
+
+                <!-- Campo Presupuesto Máximo -->
+                <div class="mb-4">
+                    <label for="presupuestoMaximo" class="form-label">
+                        <i class="bi bi-cash-stack field-icon"></i>
+                        Presupuesto Máximo Inicial
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">€</span>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="presupuestoMaximo"
+                            name="presupuestoMaximo"
+                            placeholder="100000000"
+                            required
+                            min="100000"
+                            max="100000000"
+                            step="100000">
+                    </div>
+                    <small class="form-text text-muted">Presupuesto que tendrá cada manager para comprar jugadores (mínimo: 10.000.000€)</small>
+                </div>
+
+                <!-- Campo oculto para el ID del usuario (se puede pasar desde sesión) -->
+                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+
+                <!-- Botón Crear -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Crear Liga
+                </button>
+
+                <!-- Botón Cancelar -->
+                <a href="/liga" class="btn btn-secondary">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

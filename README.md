@@ -252,8 +252,12 @@ docker run -d --name fantasyCumeDB \
   -e MYSQL_USER=admin \
   -e MYSQL_PASSWORD=1234 \
   -e MYSQL_ROOT_PASSWORD=1234 \
+  -v mysql-data:/var/lib/mysql \
   -p 3306:3306 \
   mysql:latest
+
+PS C:\Users\javiv> 
+docker run --name fantasyCumeDB -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_PASSWORD=1234 -e MYSQL_USER=admin -e MYSQL_DATABASE=fantasyCume -p 3306:3306 -v mysql-data:/var/lib/mysql -d mysql:latest
 
 ```
 

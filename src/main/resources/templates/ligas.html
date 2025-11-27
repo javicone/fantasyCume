@@ -237,7 +237,7 @@
         <div class="row g-4 mb-5">
             <!-- Mis Ligas Existentes -->
             <div class="col-lg-3 col-md-4 col-sm-6" th:each="liga : ${ligas}">
-                <div class="league-card" th:onclick="'window.location.href=\'/liga/' + ${liga.idLigaCume} + '\''">
+                <div class="league-card" th:onclick="'window.location.href=\'/liga/' + ${liga.idLigaCume} + '/ranking\''">
                     <i class="bi bi-trophy-fill league-icon"></i>
                     <span class="league-info" th:text="${liga.usuarios.size()} + ' usuarios'">5 usuarios</span>
                     <span class="league-name" th:text="${liga.nombreLiga}">Liga CUME 2024</span>
