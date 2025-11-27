@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Resultados - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0A0E27;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 0;
+        }
+
+        .jornada-selector {
+            background: linear-gradient(135deg, #D946A6 0%, #FF3366 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .jornada-selector:focus {
+            outline: 2px solid white;
+        }
+
+        .resultados-container {
+            background: rgba(30, 35, 60, 0.6);
+            border-radius: 25px;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .partido-card {
+            background: linear-gradient(135deg, #D946A6 0%, #8B2A8B 50%, #6B1515 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partido-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .partido-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(255, 51, 102, 0.5);
+        }
+
+        .equipo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .equipo-escudo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background: white;
+            object-fit: contain;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            padding: 5px;
+        }
+
+        .equipo-nombre {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+        }
+
+        .resultado-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .goles {
+            font-size: 4rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .separador {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            opacity: 0.7;
+        }
+
+        .equipo-local {
+            justify-content: flex-end;
+            text-align: right;
+        }
+
+        .equipo-visitante {
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .equipo-visitante .equipo-nombre {
+            order: 2;
+        }
+
+        .equipo-visitante .equipo-escudo {
+            order: 1;
+        }
+
+        .mensaje-vacio {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .mensaje-vacio i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .header-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .partido-card {
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 1rem;
+            }
+
+            .equipo-escudo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .equipo-nombre {
+                font-size: 1.2rem;
+            }
+
+            .goles {
+                font-size: 2.5rem;
+                min-width: 50px;
+            }
+
+            .separador {
+                font-size: 2rem;
+            }
+
+            .resultado-section {
+                padding: 0 1rem;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Incluir menú lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-section">
+            <h1 class="page-title">Ver Resultados</h1>
+
+            <!-- Selector de jornada -->
+            <form th:action="@{/liga/{ligaId}/resultados(ligaId=${ligaId})}" method="get">
+                <select name="jornadaId" class="jornada-selector" onchange="this.form.submit()">
+                    <option th:each="jornada : ${jornadas}"
+                            th:value="${jornada.idJornada}"
+                            th:selected="${jornada.idJornada == jornadaSeleccionada?.idJornada}"
+                            th:text="'✓ JORNADA ' + ${jornada.idJornada}">
+                        JORNADA 1
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Mensaje si no hay datos -->
+        <div th:if="${mensaje != null}" class="mensaje-vacio">
+            <i class="bi bi-info-circle"></i>
+            <p th:text="${mensaje}">No hay jornadas disponibles</p>
+        </div>
+
+        <!-- Contenedor de resultados -->
+        <div th:if="${partidos != null}" class="resultados-container">
+            <!-- Mensaje si no hay partidos con resultado -->
+            <div th:if="${#lists.isEmpty(partidos)}" class="mensaje-vacio">
+                <i class="bi bi-calendar-x"></i>
+                <h3>No hay resultados para esta jornada</h3>
+                <p>Los partidos aún no se han jugado</p>
+            </div>
+
+            <!-- Lista de partidos con resultados -->
+            <div th:if="${!#lists.isEmpty(partidos)}">
+                <div th:each="partido : ${partidos}" class="partido-card">
+                    <!-- Equipo Local -->
+                    <div class="equipo-section equipo-local">
+                        <span class="equipo-nombre" th:text="${partido.equipoLocal.nombreEquipo}">CUD UNITED</span>
+                        <img th:src="${partido.equipoLocal.escudoURL}"
+                             th:alt="${partido.equipoLocal.nombreEquipo}"
+                             class="equipo-escudo">
+                    </div>
+
+                    <!-- Resultado -->
+                    <div class="resultado-section">
+                        <span class="goles" th:text="${partido.golesLocal}">1</span>
+                        <span class="separador">-</span>
+                        <span class="goles" th:text="${partido.golesVisitante}">0</span>
+                    </div>
+
+                    <!-- Equipo Visitante -->
+                    <div class="equipo-section equipo-visitante">
+                        <img th:src="${partido.equipoVisitante.escudoURL}"
+                             th:alt="${partido.equipoVisitante.nombreEquipo}"
+                             class="equipo-escudo">
+                        <span class="equipo-nombre" th:text="${partido.equipoVisitante.nombreEquipo}">RYM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

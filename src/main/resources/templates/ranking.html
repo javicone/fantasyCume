@@ -11,25 +11,12 @@
     <style th:replace="~{menu :: menuStyles}"></style>
 
     <style>
-        :root {
-            --blanco: #FFFFFF;
-            --rojo-vibrante: #FF3333;
-            --rojo-oscuro: #6B1515;
-            --gris-base: #E2E8F0;
-            --gris-borde: #CBD5E1;
-            --gris-texto: #64748B;
-            --morado: #8B2A8B;
-            --rosa: #D946A6;
-            --azul-oscuro: #0A0E27;
-        }
-
         body {
             margin: 0;
             padding: 0;
-            background: var(--azul-oscuro);
+            background: #0A0E27;
             color: white;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
         }
 
         .main-content {
@@ -38,128 +25,41 @@
             min-height: 100vh;
         }
 
-        .ranking-header {
-            margin-bottom: 2rem;
-        }
-
         .ranking-title {
-            font-size: 3.5rem;
-            font-weight: 800;
+            font-size: 2.5rem;
+            font-weight: bold;
             color: white;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .ranking-container {
-            background: rgba(30, 35, 60, 0.6);
-            border-radius: 25px;
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
         }
 
         .ranking-table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 1rem;
-        }
-
-        .ranking-row {
-            background: linear-gradient(135deg, var(--morado) 0%, var(--rosa) 50%, var(--rojo-vibrante) 100%);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .ranking-row:hover {
-            transform: translateX(10px);
-            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.5);
-        }
-
-        .ranking-row.first {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
-        }
-
-        .ranking-row.second {
-            background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 50%, #808080 100%);
-        }
-
-        .ranking-row.third {
-            background: linear-gradient(135deg, #CD7F32 0%, #B8734D 50%, #8B4513 100%);
-        }
-
-        .ranking-row td {
-            padding: 1.5rem 1rem;
-            border: none;
-            vertical-align: middle;
-        }
-
-        .ranking-row td:first-child {
-            border-top-left-radius: 20px;
-            border-bottom-left-radius: 20px;
-            padding-left: 2rem;
-        }
-
-        .ranking-row td:last-child {
-            border-top-right-radius: 20px;
-            border-bottom-right-radius: 20px;
-            padding-right: 2rem;
-        }
-
-        .ranking-position {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: white;
-            text-align: center;
-            min-width: 80px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .medal-icon {
-            font-size: 2rem;
-            margin-right: 0.5rem;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
-        }
-
-        .ranking-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
             background: white;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .ranking-name {
-            font-size: 2rem;
-            font-weight: 700;
+        .ranking-table th {
+            background: #6B1515;
             color: white;
-            text-transform: capitalize;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            padding-left: 1.5rem;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
         }
 
-        .ranking-points {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            text-align: right;
+        .ranking-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            color: #333;
         }
 
-        .empty-ranking {
-            text-align: center;
-            padding: 3rem;
-            color: var(--gris-texto);
+        .ranking-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .empty-ranking i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        .ranking-table tr:hover {
+            background: #f5f5f5;
         }
 
         @media (max-width: 768px) {
@@ -169,75 +69,9 @@
             }
 
             .ranking-title {
-                font-size: 2rem;
-            }
-
-            .ranking-container {
-                padding: 1rem;
-            }
-
-            .ranking-table {
-                border-spacing: 0 0.5rem;
-            }
-
-            .ranking-row td {
-                padding: 1rem 0.5rem;
-            }
-
-            .ranking-row td:first-child {
-                padding-left: 1rem;
-            }
-
-            .ranking-row td:last-child {
-                padding-right: 1rem;
-            }
-
-            .ranking-position {
-                font-size: 1.5rem;
-                min-width: 50px;
-            }
-
-            .ranking-avatar {
-                width: 50px;
-                height: 50px;
-            }
-
-            .ranking-name {
-                font-size: 1.3rem;
-                padding-left: 0.5rem;
-            }
-
-            .ranking-points {
-                font-size: 1.5rem;
-            }
-
-            .medal-icon {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
             }
         }
-
-        /* Animación de entrada */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .ranking-row {
-            animation: fadeInUp 0.5s ease backwards;
-        }
-
-        .ranking-row:nth-child(1) { animation-delay: 0.1s; }
-        .ranking-row:nth-child(2) { animation-delay: 0.2s; }
-        .ranking-row:nth-child(3) { animation-delay: 0.3s; }
-        .ranking-row:nth-child(4) { animation-delay: 0.4s; }
-        .ranking-row:nth-child(5) { animation-delay: 0.5s; }
-        .ranking-row:nth-child(n+6) { animation-delay: 0.6s; }
     </style>
 </head>
 <body>
@@ -246,54 +80,30 @@
 
     <!-- Contenido principal -->
     <div class="main-content">
-        <div class="ranking-header">
-            <h1 class="ranking-title">Ranking</h1>
+        <h1 class="ranking-title">Ranking</h1>
+
+        <!-- Mensaje si no hay usuarios -->
+        <div th:if="${#lists.isEmpty(usuarios)}">
+            <p>No hay usuarios en esta liga</p>
         </div>
 
-        <div class="ranking-container">
-            <!-- Mensaje si no hay usuarios -->
-            <div th:if="${#lists.isEmpty(usuarios)}" class="empty-ranking">
-                <i class="bi bi-trophy"></i>
-                <h3>No hay usuarios en esta liga</h3>
-                <p>Invita a más managers para comenzar la competición</p>
-            </div>
-
-            <!-- Lista de usuarios en el ranking -->
-            <table th:if="${!#lists.isEmpty(usuarios)}" class="ranking-table">
-                <tbody>
-                    <tr th:each="usuario, iterStat : ${usuarios}"
-                        th:class="${iterStat.index == 0 ? 'ranking-row first' : (iterStat.index == 1 ? 'ranking-row second' : (iterStat.index == 2 ? 'ranking-row third' : 'ranking-row'))}">
-
-                        <!-- Posición y medalla -->
-                        <td class="ranking-position">
-                            <span th:if="${iterStat.index == 0}" class="medal-icon">🥇</span>
-                            <span th:if="${iterStat.index == 1}" class="medal-icon">🥈</span>
-                            <span th:if="${iterStat.index == 2}" class="medal-icon">🥉</span>
-                            <span th:text="${iterStat.index + 1} + 'º'">1º</span>
-                        </td>
-
-                        <!-- Avatar -->
-                        <td>
-                            <img th:src="${usuario.avatarUrl != null and usuario.avatarUrl != '' ? usuario.avatarUrl : 'https://ui-avatars.com/api/?name=' + #strings.replace(usuario.nombreUsuario, ' ', '+') + '&size=128&background=random&bold=true&rounded=true'}"
-                                 th:alt="${usuario.nombreUsuario}"
-                                 class="ranking-avatar"
-                                 loading="lazy"
-                                 onerror="this.src='https://ui-avatars.com/api/?name=User&size=128&background=667&color=fff&bold=true&rounded=true'">
-                        </td>
-
-                        <!-- Nombre del usuario -->
-                        <td>
-                            <h2 class="ranking-name" th:text="${usuario.nombreUsuario}">Nombre Usuario</h2>
-                        </td>
-
-                        <!-- Puntos -->
-                        <td class="ranking-points">
-                            <span th:text="${usuario.puntosAcumulados} + ' Pts'">30 Pts</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- Tabla de ranking -->
+        <table th:if="${!#lists.isEmpty(usuarios)}" class="ranking-table">
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Usuario</th>
+                    <th>Puntos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="usuario, iterStat : ${usuarios}">
+                    <td th:text="${iterStat.index + 1}">1</td>
+                    <td th:text="${usuario.nombreUsuario}">Usuario</td>
+                    <td th:text="${usuario.puntosAcumulados}">0</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

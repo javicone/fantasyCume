@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alineación Futura - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0A0E27;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 0;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .jornada-badge, .dinero-badge {
+            background: linear-gradient(135deg, #D946A6 0%, #FF3366 100%);
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        .campo-container {
+            flex: 1;
+            background: #1a1f3a;
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .campo-futbol {
+            background: linear-gradient(135deg, #7a8a6e 0%, #8a9a7e 50%, #7a8a6e 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+            min-height: 700px;
+            border: 4px solid white;
+            overflow: hidden;
+        }
+
+        /* Líneas del campo */
+        .campo-futbol::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+            transform: translateY(-50%);
+        }
+
+        .campo-futbol::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .area-porteria {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 100px;
+            border: 3px solid white;
+            border-bottom: none;
+            border-radius: 80px 80px 0 0;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .porteria {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            border: 4px solid white;
+            border-bottom: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Posiciones de slots */
+        .slot {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .slot-empty {
+            background: rgba(255, 255, 255, 0.3);
+            border: 4px dashed white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .slot-empty:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .slot-empty i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .slot-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0.3rem 0.8rem;
+            border-radius: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        /* Posiciones en el campo */
+        .portero { bottom: 30px; left: 50%; transform: translateX(-50%); }
+        .defensa-izq { bottom: 250px; left: 8%; }
+        .defensa-der { bottom: 250px; right: 8%; }
+        .delantero-izq { top: 80px; left: 8%; }
+        .delantero-der { top: 80px; right: 8%; }
+
+        /* Panel lateral */
+        .jugadores-panel {
+            width: 350px;
+            background: #1a1f3a;
+            border-radius: 20px;
+            padding: 1.5rem;
+            max-height: 800px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .jugadores-panel.active {
+            display: block;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #D946A6 0%, #FF3366 100%);
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .jugador-item {
+            background: linear-gradient(165deg, rgba(139,21,21,0.7) 0%, rgba(80,12,12,0.8) 100%);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .jugador-item:hover {
+            transform: translateX(5px);
+            border-color: #FF3366;
+        }
+
+        .jugador-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            object-fit: cover;
+        }
+
+        .jugador-escudo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: white;
+            position: absolute;
+            top: 5px;
+            left: 45px;
+        }
+
+        .jugador-info {
+            flex: 1;
+        }
+
+        .jugador-nombre {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .jugador-stats {
+            font-size: 0.85rem;
+            color: #ddd;
+        }
+
+        .jugador-precio {
+            background: #FFD700;
+            color: #1a1a1a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Botones de acción */
+        .acciones-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: none;
+            gap: 1rem;
+        }
+
+        .acciones-panel.active {
+            display: flex;
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #28a745 0%, #20803a 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-guardar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.6);
+        }
+
+        .btn-cancelar {
+            background: linear-gradient(135deg, #dc3545 0%, #a02a37 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancelar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6);
+        }
+
+        /* Jugador seleccionado en campo */
+        .jugador-card-campo {
+            background: linear-gradient(165deg, rgba(20,20,40,0.95) 0%, rgba(10,10,20,0.98) 100%);
+            border-radius: 15px;
+            padding: 0.8rem;
+            border: 4px solid #FFD700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .jugador-card-campo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin-bottom: 0.3rem;
+        }
+
+        .jugador-card-campo .nombre {
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-align: center;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .jugador-card-campo .equipo-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: white;
+        }
+
+        .btn-remover {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #FF3333;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Incluir menú lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-section">
+            <h1 class="page-title">Alineación Futura</h1>
+
+            <div class="header-info">
+                <div class="jornada-badge">
+                    ✓ JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
+                </div>
+                <div class="dinero-badge">
+                    Dinero: <span id="presupuestoActual" th:text="${#numbers.formatDecimal(presupuestoDisponible / 1000000, 1, 0)} + '.' + ${#numbers.formatDecimal((presupuestoDisponible % 1000000) / 1000, 3, 0)} + '€'">200.000€</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Campo de fútbol -->
+            <div class="campo-container">
+                <div class="campo-futbol">
+                    <div class="area-porteria"></div>
+                    <div class="porteria"></div>
+
+                    <!-- Portero -->
+                    <div class="slot portero" data-posicion="portero" data-tipo="portero" onclick="seleccionarPosicion(this)">
+                        <div class="slot-empty">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="slot-label">Portero</div>
+                    </div>
+
+                    <!-- Defensa Izquierdo -->
+                    <div class="slot defensa-izq" data-posicion="defensa-izq" data-tipo="campo" onclick="seleccionarPosicion(this)">
+                        <div class="slot-empty">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="slot-label">Jugador 1</div>
+                    </div>
+
+                    <!-- Defensa Derecho -->
+                    <div class="slot defensa-der" data-posicion="defensa-der" data-tipo="campo" onclick="seleccionarPosicion(this)">
+                        <div class="slot-empty">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="slot-label">Jugador 2</div>
+                    </div>
+
+                    <!-- Delantero Izquierdo -->
+                    <div class="slot delantero-izq" data-posicion="delantero-izq" data-tipo="campo" onclick="seleccionarPosicion(this)">
+                        <div class="slot-empty">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="slot-label">Jugador 3</div>
+                    </div>
+
+                    <!-- Delantero Derecho -->
+                    <div class="slot delantero-der" data-posicion="delantero-der" data-tipo="campo" onclick="seleccionarPosicion(this)">
+                        <div class="slot-empty">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="slot-label">Jugador 4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de jugadores -->
+            <div class="jugadores-panel" id="jugadoresPanel">
+                <div class="panel-header">
+                    Lista de Jugadores
+                </div>
+                <div id="listaJugadores">
+                    <!-- Se llenará dinámicamente con JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="acciones-panel" id="accionesPanel">
+            <button class="btn-cancelar" onclick="cancelarCambios()">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+            <button class="btn-guardar" onclick="guardarAlineacion()">
+                <i class="bi bi-check-circle"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let jugadoresSeleccionados = {
+            'portero': null,
+            'defensa-izq': null,
+            'defensa-der': null,
+            'delantero-izq': null,
+            'delantero-der': null
+        };
+
+        let presupuestoTotal = /*[[${presupuestoTotal}]]*/ 100000000;
+        let presupuestoDisponible = presupuestoTotal;
+        let posicionActual = null;
+        let ligaId = /*[[${ligaId}]]*/ 1;
+
+        function seleccionarPosicion(elemento) {
+            posicionActual = elemento.dataset.posicion;
+            const tipoJugador = elemento.dataset.tipo;
+
+            // Mostrar panel
+            document.getElementById('jugadoresPanel').classList.add('active');
+
+            // Cargar jugadores disponibles
+            cargarJugadores(tipoJugador);
+        }
+
+        function cargarJugadores(tipoJugador) {
+            const idsSeleccionados = Object.values(jugadoresSeleccionados)
+                .filter(j => j !== null)
+                .map(j => j.id)
+                .join(',');
+
+            fetch(`/liga/${ligaId}/alineacion-futura/jugadores?posicion=${tipoJugador}&jugadoresSeleccionados=${idsSeleccionados}`)
+                .then(response => response.json())
+                .then(jugadores => {
+                    const lista = document.getElementById('listaJugadores');
+                    lista.innerHTML = '';
+
+                    jugadores.forEach(jugador => {
+                        const item = document.createElement('div');
+                        item.className = 'jugador-item';
+                        item.onclick = () => seleccionarJugador(jugador);
+
+                        const avatarUrl = jugador.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(jugador.nombre)}&size=128&background=random&bold=true&rounded=true`;
+
+                        item.innerHTML = `
+                            <div style="position: relative;">
+                                <img src="${avatarUrl}" alt="${jugador.nombre}" class="jugador-avatar">
+                                <img src="${jugador.escudoEquipo}" alt="${jugador.nombreEquipo}" class="jugador-escudo">
+                            </div>
+                            <div class="jugador-info">
+                                <div class="jugador-nombre">${jugador.nombre}</div>
+                                <div class="jugador-stats">Puntos Totales: ${jugador.puntosTotal}</div>
+                            </div>
+                            <div class="jugador-precio">${formatearPrecio(jugador.precio)}</div>
+                        `;
+
+                        lista.appendChild(item);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function seleccionarJugador(jugador) {
+            // Guardar jugador seleccionado
+            jugadoresSeleccionados[posicionActual] = jugador;
+
+            // Actualizar UI en el campo
+            const slot = document.querySelector(`[data-posicion="${posicionActual}"]`);
+            const avatarUrl = jugador.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(jugador.nombre)}&size=128&background=random&bold=true&rounded=true`;
+
+            slot.innerHTML = `
+                <div class="jugador-card-campo">
+                    <button class="btn-remover" onclick="event.stopPropagation(); removerJugador('${posicionActual}')">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <img src="${avatarUrl}" alt="${jugador.nombre}">
+                    <img src="${jugador.escudoEquipo}" class="equipo-badge" alt="${jugador.nombreEquipo}">
+                    <div class="nombre">${jugador.nombre}</div>
+                </div>
+                <div class="slot-label">${obtenerLabelPosicion(posicionActual)}</div>
+            `;
+
+            // Actualizar presupuesto
+            actualizarPresupuesto();
+
+            // Ocultar panel
+            document.getElementById('jugadoresPanel').classList.remove('active');
+
+            // Mostrar botones de acción
+            document.getElementById('accionesPanel').classList.add('active');
+        }
+
+        function removerJugador(posicion) {
+            jugadoresSeleccionados[posicion] = null;
+
+            const slot = document.querySelector(`[data-posicion="${posicion}"]`);
+            slot.innerHTML = `
+                <div class="slot-empty">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="slot-label">${obtenerLabelPosicion(posicion)}</div>
+            `;
+
+            actualizarPresupuesto();
+
+            // Ocultar botones si no hay jugadores
+            const hayJugadores = Object.values(jugadoresSeleccionados).some(j => j !== null);
+            if (!hayJugadores) {
+                document.getElementById('accionesPanel').classList.remove('active');
+            }
+        }
+
+        function obtenerLabelPosicion(posicion) {
+            const labels = {
+                'portero': 'Portero',
+                'defensa-izq': 'Jugador 1',
+                'defensa-der': 'Jugador 2',
+                'delantero-izq': 'Jugador 3',
+                'delantero-der': 'Jugador 4'
+            };
+            return labels[posicion] || 'Jugador';
+        }
+
+        function actualizarPresupuesto() {
+            let gastoTotal = 0;
+            Object.values(jugadoresSeleccionados).forEach(jugador => {
+                if (jugador) {
+                    gastoTotal += jugador.precio;
+                }
+            });
+
+            presupuestoDisponible = presupuestoTotal - gastoTotal;
+
+            const elementoPresupuesto = document.getElementById('presupuestoActual');
+            elementoPresupuesto.textContent = formatearPrecio(presupuestoDisponible);
+
+            // Cambiar color si se excede
+            if (presupuestoDisponible < 0) {
+                elementoPresupuesto.style.color = '#FF3333';
+            } else {
+                elementoPresupuesto.style.color = 'white';
+            }
+        }
+
+        function formatearPrecio(precio) {
+            const millones = Math.floor(precio / 1000000);
+            const miles = Math.floor((precio % 1000000) / 1000);
+            return `${millones}.${miles.toString().padStart(3, '0')}€`;
+        }
+
+        function guardarAlineacion() {
+            // Verificar que se hayan seleccionado los 5 jugadores
+            const jugadoresFaltantes = Object.entries(jugadoresSeleccionados)
+                .filter(([pos, jugador]) => jugador === null)
+                .map(([pos]) => obtenerLabelPosicion(pos));
+
+            if (jugadoresFaltantes.length > 0) {
+                alert('Debes seleccionar todos los jugadores. Faltan: ' + jugadoresFaltantes.join(', '));
+                return;
+            }
+
+            // Verificar presupuesto
+            if (presupuestoDisponible < 0) {
+                alert('Has excedido el presupuesto disponible');
+                return;
+            }
+
+            // Crear formulario y enviar
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/liga/${ligaId}/alineacion-futura/guardar`;
+
+            // Agregar usuario
+            const inputUsuario = document.createElement('input');
+            inputUsuario.type = 'hidden';
+            inputUsuario.name = 'usuarioId';
+            inputUsuario.value = /*[[${usuario.idUsuario}]]*/ 1;
+            form.appendChild(inputUsuario);
+
+            // Agregar jugadores
+            const mapeoNombres = {
+                'portero': 'portero',
+                'defensa-izq': 'jugador1',
+                'defensa-der': 'jugador2',
+                'delantero-izq': 'jugador3',
+                'delantero-der': 'jugador4'
+            };
+
+            Object.entries(jugadoresSeleccionados).forEach(([posicion, jugador]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = mapeoNombres[posicion];
+                input.value = jugador.id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function cancelarCambios() {
+            if (confirm('¿Estás seguro de que deseas cancelar los cambios?')) {
+                location.reload();
+            }
+        }
+        /*]]>*/
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
