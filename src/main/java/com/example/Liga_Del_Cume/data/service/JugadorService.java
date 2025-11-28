@@ -4,6 +4,7 @@ import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.Jugador;
 import com.example.Liga_Del_Cume.data.repository.EquipoRepository;
 import com.example.Liga_Del_Cume.data.repository.JugadorRepository;
+import com.example.Liga_Del_Cume.data.exceptions.JugadorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,30 +38,34 @@ public class JugadorService {
      * @param esPortero Indica si es portero
      * @param equipo Equipo al que pertenece
      * @param precio Precio de mercado
+     * @param avatarUrl URL de la imagen del jugador
      * @return Jugador creado
-     * @throws IllegalArgumentException si los parámetros son inválidos
+     * @throws JugadorException si los parámetros son inválidos
      */
-    public Jugador agregarJugador(String nombre, boolean esPortero, Equipo equipo, float precio) {
+    public Jugador agregarJugador(String nombre, boolean esPortero, Equipo equipo, float precio, String avatarUrl) {
         if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del jugador no puede estar vacío");
+            throw new JugadorException("El nombre del jugador no puede estar vacío");
         }
         if (equipo == null) {
-            throw new IllegalArgumentException("El equipo no puede ser nulo");
+            throw new JugadorException("El equipo no puede ser nulo");
         }
         if (!equipoRepository.existsById(equipo.getIdEquipo())) {
-            throw new RuntimeException("El equipo no existe en la base de datos");
+            throw new JugadorException("El equipo no existe en la base de datos");
         }
         if (equipo.getJugadores().size() >= 25) {
-            throw new IllegalArgumentException("El equipo ya tiene el máximo de 25 jugadores");
+            throw new JugadorException("El equipo ya tiene el máximo de 25 jugadores");
         }
         if (jugadorRepository.findByNombreJugador(nombre) != null) {
-            throw new IllegalArgumentException("Ya existe un jugador con ese nombre");
+            throw new JugadorException("Ya existe un jugador con ese nombre");
         }
         if (precio < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
+            throw new JugadorException("El precio no puede ser negativo");
+        }
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            avatarUrl = "https://via.placeholder.com/100?text=Jugador"; // URL por defecto
         }
 
-        Jugador jugador = new Jugador(nombre, esPortero, equipo, precio, "");
+        Jugador jugador = new Jugador(nombre, esPortero, equipo, precio, avatarUrl.trim());
         return jugadorRepository.save(jugador);
     }
 
@@ -72,36 +77,35 @@ public class JugadorService {
      * @param nuevoPrecio Nuevo precio
      * @param esPortero Nueva posición
      * @return Jugador actualizado
-     * @throws RuntimeException si el jugador no existe
-     * @throws IllegalArgumentException si los parámetros son inválidos
+     * @throws JugadorException si el jugador no existe o los parámetros son inválidos
      */
     public Jugador actualizarJugador(Long id, String nuevoNombre, Float nuevoPrecio, Boolean esPortero) {
         if (id == null) {
-            throw new IllegalArgumentException("El ID del jugador no puede ser nulo");
+            throw new JugadorException("El ID del jugador no puede ser nulo");
         }
 
         Jugador jugador = jugadorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Jugador no encontrado con ID: " + id));
+                .orElseThrow(() -> new JugadorException("Jugador no encontrado con ID: " + id));
 
         if (nuevoNombre == null || nuevoNombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del jugador no puede estar vacío");
+            throw new JugadorException("El nombre del jugador no puede estar vacío");
         }
 
         // Validar que no exista otro jugador con el mismo nombre
         Jugador jugadorExistente = jugadorRepository.findByNombreJugador(nuevoNombre);
         if (jugadorExistente != null && !jugadorExistente.getIdJugador().equals(id)) {
-            throw new IllegalArgumentException("Ya existe otro jugador con ese nombre");
+            throw new JugadorException("Ya existe otro jugador con ese nombre");
         }
 
         if (nuevoPrecio == null) {
-            throw new IllegalArgumentException("El precio del jugador no puede ser nulo");
+            throw new JugadorException("El precio del jugador no puede ser nulo");
         }
         if (nuevoPrecio < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
+            throw new JugadorException("El precio no puede ser negativo");
         }
 
         if (esPortero == null) {
-            throw new IllegalArgumentException("El campo esPortero no puede ser nulo");
+            throw new JugadorException("El campo esPortero no puede ser nulo");
         }
 
         jugador.setNombreJugador(nuevoNombre);
@@ -111,18 +115,69 @@ public class JugadorService {
     }
 
     /**
+     * Actualizar información completa de un jugador incluyendo avatar
+     *
+     * @param id ID del jugador
+     * @param nuevoNombre Nuevo nombre
+     * @param nuevoPrecio Nuevo precio
+     * @param esPortero Nueva posición
+     * @param avatarUrl Nueva URL del avatar
+     * @return Jugador actualizado
+     * @throws JugadorException si el jugador no existe o los parámetros son inválidos
+     */
+    public Jugador actualizarJugadorCompleto(Long id, String nuevoNombre, Float nuevoPrecio, Boolean esPortero, String avatarUrl) {
+        if (id == null) {
+            throw new JugadorException("El ID del jugador no puede ser nulo");
+        }
+
+        Jugador jugador = jugadorRepository.findById(id)
+                .orElseThrow(() -> new JugadorException("Jugador no encontrado con ID: " + id));
+
+        if (nuevoNombre == null || nuevoNombre.trim().isEmpty()) {
+            throw new JugadorException("El nombre del jugador no puede estar vacío");
+        }
+
+        // Validar que no exista otro jugador con el mismo nombre
+        Jugador jugadorExistente = jugadorRepository.findByNombreJugador(nuevoNombre.trim());
+        if (jugadorExistente != null && !jugadorExistente.getIdJugador().equals(id)) {
+            throw new JugadorException("Ya existe otro jugador con ese nombre");
+        }
+
+        if (nuevoPrecio == null) {
+            throw new JugadorException("El precio del jugador no puede ser nulo");
+        }
+        if (nuevoPrecio < 0) {
+            throw new JugadorException("El precio no puede ser negativo");
+        }
+
+        if (esPortero == null) {
+            throw new JugadorException("El campo esPortero no puede ser nulo");
+        }
+
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            avatarUrl = "https://via.placeholder.com/100?text=Jugador"; // URL por defecto
+        }
+
+        jugador.setNombreJugador(nuevoNombre.trim());
+        jugador.setPrecioMercado(nuevoPrecio);
+        jugador.setEsPortero(esPortero);
+        jugador.setAvatarUrl(avatarUrl.trim());
+
+        return jugadorRepository.save(jugador);
+    }
+
+    /**
      * Funcionalidad 2.3: Eliminar un jugador de un equipo
      *
      * @param id ID del jugador a eliminar
-     * @throws IllegalArgumentException si el ID es nulo
-     * @throws RuntimeException si el jugador no existe
+     * @throws JugadorException si el ID es nulo o el jugador no existe
      */
     public void eliminarJugador(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("El ID del jugador no puede ser nulo");
+            throw new JugadorException("El ID del jugador no puede ser nulo");
         }
         if (!jugadorRepository.existsById(id)) {
-            throw new RuntimeException("Jugador no encontrado con ID: " + id);
+            throw new JugadorException("Jugador no encontrado con ID: " + id);
         }
         jugadorRepository.deleteById(id);
     }
@@ -141,22 +196,21 @@ public class JugadorService {
      *
      * @param nombreEquipo Nombre del equipo
      * @return Lista de jugadores del equipo
-     * @throws IllegalArgumentException si el nombre es nulo o vacío
-     * @throws RuntimeException si el equipo no existe
+     * @throws JugadorException si el nombre es nulo o vacío o el equipo no existe
      */
     public List<Jugador> listarJugadoresPorEquipo(String nombreEquipo) {
         if (nombreEquipo == null || nombreEquipo.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del equipo no puede estar vacío");
+            throw new JugadorException("El nombre del equipo no puede estar vacío");
         }
 
         Equipo equipo = equipoRepository.findByNombreEquipo(nombreEquipo);
         if (equipo == null) {
-            throw new RuntimeException("No existe un equipo con ese nombre");
+            throw new JugadorException("No existe un equipo con ese nombre");
         }
 
         List<Jugador> jugadores = jugadorRepository.findByEquipoNombreEquipo(nombreEquipo);
         if (jugadores.isEmpty()) {
-            throw new RuntimeException("No existen jugadores en ese equipo");
+            throw new JugadorException("No existen jugadores en ese equipo");
         }
 
         return jugadores;
@@ -185,11 +239,11 @@ public class JugadorService {
      *
      * @param nombre Nombre a buscar
      * @return Lista de jugadores que coinciden
-     * @throws IllegalArgumentException si el nombre es nulo o vacío
+     * @throws JugadorException si el nombre es nulo o vacío
      */
     public List<Jugador> buscarPorNombre(String nombre) {
         if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre de búsqueda no puede estar vacío");
+            throw new JugadorException("El nombre de búsqueda no puede estar vacío");
         }
         return jugadorRepository.findByNombreJugadorContainingIgnoreCase(nombre);
     }
@@ -199,17 +253,16 @@ public class JugadorService {
      *
      * @param nombreEquipo Nombre del equipo
      * @return Lista de jugadores del equipo
-     * @throws IllegalArgumentException si el nombre es nulo o vacío
-     * @throws RuntimeException si el equipo no existe
+     * @throws JugadorException si el nombre es nulo o vacío o el equipo no existe
      */
     public List<Jugador> buscarPorEquipo(String nombreEquipo) {
         if (nombreEquipo == null || nombreEquipo.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del equipo no puede estar vacío");
+            throw new JugadorException("El nombre del equipo no puede estar vacío");
         }
 
         Equipo equipo = equipoRepository.findByNombreEquipo(nombreEquipo);
         if (equipo == null) {
-            throw new RuntimeException("No existe un equipo con ese nombre: " + nombreEquipo);
+            throw new JugadorException("No existe un equipo con ese nombre: " + nombreEquipo);
         }
 
         return jugadorRepository.findByEquipoNombreEquipo(nombreEquipo);
@@ -220,15 +273,14 @@ public class JugadorService {
      *
      * @param id ID del jugador
      * @return Jugador encontrado
-     * @throws IllegalArgumentException si el ID es nulo
-     * @throws RuntimeException si el jugador no existe
+     * @throws JugadorException si el ID es nulo o el jugador no existe
      */
     public Jugador obtenerJugador(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("El ID del jugador no puede ser nulo");
+            throw new JugadorException("El ID del jugador no puede ser nulo");
         }
         return jugadorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Jugador no encontrado con ID: " + id));
+                .orElseThrow(() -> new JugadorException("Jugador no encontrado con ID: " + id));
     }
 
     /**
@@ -250,10 +302,9 @@ public class JugadorService {
     }
 
 
-    public List<Jugador> buscarPorNombreAMedias(String nombre)
-    {
+    public List<Jugador> buscarPorNombreAMedias(String nombre) {
         if (nombre == null || nombre.isEmpty()) {
-            throw new RuntimeException("El nombre de búsqueda no puede estar vacío");
+            throw new JugadorException("El nombre de búsqueda no puede estar vacío");
         }
         return jugadorRepository.findByNombreJugadorContainingIgnoreCase(nombre);
     }

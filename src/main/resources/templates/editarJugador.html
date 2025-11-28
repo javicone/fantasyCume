@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Jugador - Liga Del Cume</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .edit-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 30px;
+            padding: 3rem;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .back-arrow:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+            color: white;
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .player-avatar-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .team-info-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem;
+            border-radius: 15px;
+        }
+
+        .team-badge-mini {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            padding: 0.3rem;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-badge-mini img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .team-name-small {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-label {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: none;
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            outline: none;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-submit {
+            flex: 1;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(86, 171, 47, 0.6);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: rgba(255, 51, 102, 0.9);
+            border: none;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-cancel:hover {
+            background: #ff1744;
+            transform: translateY(-3px);
+            color: white;
+        }
+
+        .alert {
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .form-icon {
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid rgba(255, 193, 7, 0.8);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #ffeb3b;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú Lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1 class="page-title">Editar Jugador</h1>
+
+        <div class="edit-container">
+            <!-- Flecha para volver -->
+            <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}" class="back-arrow" title="Volver">
+                <i class="bi bi-arrow-return-left"></i>
+            </a>
+
+            <!-- Mensajes de error -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Advertencia si es el único portero -->
+            <div th:if="${jugador.esPortero and numPorteros <= 1}" class="warning-box">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Este es el único portero del equipo. No puedes cambiar su posición a Jugador de Campo.
+            </div>
+
+            <!-- Cabecera con foto del jugador e info del equipo -->
+            <div class="player-header">
+                <div class="player-avatar-large">
+                    <img th:src="${jugador.avatarUrl != null ? jugador.avatarUrl : 'https://via.placeholder.com/150'}"
+                         th:alt="${jugador.nombreJugador}"
+                         id="currentAvatar"
+                         onerror="this.src='https://via.placeholder.com/150?text=Jugador'">
+                </div>
+
+                <div class="team-info-box">
+                    <div class="team-badge-mini">
+                        <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/60'}"
+                             th:alt="${equipo.nombreEquipo}"
+                             onerror="this.src='https://via.placeholder.com/60?text=Escudo'">
+                    </div>
+                    <p class="team-name-small" th:text="${equipo.nombreEquipo}">Nombre del Equipo</p>
+                </div>
+            </div>
+
+            <!-- Formulario de edición -->
+            <form th:action="@{/admin/equipos/{equipoId}/jugador/{jugadorId}/actualizar(equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+                  method="post"
+                  id="editarJugadorForm">
+
+                <div class="mb-3">
+                    <label for="nombreJugador" class="form-label">
+                        <i class="bi bi-person-fill form-icon"></i>
+                        Nombre
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="nombreJugador"
+                           name="nombreJugador"
+                           th:value="${jugador.nombreJugador}"
+                           required
+                           maxlength="100">
+                </div>
+
+                <div class="mb-3">
+                    <label for="precioMercado" class="form-label">
+                        <i class="bi bi-currency-euro form-icon"></i>
+                        Precio
+                    </label>
+                    <input type="number"
+                           class="form-control"
+                           id="precioMercado"
+                           name="precioMercado"
+                           th:value="${jugador.precioMercado}"
+                           required
+                           step="0.01"
+                           min="0">
+                    <small style="color: rgba(255, 255, 255, 0.8); display: block; margin-top: 0.5rem;">
+                        Valor en euros (€)
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="avatarUrl" class="form-label">
+                        <i class="bi bi-image-fill form-icon"></i>
+                        URL de la Foto
+                    </label>
+                    <input type="url"
+                           class="form-control"
+                           id="avatarUrl"
+                           name="avatarUrl"
+                           th:value="${jugador.avatarUrl}"
+                           required
+                           onchange="actualizarVistaPrevia()">
+                </div>
+
+                <div class="mb-3">
+                    <label for="esPortero" class="form-label">
+                        <i class="bi bi-shield-fill form-icon"></i>
+                        Posición
+                    </label>
+                    <select class="form-select"
+                            id="esPortero"
+                            name="esPortero"
+                            required
+                            th:disabled="${jugador.esPortero and numPorteros <= 1}">
+                        <option value="true" th:selected="${jugador.esPortero}">Portero</option>
+                        <option value="false" th:selected="${!jugador.esPortero}">Jugador de Campo</option>
+                    </select>
+                    <small th:if="${jugador.esPortero and numPorteros <= 1}"
+                           style="color: #ffeb3b; display: block; margin-top: 0.5rem; font-weight: 600;">
+                        <i class="bi bi-lock-fill"></i> Campo bloqueado: Único portero del equipo
+                    </small>
+                </div>
+
+                <div class="btn-container">
+                    <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="button" class="btn-submit" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
+                <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                    <h5 class="modal-title" style="color: white; font-weight: 700;">
+                        <i class="bi bi-check-circle-fill"></i> Confirmar Cambios
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="color: white; font-size: 1.1rem; text-align: center;">
+                    <p>¿Deseas guardar los cambios realizados en el jugador?</p>
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 15px; margin-top: 1rem;">
+                        <p><strong>Nombre:</strong> <span id="modalNombre"></span></p>
+                        <p><strong>Precio:</strong> <span id="modalPrecio"></span> €</p>
+                        <p><strong>Posición:</strong> <span id="modalPosicion"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitForm()" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-check-circle-fill"></i> Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Actualizar vista previa del avatar
+        function actualizarVistaPrevia() {
+            const avatarURL = document.getElementById('avatarUrl').value;
+            const preview = document.getElementById('currentAvatar');
+
+            if (avatarURL && avatarURL.trim() !== '') {
+                preview.src = avatarURL;
+                preview.onerror = function() {
+                    this.src = 'https://via.placeholder.com/150?text=Error';
+                };
+            }
+        }
+
+        // Actualizar modal de confirmación
+        document.getElementById('confirmModal').addEventListener('show.bs.modal', function () {
+            const nombre = document.getElementById('nombreJugador').value;
+            const precio = document.getElementById('precioMercado').value;
+            const esPortero = document.getElementById('esPortero').value;
+
+            document.getElementById('modalNombre').textContent = nombre;
+            document.getElementById('modalPrecio').textContent = precio;
+            document.getElementById('modalPosicion').textContent = esPortero === 'true' ? 'Portero' : 'Jugador de Campo';
+        });
+
+        // Enviar formulario
+        function submitForm() {
+            document.getElementById('editarJugadorForm').submit();
+        }
+    </script>
+</body>
+</html>
+
