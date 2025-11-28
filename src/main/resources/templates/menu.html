@@ -46,7 +46,7 @@
             Ver Resultados
         </a>
 
-        <a th:href="@{/liga/{id}/estadisticas(id=${ligaId})}"
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${ligaId})}"
            class="nav-item"
            th:classappend="${currentPage == 'estadisticas'} ? 'active' : ''">
             <i class="bi bi-graph-up"></i>
@@ -55,7 +55,25 @@
 
         <div class="nav-divider"></div>
 
+        <!-- Desplegable de Opciones Admin -->
         <div class="nav-section-title">OPCIONES ADMIN</div>
+
+        <div class="dropdown">
+            <a class="nav-item dropdown-toggle"
+               href="#"
+               id="adminDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <i class="bi bi-gear-fill"></i>
+                Opciones Admin
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                <li><a class="dropdown-item" th:href="@{/gestionar-equipos}">Gestionar Equipos</a></li>
+                <li><a class="dropdown-item" th:href="@{/agregar-resultados}">Agregar Resultados</a></li>
+                <li><a class="dropdown-item" th:href="@{/generar-cuadros-jornadas}">Generar cuadros de jornadas</a></li>
+            </ul>
+        </div>
 
         <a href="#" class="nav-item nav-item-danger">
             <i class="bi bi-box-arrow-right"></i>
@@ -189,4 +207,3 @@
 </style>
 </body>
 </html>
-

@@ -249,6 +249,15 @@ public class JugadorService {
         return jugadorRepository.findByEsPorteroOrderByPrecioMercadoDesc(false);
     }
 
+
+    public List<Jugador> buscarPorNombreAMedias(String nombre)
+    {
+        if (nombre == null || nombre.isEmpty()) {
+            throw new RuntimeException("El nombre de búsqueda no puede estar vacío");
+        }
+        return jugadorRepository.findByNombreJugadorContainingIgnoreCase(nombre);
+    }
+
     /**
      * Busca jugadores ordenados por goles descendente
      *
