@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
@@ -57,6 +57,13 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .jornada-selector option {
+            background: #2a2a4a;
+            color: white;
+            padding: 0.5rem;
+            font-weight: 600;
         }
 
         .jornada-selector:focus {
@@ -221,6 +228,7 @@
             display: block;
             position: relative;
             z-index: 1;
+            overflow: hidden;
         }
 
         .jugador-equipo {
@@ -234,6 +242,13 @@
             background: white;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
             z-index: 3;
+            overflow: hidden;
+        }
+
+        .jugador-equipo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .jugador-nombre {
@@ -297,28 +312,33 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 10;
         }
 
-        /* DEFENSAS (parte inferior) - muy separados */
+        /* DEFENSAS (parte inferior) - laterales bajados para no chocar con delanteros */
         .lateral-izq {
-            bottom: 250px;
-            left: 8%;
+            bottom: 200px;  /* Bajado de 250px a 200px */
+            left: 5%;
+            z-index: 11;
         }
 
         .lateral-der {
-            bottom: 250px;
-            right: 8%;
+            bottom: 200px;  /* Bajado de 250px a 200px */
+            right: 5%;
+            z-index: 11;
         }
 
-        /* DELANTEROS (parte superior) - muy separados */
+        /* DELANTEROS (parte superior) - más hacia el centro para no chocar con laterales */
         .delantero-izq {
             top: 80px;
-            left: 8%;
+            left: 20%;  /* Movido de 5% a 20% (más al centro) */
+            z-index: 12;
         }
 
         .delantero-der {
             top: 80px;
-            right: 8%;
+            right: 20%;  /* Movido de 5% a 20% (más al centro) */
+            z-index: 12;
         }
 
         .mensaje-vacio {

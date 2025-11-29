@@ -10,42 +10,226 @@
     <style th:replace="~{menu :: menuStyles}"></style>
 
     <style>
-        /* ... (Tu CSS base se mantiene igual) ... */
-        body { margin: 0; padding: 0; background: #0A0E27; color: white; font-family: Arial, sans-serif; min-height: 100vh; }
-        .main-content { margin-left: 230px; padding: 2rem; min-height: 100vh; }
-        .page-header { margin-bottom: 2rem; text-align: center; }
-        .page-title { font-size: 2.5rem; font-weight: bold; background: linear-gradient(90deg, #fff, #FF3366); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1.5rem; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0A0E27;
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #fff, #FF3366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
 
         /* Buscador */
-        .search-container { max-width: 800px; margin: 0 auto 2rem auto; position: relative; }
-        .search-input { width: 100%; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50px; padding: 1rem 1.5rem; padding-right: 3.5rem; color: white; font-size: 1.1rem; }
-        .search-input:focus { outline: none; background: rgba(255, 255, 255, 0.15); border-color: #FF3366; box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); }
-        .search-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #FF3366; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; }
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            padding-right: 3.5rem;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FF3366;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FF3366;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #D946A6;
+        }
 
         /* Filtros */
-        .filters-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem; }
-        .filter-pill { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.8); padding: 0.6rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-        .filter-pill:hover, .filter-pill.active { background: linear-gradient(135deg, #D946A6 0%, #FF3366 100%); border-color: transparent; color: white; box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4); }
-        .filter-pill.disabled { opacity: 0.5; pointer-events: none; display: none; }
+        .filters-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
 
-        /* Grid */
-        .jugadores-grid { display: grid; gap: 1.5rem; max-width: 1000px; margin: 0 auto; }
+        .filter-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-        /* Card */
-        .jugador-card-row { background: linear-gradient(165deg, rgba(30,30,50,0.9) 0%, rgba(20,20,35,0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden; text-decoration: none; }
-        .jugador-card-row:hover { transform: translateX(10px); border-color: #FFD700; background: linear-gradient(165deg, rgba(40,40,60,0.95) 0%, rgba(25,25,45,1) 100%); }
-        .img-container { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
-        .jugador-foto-small { width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); object-fit: cover; background: #fff; }
-        .equipo-badge { position: absolute; bottom: -5px; right: -5px; width: 28px; height: 28px; background: white; border-radius: 50%; border: 2px solid #1a1f3a; padding: 2px; }
-        .jugador-details { flex: 1; min-width: 0; }
-        .jugador-nombre { font-size: 1.2rem; font-weight: bold; color: white; margin: 0; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .jugador-posicion { color: #aaa; font-size: 0.9rem; margin-top: 0.2rem; }
+        .filter-pill:hover, .filter-pill.active {
+            background: linear-gradient(135deg, #D946A6 0%, #FF3366 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+        }
 
-        .stats-group { display: flex; gap: 2rem; align-items: center; }
-        .stat-box { text-align: center; min-width: 70px; }
-        .stat-value { font-size: 1.3rem; font-weight: 900; color: white; display: block; }
-        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .price-tag { background: rgba(255, 215, 0, 0.1); color: #FFD700; padding: 0.4rem 0.8rem; border-radius: 10px; font-weight: bold; font-size: 0.9rem; border: 1px solid rgba(255, 215, 0, 0.3); white-space: nowrap; }
+        /* Grid de Jugadores */
+        .jugadores-grid {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Tarjeta de Jugador */
+        .jugador-card-row {
+            background: linear-gradient(165deg, rgba(30,30,50,0.9) 0%, rgba(20,20,35,0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none; /* Quitar subrayado del enlace */
+        }
+
+        .jugador-card-row:hover {
+            transform: translateX(10px);
+            border-color: #FFD700;
+            background: linear-gradient(165deg, rgba(40,40,60,0.95) 0%, rgba(25,25,45,1) 100%);
+        }
+
+        .img-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+        }
+
+        .jugador-foto-small {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.8);
+            object-fit: cover;
+            background: #fff;
+        }
+
+        .equipo-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #1a1f3a;
+            padding: 2px;
+        }
+
+        .jugador-details {
+            flex: 1;
+            min-width: 0; /* Para que el texto largo no rompa flex */
+        }
+
+        .jugador-nombre {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            margin: 0;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .jugador-posicion {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .stats-group {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-box {
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: white;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .price-tag {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            white-space: nowrap;
+        }
 
         @media (max-width: 768px) {
             .main-content { margin-left: 0; padding: 1rem; }
@@ -65,58 +249,65 @@
     </div>
 
     <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Buscar jugador por nombre...">
-        <div class="search-btn">
-            <i class="bi bi-search"></i>
-        </div>
+        <form th:action="@{/liga/{id}/estadisticasJugadores(id=${idLiga})}" method="get">
+            <input type="hidden" name="mostrarPorteros" th:value="${mostrarPorteros}">
+            <input type="hidden" name="ordenar" th:value="${ordenar}" th:if="${ordenar != null}">
+
+            <input type="text" name="buscar" class="search-input"
+                   placeholder="Buscar jugador..."
+                   th:value="${buscar}">
+            <button type="submit" class="search-btn">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
     </div>
 
     <div class="filters-container">
-
-        <a href="javascript:void(0)" onclick="filtrarTipo('jugador')" id="btn-tipo-jugador" class="filter-pill active">
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga}, mostrarPorteros=false, buscar=${buscar})}"
+           th:class="${!mostrarPorteros} ? 'filter-pill active' : 'filter-pill'">
             <i class="bi bi-people-fill"></i> Jugadores
         </a>
 
-        <a href="javascript:void(0)" onclick="filtrarTipo('portero')" id="btn-tipo-portero" class="filter-pill">
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga}, mostrarPorteros=true, buscar=${buscar})}"
+           th:class="${mostrarPorteros} ? 'filter-pill active' : 'filter-pill'">
             <i class="bi bi-shield-shaded"></i> Porteros
         </a>
 
-        <div style="width: 100%; height: 0; margin: 0;"></div> <a href="javascript:void(0)" onclick="ordenarPor('goles')" id="btn-sort-goles" class="filter-pill">
-        <i class="bi bi-trophy-fill"></i> Goleadores
-    </a>
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga}, ordenar='goles', mostrarPorteros=${mostrarPorteros}, buscar=${buscar})}"
+           th:class="${ordenar == 'goles'} ? 'filter-pill active' : 'filter-pill'">
+            <i class="bi bi-trophy-fill"></i> Goleadores
+        </a>
 
-        <a href="javascript:void(0)" onclick="ordenarPor('puntos')" id="btn-sort-puntos" class="filter-pill">
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga}, ordenar='puntos', mostrarPorteros=${mostrarPorteros}, buscar=${buscar})}"
+           th:class="${ordenar == 'puntos'} ? 'filter-pill active' : 'filter-pill'">
             <i class="bi bi-star-fill"></i> Top Puntos
         </a>
 
-        <a href="javascript:void(0)" onclick="ordenarPor('precio')" id="btn-sort-precio" class="filter-pill">
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga}, ordenar='precio', mostrarPorteros=${mostrarPorteros}, buscar=${buscar})}"
+           th:class="${ordenar == 'precio'} ? 'filter-pill active' : 'filter-pill'">
             <i class="bi bi-currency-euro"></i> Mayor Valor
         </a>
     </div>
 
-    <div class="jugadores-grid" id="contenedorJugadores">
-        <div th:each="jugador : ${jugadores}"
-             class="jugador-card-row"
-             th:data-nombre="${#strings.toLowerCase(jugador.nombreJugador)}"
-             th:data-tipo="${jugador.esPortero ? 'portero' : 'jugador'}"
-             th:data-precio="${jugador.precioMercado}"
-             th:data-puntos="${puntosTotalesMap.get(jugador.idJugador)}"
-             th:data-goles="${golesTotalesMap.get(jugador.idJugador)}">
+    <div class="jugadores-grid">
+        <div th:each="jugador : ${jugadores}">
 
-            <a th:href="@{/liga/{lid}/jugador/{jid}(lid=${idLiga}, jid=${jugador.idJugador})}"
-               style="display: contents; text-decoration: none; color: inherit;">
+            <a th:href="@{/liga/{lid}/jugador/{jid}(lid=${idLiga}, jid=${jugador.idJugador})}" class="jugador-card-row">
 
                 <div class="img-container">
-                    <img loading="lazy"
-                         th:src="${jugador.avatarUrl != null and jugador.avatarUrl != '' ? jugador.avatarUrl : 'https://ui-avatars.com/api/?name=' + #strings.replace(jugador.nombreJugador, ' ', '+') + '&size=128&background=random&bold=true&rounded=true'}"
+                    <img th:src="${jugador.avatarUrl != null and jugador.avatarUrl != '' ? jugador.avatarUrl : 'https://ui-avatars.com/api/?name=' + #strings.replace(jugador.nombreJugador, ' ', '+') + '&size=128&background=random&bold=true&rounded=true'}"
+                         th:alt="${jugador.nombreJugador}"
                          class="jugador-foto-small">
-                    <img th:src="${jugador.equipo.escudoURL}" class="equipo-badge">
+
+                    <img th:src="${jugador.equipo.escudoURL}"
+                         th:alt="${jugador.equipo.nombreEquipo}"
+                         class="equipo-badge">
                 </div>
 
                 <div class="jugador-details">
-                    <h3 class="jugador-nombre" th:text="${jugador.nombreJugador}">Nombre</h3>
+                    <h3 class="jugador-nombre" th:text="${jugador.nombreJugador}">Nombre Jugador</h3>
                     <div class="jugador-posicion">
-                        <span th:text="${jugador.esPortero ? 'Portero' : 'Jugador de Campo'}">Posición</span> -
+                        <span th:text="${jugador.esPortero == true ? jugador.esPortero : 'false'}">Posición</span> -
                         <span th:text="${jugador.equipo.nombreEquipo}">Equipo</span>
                     </div>
                 </div>
@@ -127,11 +318,13 @@
                         <span class="stat-label">Puntos</span>
                     </div>
 
-                    <div class="stat-box">
-                        <span class="stat-value" style="color: #FF3366;">
-                            <i class="bi bi-trophy" style="font-size: 0.8em;"></i>
-                            <span th:text="${golesTotalesMap.get(jugador.idJugador)}">0</span>
-                        </span>
+                    <div class="stat-box" th:if="${ordenar == 'goles'}">
+                        <span class="stat-value" style="color: #FF3366;"><i class="bi bi-trophy"></i></span>
+                        <span class="stat-label">Goles</span>
+                    </div>
+                    <div class="stat-box" th:if="${ordenar == 'goles'}">
+                    <span class="stat-value" style="color: #FF3366;"
+                        th:text="${golesTotalesMap.get(jugador.idJugador)}">0</span>
                         <span class="stat-label">Goles</span>
                     </div>
 
@@ -143,112 +336,14 @@
                 </div>
             </a>
         </div>
-    </div>
 
-    <div id="noResultsMsg" style="text-align: center; color: #888; padding: 3rem; display: none;">
-        <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
-        <p class="mt-3">No se encontraron jugadores con esos criterios.</p>
+        <div th:if="${#lists.isEmpty(jugadores)}" style="text-align: center; color: #888; padding: 3rem;">
+            <i class="bi bi-emoji-frown" style="font-size: 3rem;"></i>
+            <p class="mt-3">No se encontraron jugadores.</p>
+        </div>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    // Variables de estado
-    let filtroTipoActual = 'jugador'; // 'jugador' (campo) o 'portero'
-    let ordenActual = '';
-
-    document.addEventListener("DOMContentLoaded", function() {
-        // Inicializar: Ocultar los porteros de inicio, mostrar jugadores de campo
-        aplicarFiltros();
-
-        // Listener para el buscador (mientras escribes)
-        document.getElementById('searchInput').addEventListener('input', aplicarFiltros);
-    });
-
-    /**
-     * Cambia entre 'Jugadores' y 'Porteros'
-     */
-    function filtrarTipo(tipo) {
-        filtroTipoActual = tipo;
-
-        // Actualizar botones visualmente
-        document.getElementById('btn-tipo-jugador').classList.toggle('active', tipo === 'jugador');
-        document.getElementById('btn-tipo-portero').classList.toggle('active', tipo === 'portero');
-
-        // Gestionar visibilidad del botón de Goles
-        const btnGoles = document.getElementById('btn-sort-goles');
-        if (tipo === 'portero') {
-            btnGoles.style.display = 'none';
-            // Si estábamos ordenando por goles y cambiamos a porteros, resetear orden o cambiar a precio
-            if (ordenActual === 'goles') ordenarPor('precio');
-        } else {
-            btnGoles.style.display = 'flex';
-        }
-
-        aplicarFiltros();
-    }
-
-    /**
-     * Lógica principal de filtrado
-     */
-    function aplicarFiltros() {
-        const textoBusqueda = document.getElementById('searchInput').value.toLowerCase();
-        const tarjetas = document.querySelectorAll('.jugador-card-row');
-        let visibles = 0;
-
-        tarjetas.forEach(card => {
-            const nombre = card.getAttribute('data-nombre');
-            const tipo = card.getAttribute('data-tipo'); // 'portero' o 'jugador'
-
-            // Condición 1: Coincide el tipo (Portero vs Jugador)
-            // Nota: Si quieres ver 'todos' al inicio, cambia la lógica, pero pediste filtrar
-            const coincideTipo = (tipo === filtroTipoActual);
-
-            // Condición 2: El nombre empieza con el texto (o lo contiene)
-            // Usamos 'includes' para mejor UX, pero puedes usar 'startsWith'
-            const coincideNombre = nombre.includes(textoBusqueda);
-
-            if (coincideTipo && coincideNombre) {
-                card.style.display = 'flex'; // Mostrar (flex para mantener diseño)
-                visibles++;
-            } else {
-                card.style.display = 'none'; // Ocultar
-            }
-        });
-
-        // Mostrar mensaje si no hay resultados
-        document.getElementById('noResultsMsg').style.display = (visibles === 0) ? 'block' : 'none';
-    }
-
-    /**
-     * Ordena los elementos del DOM
-     */
-    function ordenarPor(criterio) {
-        ordenActual = criterio;
-
-        // Actualizar clases activas en botones de orden
-        document.getElementById('btn-sort-goles').classList.toggle('active', criterio === 'goles');
-        document.getElementById('btn-sort-puntos').classList.toggle('active', criterio === 'puntos');
-        document.getElementById('btn-sort-precio').classList.toggle('active', criterio === 'precio');
-
-        const contenedor = document.getElementById('contenedorJugadores');
-        const tarjetasArray = Array.from(contenedor.children); // Convertir NodeList a Array
-
-        tarjetasArray.sort((a, b) => {
-            // Obtenemos valores. Usamos parseFloat para números, o 0 si falla
-            const valA = parseFloat(a.getAttribute(`data-${criterio}`)) || 0;
-            const valB = parseFloat(b.getAttribute(`data-${criterio}`)) || 0;
-
-            // Orden descendente (Mayor a menor)
-            return valB - valA;
-        });
-
-        // Re-insertar en el DOM en el nuevo orden
-        tarjetasArray.forEach(card => contenedor.appendChild(card));
-    }
-</script>
-
 </body>
 </html>

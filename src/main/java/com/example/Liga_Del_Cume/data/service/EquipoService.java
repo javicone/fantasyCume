@@ -42,40 +42,45 @@ public class EquipoService {
      * Validaciones:
      * 1. Verifica que el nombre no sea nulo o vacío
      * 2. Verifica que el nombre no contenga solo espacios
-     * 3. Verifica que la liga no sea nula
-     * 4. Verifica que la liga exista en la base de datos
-     * 5. Verifica que no exista otro equipo con el mismo nombre (evita duplicados)
+     * 3. Verifica que el ID de la liga no sea nulo
+     * 4. Verifica que el ID de la liga sea un valor positivo
+     * 5. Verifica que la liga exista en la base de datos
+     * 6. Verifica que no exista otro equipo con el mismo nombre (evita duplicados)
      *
      * @param nombre Nombre del equipo a crear
-     * @param liga Liga a la que pertenecerá el equipo
+     * @param idLiga ID de la liga a la que pertenecerá el equipo
+     * @param URLescudo URL del escudo del equipo
      * @return Equipo creado y guardado en la base de datos
      * @throws EquipoException Si alguna validación falla
      */
-    public Equipo agregarEquipo(String nombre, LigaCume liga) {
+    public Equipo agregarEquipo(String nombre, Long idLiga, String URLescudo) {
         // Validación 1: Verificar que el nombre no sea nulo o vacío
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new EquipoException("El nombre del equipo no puede ser nulo o vacío");
         }
 
         // Validación 2: Verificar que el nombre no contenga solo espacios en blanco
-        if (nombre.trim().length() == 0) {
+        if (nombre.trim().isEmpty()) {
             throw new EquipoException("El nombre del equipo no puede contener solo espacios en blanco");
         }
 
-        // Validación 3: Verificar que la liga no sea nula
-        if (liga == null) {
-            throw new EquipoException("La liga no puede ser nula. El equipo debe pertenecer a una liga.");
+        // Validación 3: Verificar que el ID de la liga no sea nulo
+        if (idLiga == null) {
+            throw new EquipoException("El ID de la liga no puede ser nulo. El equipo debe pertenecer a una liga.");
         }
 
-        // Validación 4: Verificar que la liga exista en la base de datos
-        if (liga.getIdLigaCume() != null) {
-            LigaCume ligaExistente = ligaCumeRepository.findById(liga.getIdLigaCume())
-                    .orElseThrow(() -> new EquipoException(
-                        "No existe ninguna liga con ID: " + liga.getIdLigaCume()
-                    ));
+        // Validación 4: Verificar que el ID de la liga sea un valor positivo
+        if (idLiga <= 0) {
+            throw new EquipoException("El ID de la liga debe ser un valor positivo: " + idLiga);
         }
 
-        // Validación 5: Verificar que no exista otro equipo con el mismo nombre
+        // Validación 5: Verificar que la liga exista en la base de datos
+        LigaCume liga = ligaCumeRepository.findById(idLiga)
+                .orElseThrow(() -> new EquipoException(
+                    "No existe ninguna liga con ID: " + idLiga
+                ));
+
+        // Validación 6: Verificar que no exista otro equipo con el mismo nombre
         // Esto evita duplicados y confusiones en el sistema
         Equipo equipoExistente = equipoRepository.findByNombreEquipoIgnoreCase(nombre.trim());
         if (equipoExistente != null) {
@@ -89,6 +94,7 @@ public class EquipoService {
         Equipo equipo = new Equipo();
         equipo.setNombreEquipo(nombre.trim()); // Eliminar espacios al inicio y final
         equipo.setLiga(liga);
+        equipo.setEscudoURL(URLescudo);
 
         // Guardar y retornar el equipo creado
         return equipoRepository.save(equipo);
@@ -313,6 +319,59 @@ public class EquipoService {
     public List<Equipo> listarTodosLosEquipos() {
         // Obtener todos los equipos de la base de datos
         return equipoRepository.findAll();
+    }
+
+    /**
+     * Método alternativo para listar todos los equipos
+     * (alias de listarTodosLosEquipos para mayor claridad)
+     */
+    public List<Equipo> listarTodosEquipos() {
+        return listarTodosLosEquipos();
+    }
+
+    /**
+     * Crear un equipo sin asociarlo a una liga específica
+     *
+     * Este método permite crear equipos que posteriormente pueden
+     * ser asociados a diferentes ligas.
+     *
+     * Validaciones:
+     * 1. Verifica que el nombre no sea nulo o vacío
+     * 2. Verifica que la URL del escudo no sea nula o vacía
+     * 3. Verifica que no exista otro equipo con el mismo nombre
+     *
+     * @param nombre Nombre del equipo
+     * @param escudoURL URL de la imagen del escudo
+     * @return Equipo creado y guardado
+     * @throws EquipoException Si alguna validación falla
+     */
+    public Equipo crearEquipoSinLiga(String nombre, String escudoURL) {
+        // Validación 1: Verificar que el nombre no sea nulo o vacío
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new EquipoException("El nombre del equipo no puede ser nulo o vacío");
+        }
+
+        // Validación 2: Verificar que la URL del escudo no sea nula o vacía
+        if (escudoURL == null || escudoURL.trim().isEmpty()) {
+            throw new EquipoException("La URL del escudo no puede ser nula o vacía");
+        }
+
+        // Validación 3: Verificar que no exista otro equipo con el mismo nombre
+        Equipo equipoExistente = equipoRepository.findByNombreEquipoIgnoreCase(nombre.trim());
+        if (equipoExistente != null) {
+            throw new EquipoException(
+                "Ya existe un equipo con el nombre '" + nombre +
+                "'. Los nombres de equipos deben ser únicos."
+            );
+        }
+
+        // Crear el equipo
+        Equipo equipo = new Equipo();
+        equipo.setNombreEquipo(nombre.trim());
+        equipo.setEscudoURL(escudoURL.trim());
+
+        // Guardar y retornar el equipo creado
+        return equipoRepository.save(equipo);
     }
 
     /**

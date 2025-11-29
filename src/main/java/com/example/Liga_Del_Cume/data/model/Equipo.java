@@ -14,7 +14,10 @@ public class Equipo {
     @ManyToOne (fetch =  FetchType.EAGER)
     @JoinColumn(name = "liga_id")
     private LigaCume liga;
+
+    @Column(length = 1000)
     private String escudoURL;
+
     private String nombreEquipo;
 
     // Relación 1 a N: Un equipo tiene muchos jugadores

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Equipos - Liga Del Cume</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .add-team-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 1.2rem 2rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-team-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .add-team-btn i {
+            font-size: 2rem;
+            background: white;
+            color: #667eea;
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+
+        .team-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .team-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .team-name {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .team-players {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .delete-btn {
+            background: rgba(255, 51, 102, 0.9);
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .delete-btn:hover {
+            background: #ff1744;
+            transform: scale(1.1);
+        }
+
+        .alert {
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .no-teams {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú Lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1 class="page-title">Gestionar Equipos</h1>
+
+        <!-- Mensajes de éxito o error -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Botón para añadir nuevo equipo -->
+        <a th:href="@{/liga/{ligaId}/admin/equipos/nuevo(ligaId=${ligaId})}" class="add-team-btn">
+            <i class="bi bi-plus-square-fill"></i>
+            <span>Añadir nuevo equipo</span>
+        </a>
+
+        <!-- Lista de equipos -->
+        <div th:if="${equipos != null and !equipos.isEmpty()}">
+            <div th:each="equipo : ${equipos}" class="team-card">
+                <a th:href="@{/liga/{ligaId}/admin/equipos/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}"
+                   style="text-decoration: none; flex: 1; display: flex;">
+                    <div class="team-info">
+                        <div class="team-badge">
+                            <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/80'}"
+                                 th:alt="${equipo.nombreEquipo}"
+                                 onerror="this.src='https://via.placeholder.com/80?text=Escudo'">
+                        </div>
+                        <div>
+                            <h2 class="team-name" th:text="${equipo.nombreEquipo}">Nombre del Equipo</h2>
+                            <p class="team-players">
+                                Jugadores:
+                                <span th:text="${equipo.jugadores != null ? equipo.jugadores.size() : 0}">0</span>/25
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Botón de eliminar -->
+                <button type="button"
+                        class="delete-btn"
+                        onclick="showDeleteModal(this)"
+                        th:data-equipo-id="${equipo.idEquipo}"
+                        th:data-equipo-nombre="${equipo.nombreEquipo}"
+                        th:data-liga-id="${ligaId}"
+                        title="Eliminar equipo">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación único (fuera del loop) -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
+                    <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                        <h5 class="modal-title" style="color: white; font-weight: 700;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" style="color: white; font-size: 1.1rem;">
+                        ¿Estás seguro de que deseas eliminar el equipo
+                        <strong id="equipoNombre"></strong>?
+                        <br><br>
+                        Esta acción eliminará también todos los jugadores asociados a este equipo.
+                    </div>
+                    <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                            Cancelar
+                        </button>
+                        <form id="deleteForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" style="border-radius: 10px; font-weight: 600;">
+                                <i class="bi bi-trash-fill"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje cuando no hay equipos -->
+        <div th:if="${equipos == null or equipos.isEmpty()}" class="no-teams">
+            <i class="bi bi-inbox" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+            <p>No hay equipos registrados</p>
+            <p style="font-size: 1.2rem;">Comienza agregando un nuevo equipo</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showDeleteModal(button) {
+            // Obtener datos del botón
+            const equipoId = button.getAttribute('data-equipo-id');
+            const equipoNombre = button.getAttribute('data-equipo-nombre');
+            const ligaId = button.getAttribute('data-liga-id');
+
+            // Actualizar el contenido del modal
+            document.getElementById('equipoNombre').textContent = equipoNombre;
+
+            // Actualizar la acción del formulario
+            const form = document.getElementById('deleteForm');
+            form.action = `/liga/${ligaId}/admin/equipos/eliminar/${equipoId}`;
+
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
+

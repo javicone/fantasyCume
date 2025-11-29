@@ -25,51 +25,129 @@
             min-height: 100vh;
         }
 
-        .ranking-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 2rem;
+        .ranking-container {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 28px;
         }
 
+        .ranking-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 8px 0 32px;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Tabla principal */
         .ranking-table {
             width: 100%;
-            max-width: 800px;
-            background: white;
-            border-radius: 10px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 14px 30px rgba(2, 6, 23, 0.7);
+            background: #ffffff;
         }
 
-        .ranking-table th {
-            background: #6B1515;
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: bold;
+        /* Header borgoña */
+        .ranking-table thead th {
+            background: linear-gradient(180deg, #6d1515, #5a1010);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 20px 28px;
+            text-align: center;
         }
 
-        .ranking-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-            color: #333;
+        /* Filas */
+        .ranking-table tbody td {
+            padding: 18px 28px;
+            font-size: 20px;
+            color: #222;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            background: #fff;
         }
 
-        .ranking-table tr:last-child td {
+        .ranking-table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        .ranking-table tr:hover {
-            background: #f5f5f5;
+        /* Resaltar top3 con colores tipo medalla */
+        .ranking-table tbody tr:nth-child(1) td {
+            color: #7a2a00;
+            font-weight: 800;
         }
 
+        .ranking-table tbody tr:nth-child(1) td:first-child {
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .ranking-table tbody tr:nth-child(2) td:first-child {
+            color: #c0c0c0;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .ranking-table tbody tr:nth-child(3) td:first-child {
+            color: #cd7f32;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        /* Hover suave */
+        .ranking-table tbody tr:hover td {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(109, 21, 21, 0.08));
+            transform: translateY(-2px);
+            transition: all 0.18s ease;
+        }
+
+        /* Alineaciones específicas */
+        .ranking-table td.position,
+        .ranking-table th.position {
+            width: 15%;
+        }
+
+        .ranking-table td.user,
+        .ranking-table th.user {
+            width: 60%;
+            text-align: left;
+            padding-left: 40px;
+        }
+
+        .ranking-table td.points,
+        .ranking-table th.points {
+            width: 25%;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
                 padding: 1rem;
             }
 
+            .ranking-container {
+                padding: 16px;
+                margin: 12px;
+            }
+
             .ranking-title {
-                font-size: 1.8rem;
+                font-size: 36px;
+            }
+
+            .ranking-table tbody td {
+                font-size: 16px;
+                padding: 14px 18px;
+            }
+
+            .ranking-table thead th {
+                font-size: 16px;
+                padding: 16px 18px;
             }
         }
     </style>
@@ -80,30 +158,32 @@
 
     <!-- Contenido principal -->
     <div class="main-content">
-        <h1 class="ranking-title">Ranking</h1>
+        <div class="ranking-container">
+            <h1 class="ranking-title">Ranking</h1>
 
-        <!-- Mensaje si no hay usuarios -->
-        <div th:if="${#lists.isEmpty(usuarios)}">
-            <p>No hay usuarios en esta liga</p>
+            <!-- Mensaje si no hay usuarios -->
+            <div th:if="${#lists.isEmpty(usuarios)}">
+                <p>No hay usuarios en esta liga</p>
+            </div>
+
+            <!-- Tabla de ranking -->
+            <table th:if="${!#lists.isEmpty(usuarios)}" class="ranking-table">
+                <thead>
+                    <tr>
+                        <th class="position">Posición</th>
+                        <th class="user">Usuario</th>
+                        <th class="points">Puntos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario, iterStat : ${usuarios}">
+                        <td class="position" th:text="${iterStat.index + 1}">1</td>
+                        <td class="user" th:text="${usuario.nombreUsuario}">Usuario</td>
+                        <td class="points" th:text="${usuario.puntosAcumulados}">0</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Tabla de ranking -->
-        <table th:if="${!#lists.isEmpty(usuarios)}" class="ranking-table">
-            <thead>
-                <tr>
-                    <th>Posición</th>
-                    <th>Usuario</th>
-                    <th>Puntos</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="usuario, iterStat : ${usuarios}">
-                    <td th:text="${iterStat.index + 1}">1</td>
-                    <td th:text="${usuario.nombreUsuario}">Usuario</td>
-                    <td th:text="${usuario.puntosAcumulados}">0</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

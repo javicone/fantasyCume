@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Equipo - Liga Del Cume</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .team-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .back-arrow:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+            color: white;
+        }
+
+        .team-header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .team-badge-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-badge-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .team-info-header {
+            flex: 1;
+        }
+
+        .team-name-header {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-stats {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+        }
+
+        .delete-team-btn {
+            background: rgba(255, 51, 102, 0.9);
+            border: none;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .delete-team-btn:hover {
+            background: #ff1744;
+            transform: translateY(-2px);
+        }
+
+        .add-player-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 1.2rem 2rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+        }
+
+        .add-player-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+            color: white;
+        }
+
+        .add-player-btn i {
+            font-size: 2rem;
+            background: white;
+            color: #667eea;
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            padding: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-name {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .player-position {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .delete-player-btn {
+            background: rgba(255, 51, 102, 0.9);
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .delete-player-btn:hover {
+            background: #ff1744;
+            transform: scale(1.1);
+        }
+
+        .alert {
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+            border: none;
+        }
+
+        .no-players {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú Lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1 class="page-title">Editar Equipo</h1>
+
+        <!-- Mensajes de éxito o error -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Cabecera del equipo -->
+        <div class="team-header">
+            <!-- Flecha para volver -->
+            <a th:href="@{/liga/{ligaId}/admin/equipos(ligaId=${ligaId})}" class="back-arrow" title="Volver">
+                <i class="bi bi-arrow-return-left"></i>
+            </a>
+
+            <div class="team-header-content">
+                <div class="team-badge-large">
+                    <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/120'}"
+                         th:alt="${equipo.nombreEquipo}"
+                         onerror="this.src='https://via.placeholder.com/120?text=Escudo'">
+                </div>
+
+                <div class="team-info-header">
+                    <h2 class="team-name-header">
+                        Nombre equipo: <span th:text="${equipo.nombreEquipo}">Nombre del Equipo</span>
+                    </h2>
+                    <div class="team-stats">
+                        Jugadores <span th:text="${jugadoresActivos}">0</span>/25
+                    </div>
+
+                    <!-- Botón para borrar equipo -->
+                    <button type="button"
+                            class="delete-team-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteTeamModal">
+                        <i class="bi bi-trash-fill"></i> Borrar Equipo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón para añadir nuevo jugador -->
+        <a th:href="@{/liga/{ligaId}/admin/equipos/{id}/jugador/nuevo(ligaId=${ligaId},id=${equipo.idEquipo})}" class="add-player-btn">
+            <i class="bi bi-plus-square-fill"></i>
+            <span>Añadir nuevo jugador</span>
+        </a>
+
+        <!-- Lista de jugadores -->
+        <div th:if="${equipo.jugadores != null and !equipo.jugadores.isEmpty()}">
+            <div th:each="jugador : ${equipo.jugadores}" class="player-card">
+                <a th:href="@{/liga/{ligaId}/admin/equipos/{equipoId}/jugador/{jugadorId}/editar(ligaId=${ligaId},equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+                   style="text-decoration: none; flex: 1; display: flex;">
+                    <div class="player-info">
+                        <div class="player-avatar">
+                            <img th:src="${jugador.avatarUrl != null ? jugador.avatarUrl : 'https://via.placeholder.com/60'}"
+                                 th:alt="${jugador.nombreJugador}"
+                                 onerror="this.src='https://via.placeholder.com/60?text=J'">
+                        </div>
+                        <div class="player-details">
+                            <h3 class="player-name" th:text="${jugador.nombreJugador}">Nombre del Jugador</h3>
+                            <p class="player-position" th:text="${jugador.esPortero ? 'Portero' : 'Jugador de Campo'}">Posición</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Botón de eliminar jugador -->
+                <button type="button"
+                        class="delete-player-btn"
+                        data-bs-toggle="modal"
+                        th:data-bs-target="'#deletePlayerModal' + ${jugador.idJugador}"
+                        title="Eliminar jugador">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+
+                <!-- Modal de confirmación para eliminar jugador -->
+                <div class="modal fade" th:id="'deletePlayerModal' + ${jugador.idJugador}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
+                            <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                                <h5 class="modal-title" style="color: white; font-weight: 700;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" style="color: white; font-size: 1.1rem;">
+                                ¿Estás seguro de que deseas eliminar al jugador
+                                <strong th:text="${jugador.nombreJugador}"></strong>?
+                                <br><br>
+                                <span th:if="${jugador.esPortero and numPorteros <= 1}" style="color: #ffeb3b; font-weight: 700;">
+                                    ⚠️ No puedes eliminar al único portero del equipo.
+                                </span>
+                            </div>
+                            <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                                    Cancelar
+                                </button>
+                                <form th:action="@{/liga/{ligaId}/admin/equipos/{equipoId}/jugador/eliminar/{jugadorId}(ligaId=${ligaId},equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+                                      method="post"
+                                      style="display: inline;">
+                                    <button type="submit"
+                                            class="btn btn-danger"
+                                            style="border-radius: 10px; font-weight: 600;"
+                                            th:disabled="${jugador.esPortero and numPorteros <= 1}">
+                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje cuando no hay jugadores -->
+        <div th:if="${equipo.jugadores == null or equipo.jugadores.isEmpty()}" class="no-players">
+            <i class="bi bi-person-x" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+            <p>No hay jugadores en este equipo</p>
+            <p style="font-size: 1.2rem;">Comienza agregando un nuevo jugador</p>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar equipo -->
+    <div class="modal fade" id="deleteTeamModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
+                <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                    <h5 class="modal-title" style="color: white; font-weight: 700;">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación del Equipo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="color: white; font-size: 1.1rem;">
+                    ¿Estás seguro de que deseas eliminar el equipo
+                    <strong th:text="${equipo.nombreEquipo}"></strong>?
+                    <br><br>
+                    <span style="color: #ffeb3b; font-weight: 700;">
+                        ⚠️ Esta acción eliminará también todos los jugadores de este equipo (<span th:text="${jugadoresActivos}">0</span> jugadores).
+                    </span>
+                </div>
+                <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                        Cancelar
+                    </button>
+                    <form th:action="@{/liga/{ligaId}/admin/equipos/eliminar/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" style="border-radius: 10px; font-weight: 600;">
+                            <i class="bi bi-trash-fill"></i> Eliminar Equipo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
