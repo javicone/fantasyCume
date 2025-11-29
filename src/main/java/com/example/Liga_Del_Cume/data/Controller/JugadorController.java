@@ -3,6 +3,7 @@ package com.example.Liga_Del_Cume.data.Controller;
 import com.example.Liga_Del_Cume.data.model.EstadisticaJugadorPartido;
 import com.example.Liga_Del_Cume.data.model.Jugador;
 import com.example.Liga_Del_Cume.data.service.JugadorService;
+import com.example.Liga_Del_Cume.data.service.EstadisticaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,78 +15,68 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 @Controller
 public class JugadorController {
 
     @Autowired
     private JugadorService jugadorService;
 
+    @Autowired
+    private EstadisticaService estadisticaService;
     /**
      * Muestra la lista de estadísticas de jugadores con filtros
      */
     @GetMapping("/liga/{idLiga}/estadisticasJugadores")
     public String mostrarEstadisticasJugadores(
-    @PathVariable Long idLiga,
-    @RequestParam(required = false) String buscar,
-    @RequestParam(required = false, defaultValue = "false") boolean mostrarPorteros,
-    @RequestParam(required = false) String ordenar,
-    Model model) {
+            @PathVariable Long idLiga,
+            @RequestParam(required = false) String buscar,
+            @RequestParam(required = false, defaultValue = "false") boolean mostrarPorteros,
+            @RequestParam(required = false) String ordenar,
+            Model model) {
 
         List<Jugador> jugadores;
+        jugadores = jugadorService.listarTodosLosJugadores();
+        // 4. CÁLCULO DE MAPAS (Esta lógica está correcta)
+        Map<Long, Integer> puntosTotalesMap = jugadores.stream()
+                .collect(Collectors.toMap(Jugador::getIdJugador, this::calcularPuntosTotales));
+        Map<Long, Integer> golesTotalesMap = jugadores.stream()
+                .collect(Collectors.toMap(Jugador::getIdJugador, this::calcularGolesTotal));
 
-        // Filtrar por tipo de jugador
-        if (mostrarPorteros) {
-            jugadores = jugadorService.listarPorteros();
-        } else {
-            jugadores = jugadorService.listarJugadoresDeCampo();
-        }
+        // 5. AÑADIR AL MODELO (Esto es correcto)
+        model.addAttribute("jugadores", jugadores);
+        model.addAttribute("puntosTotalesMap", puntosTotalesMap);
+        model.addAttribute("golesTotalesMap", golesTotalesMap);
+        model.addAttribute("buscar", buscar);
+        model.addAttribute("ordenar", ordenar);
+        model.addAttribute("idLiga", idLiga);
 
-        // Aplicar búsqueda por nombre
-        if (buscar != null && !buscar.trim().isEmpty()) {
-            String busquedaLower = buscar.toLowerCase();
-            jugadores = jugadorService.buscarPorNombreAMedias(busquedaLower);
+        // Es importante enviar el valor de 'mostrarPorteros' al modelo
+        // La RequestParam ya lo tiene, pero para claridad en Thymeleaf lo añadimos.
+        model.addAttribute("mostrarPorteros", mostrarPorteros);
 
-            // Aplicar ordenación
-            if ("goles".equals(ordenar)) {
-                jugadores = jugadorService.buscarJugadoresPorGolesDesc();
-            } else if ("puntos".equals(ordenar)) {
-                jugadores = jugadorService.buscarJugadoresOrdenadosPorPuntos();
-            } else if ("precio".equals(ordenar)) {
-                jugadores = jugadorService.buscarPorPrecioMayorAMenor();
-            }
-
-            // Mapa de puntos Y Mapa de Goles
-            Map<Long, Integer> puntosTotalesMap = new HashMap<>();
-            Map<Long, Integer> golesTotalesMap = new HashMap<>(); // <--- NUEVO MAPA
-
-            for (Jugador jugador : jugadores) {
-                puntosTotalesMap.put(jugador.getIdJugador(), calcularPuntosTotales(jugador));
-                // Calculamos y guardamos los goles para enviarlos a la vista
-                golesTotalesMap.put(jugador.getIdJugador(), calcularGolesTotal(jugador));
-            }
-
-            model.addAttribute("jugadores", jugadores);
-            model.addAttribute("puntosTotalesMap", puntosTotalesMap);
-            model.addAttribute("golesTotalesMap", golesTotalesMap); // <--- AÑADIR AL MODELO
-            model.addAttribute("buscar", buscar);
-            model.addAttribute("ordenar", ordenar);
-            model.addAttribute("idLiga", idLiga);
-        }
-            return "estadisticasJugadores";
-
+        return "estadisticasJugadores";
     }
+
 
     /**
      * Muestra el detalle de un jugador específico
      */
     @GetMapping("/liga/{idLiga}/jugador/{idJugador}")
-    public String verDetalleJugador (
+    public String verDetalleJugador(
             @PathVariable Long idLiga,
             @PathVariable Long idJugador,
-            Model model){
+            Model model) {
+
 
         Jugador jugador = jugadorService.obtenerJugador(idJugador);
+        List<EstadisticaJugadorPartido> estadisticas = estadisticaService.obtenerEstadisticasJugador(idJugador);
+        // IMPORTANTE: Ordenar las estadísticas por número de jornada para la gráfica
+        // Asumiendo que EstadisticaJugadorPartido tiene -> getPartido() -> getJornada() -> getNumeroJornada()
+
+        model.addAttribute("jugador", jugador);
+        // Pasamos la lista completa en lugar de los totales sueltos
+        model.addAttribute("estadisticas", estadisticas);
+        model.addAttribute("idLiga", idLiga);
 
         // Calcular estadísticas totales
         int golesTotal = calcularGolesTotal(jugador);
@@ -95,14 +86,13 @@ public class JugadorController {
         int golesRecibidosTotal = calcularGolesRecibidosTotal(jugador);
         int puntosTotal = calcularPuntosTotales(jugador);
 
-        model.addAttribute("jugador", jugador);
+
         model.addAttribute("golesTotal", golesTotal);
         model.addAttribute("asistenciasTotal", asistenciasTotal);
         model.addAttribute("tarjetasAmarillasTotal", tarjetasAmarillasTotal);
         model.addAttribute("tarjetasRojasTotal", tarjetasRojasTotal);
         model.addAttribute("golesRecibidosTotal", golesRecibidosTotal);
         model.addAttribute("puntosTotal", puntosTotal);
-        model.addAttribute("idLiga", idLiga);
 
         return "detalleJugador";
     }

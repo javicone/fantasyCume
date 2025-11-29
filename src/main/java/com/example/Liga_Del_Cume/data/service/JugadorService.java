@@ -282,7 +282,7 @@ public class JugadorService {
      * @return Lista de porteros ordenados por puntos
      */
     public List<Jugador> buscarPorterosPorPuntosDesc() {
-        List<Jugador> porteros = jugadorRepository.findByEsPortero(true);
+        List<Jugador> porteros = jugadorRepository.findByEsPorteroOrderByPrecioMercadoDesc(true);
         // Ordenar por puntos si existe método en repository, de lo contrario usar este
         return porteros;
     }

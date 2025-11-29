@@ -4,303 +4,245 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle Jugador</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style th:replace="~{menu :: menuStyles}"></style>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ... (TUS ESTILOS SE MANTIENEN IGUAL) ... */
+        body { margin: 0; padding: 0; background: #0A0E27; color: white; font-family: Arial, sans-serif; min-height: 100vh; }
+        .main-content { margin-left: 230px; padding: 2rem; min-height: 100vh; }
+        h1 { font-size: 3rem; margin-bottom: 30px; text-align: center; background: linear-gradient(90deg, #fff, #FF3366); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1.5rem; color: #FF3366; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: white;
-            min-height: 100vh;
-        }
+        .btn-volver { display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; font-weight: 500; transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.2); margin-bottom: 30px; }
+        .btn-volver:hover { background: #FF3366; border-color: #FF3366; color: white; }
 
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
+        .jugador-card { max-width: 900px; margin: 0 auto; background: linear-gradient(165deg, rgba(30,30,50,0.9) 0%, rgba(20,20,35,0.95) 100%); border-radius: 20px; padding: 40px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .jugador-header { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .img-wrapper { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+        .jugador-foto-grande { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #fff; background: #fff; }
+        .jugador-info-header { flex: 1; }
+        .equipo-info { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .equipo-escudo { width: 30px; height: 30px; object-fit: contain; }
+        .equipo-nombre { font-size: 1rem; color: #ccc; }
+        .jugador-nombre-detalle { font-size: 2rem; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .jugador-posicion { display: inline-block; padding: 4px 12px; background: #FF3366; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
 
-        /* Menú lateral */
-        .sidebar {
-            width: 230px;
-            background: linear-gradient(180deg, #6B1515 0%, #FF3333 100%);
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
+        .estadisticas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 3rem; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s; }
+        .stat-card:hover { border-color: #FF3366; transform: translateY(-3px); background: rgba(255, 255, 255, 0.08); }
+        .stat-label { font-size: 0.75rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.8rem; font-weight: 900; color: white; }
 
-        .sidebar nav a {
-            display: block;
-            padding: 15px 20px;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
+        .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 3rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 15px; }
 
-        .sidebar nav a:hover,
-        .sidebar nav a.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-left: 4px solid white;
-            padding-left: 16px;
-        }
+        .carousel-item-content { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 2rem; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); margin: 0 50px; }
+        .match-info { margin-bottom: 1.5rem; }
+        .jornada-badge { background: #FF3366; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .rival-text { font-size: 1.5rem; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .mini-stats-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 1rem; }
+        .mini-stat { text-align: center; }
+        .mini-stat small { display: block; color: #aaa; font-size: 0.8rem; }
+        .mini-stat strong { font-size: 1.3rem; color: #fff; }
 
-        /* Contenido principal */
-        .main-content {
-            margin-left: 230px;
-            flex: 1;
-            padding: 40px;
-        }
+        .portero-only { display: none; }
+        .portero-only.visible { display: block; }
+        .text-goles { color: #FF3366; }
+        .text-puntos { color: #FFD700; }
 
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 30px;
-            text-align: center;
-            background: linear-gradient(90deg, #FF3333, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Botón volver */
-        .btn-volver {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            border: 2px solid #FF3333;
-            margin-bottom: 30px;
-            cursor: pointer;
-        }
-
-        .btn-volver:hover {
-            background: #FF3333;
-            transform: translateX(-5px);
-        }
-
-        /* Card del jugador */
-        .jugador-card {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 40px;
-            border: 2px solid rgba(255, 51, 51, 0.3);
-        }
-
-        .jugador-header {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 40px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .jugador-foto-grande {
-            width: 150px;
-            height: 150px;
-            border-radius: 15px;
-            object-fit: cover;
-            border: 4px solid #FF3333;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .jugador-info-header {
-            flex: 1;
-        }
-
-        .equipo-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .equipo-escudo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #FF3333;
-        }
-
-        .equipo-nombre {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .jugador-nombre-detalle {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .jugador-posicion {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #FF3333;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Estadísticas */
-        .estadisticas-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            border-color: #FF3333;
-            transform: translateY(-5px);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #FF3333;
-        }
-
-        .stat-extra {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Ocultar goles recibidos para jugadores de campo */
-        .portero-only {
-            display: none;
-        }
-
-        .portero-only.visible {
-            display: block;
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 1rem; }
+            .carousel-item-content { margin: 0; padding: 1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Menú lateral -->
-        <aside class="sidebar">
-            <nav>
-                <a th:href="@{/ligas}">Mis Ligas</a>
-                <a th:href="@{/liga/{id}/ranking(id=${idLiga})}">Ranking</a>
-                <a th:href="@{/liga/{id}/historialAlineaciones(id=${idLiga})}">Historial De Alineaciones</a>
-                <a th:href="@{/liga/{id}/alineacionFutura(id=${idLiga})}">Alineación Futura</a>
-                <a th:href="@{/liga/{id}/ranking(id=${idLiga})}">Clasificación</a>
-                <a th:href="@{/liga/{id}/resultados(id=${idLiga})}">Ver Resultados</a>
-                <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga})}" class="active">Ver Estadísticos Jugadores</a>
-                <a th:href="@{/logout}">CERRAR SESIÓN</a>
-                <a th:href="@{/liga/{id}/abandonar(id=${idLiga})}">ABANDONAR LIGA</a>
-            </nav>
-        </aside>
 
-        <!-- Contenido principal -->
-        <main class="main-content">
-            <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga})}" class="btn-volver">
-                ↩ Volver a la lista
-            </a>
+<div th:replace="~{menu :: menuLateral}"></div>
 
-            <h1>Estadísticas del Jugador</h1>
+<main class="main-content">
+    <a th:href="@{/liga/{id}/estadisticasJugadores(id=${idLiga})}" class="btn-volver">
+        <i class="bi bi-arrow-left"></i> Volver a la lista
+    </a>
 
-            <div class="jugador-card">
-                <!-- Header con foto y datos básicos -->
-                <div class="jugador-header">
-                    <img th:src="${jugador.avatarUrl}"
-                         alt="Foto jugador"
-                         class="jugador-foto-grande"
-                         onerror="this.src='https://via.placeholder.com/150?text=Jugador'">
+    <h1>Ficha del Jugador</h1>
 
-                    <div class="jugador-info-header">
-                        <div class="equipo-info">
-                            <img th:src="${jugador.equipo.escudoUrl}"
-                                 alt="Escudo"
-                                 class="equipo-escudo"
-                                 onerror="this.src='https://via.placeholder.com/50?text=Escudo'">
-                            <span class="equipo-nombre" th:text="${jugador.equipo.nombreEquipo}">Nombre Equipo</span>
+    <div class="jugador-card">
+
+        <div class="jugador-header">
+            <div class="img-wrapper">
+                <img th:src="${jugador.avatarUrl != null and jugador.avatarUrl != '' ? jugador.avatarUrl : 'https://ui-avatars.com/api/?name=' + #strings.replace(jugador.nombreJugador, ' ', '+') + '&size=256&background=random&bold=true&rounded=true'}"
+                     th:alt="${jugador.nombreJugador}" class="jugador-foto-grande">
+            </div>
+            <div class="jugador-info-header">
+                <div class="equipo-info">
+                    <img th:src="${jugador.equipo.escudoURL}" alt="Escudo" class="equipo-escudo">
+                    <span class="equipo-nombre" th:text="${jugador.equipo.nombreEquipo}">Nombre Equipo</span>
+                </div>
+                <div class="jugador-nombre-detalle" th:text="${jugador.nombreJugador}">Nombre Jugador</div>
+                <span class="jugador-posicion" th:text="${jugador.esPortero ? 'Portero' : 'Jugador de Campo'}">Posición</span>
+            </div>
+        </div>
+
+        <h2>Totales de Temporada</h2>
+        <div class="estadisticas-grid">
+            <div class="stat-card">
+                <div class="stat-label">Valor Mercado</div>
+                <div class="stat-value" style="color: #FFD700;"
+                     th:text="${#numbers.formatDecimal(jugador.precioMercado / 1000000.0, 1, 2) + ' M€'}">0 M€</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Puntos Totales</div>
+                <div class="stat-value" th:text="${puntosTotal}">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Goles</div>
+                <div class="stat-value text-goles" th:text="${golesTotal}">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Asistencias</div>
+                <div class="stat-value" th:text="${asistenciasTotal}">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">T. Amarillas</div>
+                <div class="stat-value" style="color: #FFD700;" th:text="${amarillasTotal}">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">T. Rojas</div>
+                <div class="stat-value" style="color: #FF3333;" th:text="${rojasTotal}">0</div>
+            </div>
+
+            <div class="stat-card portero-only" th:classappend="${jugador.esPortero ? 'visible' : ''}">
+                <div class="stat-label">Goles Recibidos</div>
+                <div class="stat-value" th:text="${golesRecibidosTotal}">0</div>
+            </div>
+        </div>
+
+        <h2>Evolución de Puntos</h2>
+        <div class="chart-container">
+            <canvas id="puntosChart"></canvas>
+        </div>
+
+        <h2>Detalle por Jornada</h2>
+        <div id="carouselJornadas" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner">
+
+                <div th:each="stat, iterStat : ${estadisticas}"
+                     class="carousel-item"
+                     th:classappend="${iterStat.index == 0} ? 'active'">
+
+                    <div class="carousel-item-content">
+                        <div class="match-info">
+                            <span class="jornada-badge" th:text="'Jornada ' + ${stat.partido.jornada.idJornada}">Jornada X</span>
+
+                            <div class="rival-text" th:with="esLocal=${stat.partido.equipoLocal.idEquipo == jugador.equipo.idEquipo},
+                                            rival=${esLocal ? stat.partido.equipoVisitante : stat.partido.equipoLocal}">
+                                <span>VS</span>
+                                <img th:src="${rival.escudoURL}" style="width: 40px; height: 40px; margin: 0 10px;" alt="Rival">
+                                <span th:text="${rival.nombreEquipo}">Rival</span>
+                                <span style="font-size: 0.8em; color: #888; margin-left: 10px;"
+                                      th:text="${esLocal ? '(Casa)' : '(Fuera)'}"></span>
+                            </div>
                         </div>
 
-                        <div class="jugador-nombre-detalle" th:text="${jugador.nombreJugador}">Rodrigo Vicente</div>
-
-                        <span class="jugador-posicion" th:text="${jugador.esPortero ? 'Portero' : 'Jugador de campo'}">Jugador de campo</span>
+                        <div class="mini-stats-grid">
+                            <div class="mini-stat">
+                                <small>Puntos</small>
+                                <strong class="text-puntos" th:text="${stat.puntosJornada}">0</strong>
+                            </div>
+                            <div class="mini-stat">
+                                <small>Goles</small>
+                                <strong th:text="${stat.golesAnotados}">0</strong>
+                            </div>
+                            <div class="mini-stat" th:if="${stat.asistencias > 0}">
+                                <small>Asistencias</small>
+                                <strong th:text="${stat.asistencias}">0</strong>
+                            </div>
+                            <div class="mini-stat" th:if="${stat.tarjetaAmarillas > 0}">
+                                <small>T. Amarilla</small>
+                                <strong style="color: #FFD700;">Sí</strong>
+                            </div>
+                            <div class="mini-stat" th:if="${stat.tarjetaRojas}">
+                                <small>T. Roja</small>
+                                <strong style="color: #FF3333;">Sí</strong>
+                            </div>
+                            <div class="mini-stat" th:if="${jugador.esPortero}">
+                                <small>Goles Encajados</small>
+                                <strong th:text="${stat.golesRecibidos}">0</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Grid de estadísticas -->
-                <div class="estadisticas-grid">
-                    <!-- Precio -->
-                    <div class="stat-card">
-                        <div class="stat-label">Precio</div>
-                        <div class="stat-value" th:text="${#numbers.formatDecimal(jugador.precioMercado, 0, 'COMMA', 0, 'POINT')} + '€'">25.000€</div>
-                    </div>
-
-                    <!-- Puntos totales -->
-                    <div class="stat-card">
-                        <div class="stat-label">Puntos Totales</div>
-                        <div class="stat-value" th:text="${puntosTotal}">77</div>
-                    </div>
-
-                    <!-- Goles -->
-                    <div class="stat-card">
-                        <div class="stat-label">Goles</div>
-                        <div class="stat-value" th:text="${golesTotal}">10</div>
-                    </div>
-
-                    <!-- Asistencias -->
-                    <div class="stat-card">
-                        <div class="stat-label">Asistencias</div>
-                        <div class="stat-value" th:text="${asistenciasTotal}">3</div>
-                    </div>
-
-                    <!-- Tarjetas Amarillas -->
-                    <div class="stat-card">
-                        <div class="stat-label">Tarjetas Amarillas</div>
-                        <div class="stat-value" th:text="${tarjetasAmarillasTotal}">3</div>
-                    </div>
-
-                    <!-- Tarjetas Rojas -->
-                    <div class="stat-card">
-                        <div class="stat-label">Tarjetas Rojas</div>
-                        <div class="stat-value" th:text="${tarjetasRojasTotal}">0</div>
-                    </div>
-
-                    <!-- Goles Recibidos (solo para porteros) -->
-                    <div class="stat-card portero-only" th:classappend="${jugador.esPortero ? 'visible' : ''}">
-                        <div class="stat-label">Goles Recibidos</div>
-                        <div class="stat-value" th:text="${golesRecibidosTotal}">0</div>
-                        <div class="stat-extra">Solo para porteros</div>
-                    </div>
+                <div th:if="${#lists.isEmpty(estadisticas)}" class="text-center py-5">
+                    <p style="color: #888;">El jugador no ha disputado partidos todavía.</p>
                 </div>
+
             </div>
-        </main>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselJornadas" data-bs-slide="prev" th:unless="${#lists.isEmpty(estadisticas)}">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselJornadas" data-bs-slide="next" th:unless="${#lists.isEmpty(estadisticas)}">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+
     </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('puntosChart').getContext('2d');
+
+        // CORRECCIÓN AQUÍ: Cambiado 'numeroJornada' por 'idJornada'
+        /*[+
+        const jornadas = [[${estadisticas.![partido.jornada.idJornada]}]];
+        const puntos = [[${estadisticas.![puntosJornada]}]];
+        +]*/
+
+        if (jornadas && jornadas.length > 0) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    // Añadimos 'J' delante del número para que quede mejor (Ej: J1, J2)
+                    labels: jornadas.map(j => 'J' + j),
+                    datasets: [{
+                        label: 'Puntos',
+                        data: puntos,
+                        borderColor: '#FF3366',
+                        backgroundColor: 'rgba(255, 51, 102, 0.2)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#FF3366',
+                        pointRadius: 5,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#ccc' } },
+                        x: { grid: { display: false }, ticks: { color: '#ccc' } }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
-
