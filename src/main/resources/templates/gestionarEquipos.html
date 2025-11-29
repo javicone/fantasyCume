@@ -192,7 +192,7 @@
         </div>
 
         <!-- Botón para añadir nuevo equipo -->
-        <a th:href="@{/admin/equipos/nuevo}" class="add-team-btn">
+        <a th:href="@{/liga/{ligaId}/admin/equipos/nuevo(ligaId=${ligaId})}" class="add-team-btn">
             <i class="bi bi-plus-square-fill"></i>
             <span>Añadir nuevo equipo</span>
         </a>
@@ -200,7 +200,7 @@
         <!-- Lista de equipos -->
         <div th:if="${equipos != null and !equipos.isEmpty()}">
             <div th:each="equipo : ${equipos}" class="team-card">
-                <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}"
+                <a th:href="@{/liga/{ligaId}/admin/equipos/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}"
                    style="text-decoration: none; flex: 1; display: flex;">
                     <div class="team-info">
                         <div class="team-badge">
@@ -221,39 +221,41 @@
                 <!-- Botón de eliminar -->
                 <button type="button"
                         class="delete-btn"
-                        data-bs-toggle="modal"
-                        th:data-bs-target="'#deleteModal' + ${equipo.idEquipo}"
+                        onclick="showDeleteModal(this)"
+                        th:data-equipo-id="${equipo.idEquipo}"
+                        th:data-equipo-nombre="${equipo.nombreEquipo}"
+                        th:data-liga-id="${ligaId}"
                         title="Eliminar equipo">
                     <i class="bi bi-trash-fill"></i>
                 </button>
+            </div>
+        </div>
 
-                <!-- Modal de confirmación para eliminar -->
-                <div class="modal fade" th:id="'deleteModal' + ${equipo.idEquipo}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
-                            <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
-                                <h5 class="modal-title" style="color: white; font-weight: 700;">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body" style="color: white; font-size: 1.1rem;">
-                                ¿Estás seguro de que deseas eliminar el equipo
-                                <strong th:text="${equipo.nombreEquipo}"></strong>?
-                                <br><br>
-                                Esta acción eliminará también todos los jugadores asociados a este equipo.
-                            </div>
-                            <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
-                                    Cancelar
-                                </button>
-                                <form th:action="@{/admin/equipos/eliminar/{id}(id=${equipo.idEquipo})}" method="post" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger" style="border-radius: 10px; font-weight: 600;">
-                                        <i class="bi bi-trash-fill"></i> Eliminar
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+        <!-- Modal de confirmación único (fuera del loop) -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 20px;">
+                    <div class="modal-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+                        <h5 class="modal-title" style="color: white; font-weight: 700;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" style="color: white; font-size: 1.1rem;">
+                        ¿Estás seguro de que deseas eliminar el equipo
+                        <strong id="equipoNombre"></strong>?
+                        <br><br>
+                        Esta acción eliminará también todos los jugadores asociados a este equipo.
+                    </div>
+                    <div class="modal-footer" style="border-top: 2px solid rgba(255, 255, 255, 0.2);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                            Cancelar
+                        </button>
+                        <form id="deleteForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" style="border-radius: 10px; font-weight: 600;">
+                                <i class="bi bi-trash-fill"></i> Eliminar
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -269,6 +271,26 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showDeleteModal(button) {
+            // Obtener datos del botón
+            const equipoId = button.getAttribute('data-equipo-id');
+            const equipoNombre = button.getAttribute('data-equipo-nombre');
+            const ligaId = button.getAttribute('data-liga-id');
+
+            // Actualizar el contenido del modal
+            document.getElementById('equipoNombre').textContent = equipoNombre;
+
+            // Actualizar la acción del formulario
+            const form = document.getElementById('deleteForm');
+            form.action = `/liga/${ligaId}/admin/equipos/eliminar/${equipoId}`;
+
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
 </body>
 </html>
 

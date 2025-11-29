@@ -228,7 +228,7 @@
             </div>
 
             <!-- Formulario -->
-            <form th:action="@{/admin/equipos/{id}/jugador/crear(id=${equipo.idEquipo})}" method="post" id="jugadorForm">
+            <form th:action="@{/liga/{ligaId}/admin/equipos/{id}/jugador/crear(ligaId=${ligaId},id=${equipo.idEquipo})}" method="post" id="jugadorForm">
                 <div class="mb-3">
                     <label for="nombreJugador" class="form-label">
                         <i class="bi bi-person-fill form-icon"></i>
@@ -288,7 +288,7 @@
                 </div>
 
                 <div class="btn-container">
-                    <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}" class="btn-cancel">
+                    <a th:href="@{/liga/{ligaId}/admin/equipos/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}" class="btn-cancel">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </a>
                     <button type="button" class="btn-submit" data-bs-toggle="modal" data-bs-target="#confirmModal">

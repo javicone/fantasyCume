@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+os<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
@@ -224,6 +224,7 @@
             border-radius: 50%;
             border: 3px solid white;
             object-fit: cover;
+            overflow: hidden;
         }
 
         .jugador-escudo {
@@ -235,6 +236,16 @@
             position: absolute;
             top: 5px;
             left: 45px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jugador-escudo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .jugador-info {
@@ -332,6 +343,8 @@
             border-radius: 50%;
             border: 3px solid white;
             margin-bottom: 0.3rem;
+            object-fit: cover;
+            overflow: hidden;
         }
 
         .jugador-card-campo .nombre {
@@ -353,6 +366,16 @@
             border-radius: 50%;
             border: 2px solid white;
             background: white;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jugador-card-campo .equipo-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .btn-remover {

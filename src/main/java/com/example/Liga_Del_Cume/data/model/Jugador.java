@@ -13,7 +13,9 @@ public class Jugador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idJugador;
 
+    @Column(length = 1000)
     private String avatarUrl;
+
     // Relación N a 1: Muchos jugadores pertenecen a un equipo
     @ManyToOne
     @JoinColumn(name = "equipo_id")

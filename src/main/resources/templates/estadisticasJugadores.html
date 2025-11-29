@@ -147,14 +147,18 @@
 
         .img-container {
             position: relative;
+        .img-container {
+            position: relative;
             width: 70px;
             height: 70px;
             flex-shrink: 0;
+            overflow: hidden;
+            border-radius: 50%;
         }
 
         .jugador-foto-small {
-            width: 70px;
-            height: 70px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.8);
             object-fit: cover;
@@ -171,6 +175,13 @@
             border-radius: 50%;
             border: 2px solid #1a1f3a;
             padding: 2px;
+            overflow: hidden;
+        }
+
+        .equipo-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .jugador-details {

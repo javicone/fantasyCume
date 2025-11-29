@@ -260,7 +260,7 @@
 
         <div class="edit-container">
             <!-- Flecha para volver -->
-            <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}" class="back-arrow" title="Volver">
+            <a th:href="@{/liga/{ligaId}/admin/equipos/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}" class="back-arrow" title="Volver">
                 <i class="bi bi-arrow-return-left"></i>
             </a>
 
@@ -296,7 +296,7 @@
             </div>
 
             <!-- Formulario de edición -->
-            <form th:action="@{/admin/equipos/{equipoId}/jugador/{jugadorId}/actualizar(equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+            <form th:action="@{/liga/{ligaId}/admin/equipos/{equipoId}/jugador/{jugadorId}/actualizar(ligaId=${ligaId},equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
                   method="post"
                   id="editarJugadorForm">
 
@@ -351,9 +351,14 @@
                         <i class="bi bi-shield-fill form-icon"></i>
                         Posición
                     </label>
+                    <!-- Campo hidden cuando está bloqueado para enviar el valor -->
+                    <input th:if="${jugador.esPortero and numPorteros <= 1}"
+                           type="hidden"
+                           name="esPortero"
+                           value="true">
                     <select class="form-select"
                             id="esPortero"
-                            name="esPortero"
+                            th:name="${jugador.esPortero and numPorteros <= 1} ? '' : 'esPortero'"
                             required
                             th:disabled="${jugador.esPortero and numPorteros <= 1}">
                         <option value="true" th:selected="${jugador.esPortero}">Portero</option>
@@ -366,7 +371,7 @@
                 </div>
 
                 <div class="btn-container">
-                    <a th:href="@{/admin/equipos/{id}(id=${equipo.idEquipo})}" class="btn-cancel">
+                    <a th:href="@{/liga/{ligaId}/admin/equipos/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}" class="btn-cancel">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </a>
                     <button type="button" class="btn-submit" data-bs-toggle="modal" data-bs-target="#confirmModal">

@@ -299,7 +299,7 @@
         <!-- Cabecera del equipo -->
         <div class="team-header">
             <!-- Flecha para volver -->
-            <a th:href="@{/admin/equipos}" class="back-arrow" title="Volver">
+            <a th:href="@{/liga/{ligaId}/admin/equipos(ligaId=${ligaId})}" class="back-arrow" title="Volver">
                 <i class="bi bi-arrow-return-left"></i>
             </a>
 
@@ -330,7 +330,7 @@
         </div>
 
         <!-- Botón para añadir nuevo jugador -->
-        <a th:href="@{/admin/equipos/{id}/jugador/nuevo(id=${equipo.idEquipo})}" class="add-player-btn">
+        <a th:href="@{/liga/{ligaId}/admin/equipos/{id}/jugador/nuevo(ligaId=${ligaId},id=${equipo.idEquipo})}" class="add-player-btn">
             <i class="bi bi-plus-square-fill"></i>
             <span>Añadir nuevo jugador</span>
         </a>
@@ -338,7 +338,7 @@
         <!-- Lista de jugadores -->
         <div th:if="${equipo.jugadores != null and !equipo.jugadores.isEmpty()}">
             <div th:each="jugador : ${equipo.jugadores}" class="player-card">
-                <a th:href="@{/admin/equipos/{equipoId}/jugador/{jugadorId}/editar(equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+                <a th:href="@{/liga/{ligaId}/admin/equipos/{equipoId}/jugador/{jugadorId}/editar(ligaId=${ligaId},equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
                    style="text-decoration: none; flex: 1; display: flex;">
                     <div class="player-info">
                         <div class="player-avatar">
@@ -384,7 +384,7 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
                                     Cancelar
                                 </button>
-                                <form th:action="@{/admin/equipos/{equipoId}/jugador/eliminar/{jugadorId}(equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
+                                <form th:action="@{/liga/{ligaId}/admin/equipos/{equipoId}/jugador/eliminar/{jugadorId}(ligaId=${ligaId},equipoId=${equipo.idEquipo},jugadorId=${jugador.idJugador})}"
                                       method="post"
                                       style="display: inline;">
                                     <button type="submit"
@@ -431,7 +431,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
                         Cancelar
                     </button>
-                    <form th:action="@{/admin/equipos/eliminar/{id}(id=${equipo.idEquipo})}" method="post" style="display: inline;">
+                    <form th:action="@{/liga/{ligaId}/admin/equipos/eliminar/{id}(ligaId=${ligaId},id=${equipo.idEquipo})}" method="post" style="display: inline;">
                         <button type="submit" class="btn btn-danger" style="border-radius: 10px; font-weight: 600;">
                             <i class="bi bi-trash-fill"></i> Eliminar Equipo
                         </button>

@@ -25,7 +25,7 @@ import java.util.List;
  * - Eliminar equipo
  */
 @Controller
-@RequestMapping("/admin/equipos")
+@RequestMapping("/liga/{ligaId}/admin/equipos")
 public class EquipoController {
 
     @Autowired
@@ -42,17 +42,19 @@ public class EquipoController {
      * Lista todos los equipos con su información
      */
     @GetMapping
-    public String gestionarEquipos(Model model) {
+    public String gestionarEquipos(@PathVariable("ligaId") Long ligaId, Model model) {
         try {
             // Obtener todos los equipos
             List<Equipo> equipos = equipoService.listarTodosEquipos();
 
             model.addAttribute("equipos", equipos);
+            model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "gestionarEquipos");
 
             return "gestionarEquipos";
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar los equipos: " + e.getMessage());
+            model.addAttribute("ligaId", ligaId);
             return "gestionarEquipos";
         }
     }
@@ -61,12 +63,13 @@ public class EquipoController {
      * GET: Mostrar formulario para crear nuevo equipo
      */
     @GetMapping("/nuevo")
-    public String mostrarFormularioNuevoEquipo(Model model) {
+    public String mostrarFormularioNuevoEquipo(@PathVariable("ligaId") Long ligaId, Model model) {
         // Obtener todas las ligas disponibles
         List<LigaCume> ligas = ligaCumeRepository.findAll();
 
         model.addAttribute("equipo", new Equipo());
         model.addAttribute("ligas", ligas);
+        model.addAttribute("ligaId", ligaId);
         model.addAttribute("currentPage", "gestionarEquipos");
         return "nuevoEquipo";
     }
@@ -76,6 +79,7 @@ public class EquipoController {
      */
     @PostMapping("/crear")
     public String crearEquipo(
+            @PathVariable("ligaId") Long ligaId,
             @RequestParam("nombreEquipo") String nombreEquipo,
             @RequestParam("escudoURL") String escudoURL,
             @RequestParam("idLiga") Long idLiga,
@@ -84,17 +88,17 @@ public class EquipoController {
             // Validar que los campos no estén vacíos
             if (nombreEquipo == null || nombreEquipo.trim().isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "El nombre del equipo es obligatorio");
-                return "redirect:/admin/equipos/nuevo";
+                return "redirect:/liga/" + ligaId + "/admin/equipos/nuevo";
             }
 
             if (escudoURL == null || escudoURL.trim().isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "La URL del escudo es obligatoria");
-                return "redirect:/admin/equipos/nuevo";
+                return "redirect:/liga/" + ligaId + "/admin/equipos/nuevo";
             }
 
             if (idLiga == null) {
                 redirectAttributes.addFlashAttribute("error", "Debe seleccionar una liga");
-                return "redirect:/admin/equipos/nuevo";
+                return "redirect:/liga/" + ligaId + "/admin/equipos/nuevo";
             }
 
             // Crear el equipo usando el servicio con los parámetros: nombre, idLiga, escudoURL
@@ -103,14 +107,14 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("success",
                 "Equipo '" + nuevoEquipo.getNombreEquipo() + "' creado exitosamente");
 
-            return "redirect:/admin/equipos";
+            return "redirect:/liga/" + ligaId + "/admin/equipos";
 
         } catch (EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos/nuevo";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/nuevo";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error inesperado al crear el equipo: " + e.getMessage());
-            return "redirect:/admin/equipos/nuevo";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/nuevo";
         }
     }
 
@@ -119,6 +123,7 @@ public class EquipoController {
      */
     @PostMapping("/eliminar/{id}")
     public String eliminarEquipo(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("id") Long id,
             RedirectAttributes redirectAttributes) {
         try {
@@ -130,7 +135,7 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("error", "Error al eliminar el equipo");
         }
 
-        return "redirect:/admin/equipos";
+        return "redirect:/liga/" + ligaId + "/admin/equipos";
     }
 
     /**
@@ -138,6 +143,7 @@ public class EquipoController {
      */
     @GetMapping("/{id}")
     public String editarEquipo(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("id") Long id,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -155,15 +161,16 @@ public class EquipoController {
             model.addAttribute("equipo", equipo);
             model.addAttribute("jugadoresActivos", jugadoresActivos);
             model.addAttribute("numPorteros", numPorteros);
+            model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "gestionarEquipos");
 
             return "editarEquipo";
         } catch (EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos";
+            return "redirect:/liga/" + ligaId + "/admin/equipos";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al cargar el equipo");
-            return "redirect:/admin/equipos";
+            return "redirect:/liga/" + ligaId + "/admin/equipos";
         }
     }
 
@@ -172,17 +179,19 @@ public class EquipoController {
      */
     @GetMapping("/{equipoId}/jugador/nuevo")
     public String mostrarFormularioNuevoJugador(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("equipoId") Long equipoId,
             Model model,
             RedirectAttributes redirectAttributes) {
         try {
             Equipo equipo = equipoService.obtenerEquipo(equipoId);
             model.addAttribute("equipo", equipo);
+            model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "gestionarEquipos");
             return "nuevoJugador";
         } catch (EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos";
+            return "redirect:/liga/" + ligaId + "/admin/equipos";
         }
     }
 
@@ -191,6 +200,7 @@ public class EquipoController {
      */
     @PostMapping("/{equipoId}/jugador/crear")
     public String crearJugador(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("equipoId") Long equipoId,
             @RequestParam("nombreJugador") String nombreJugador,
             @RequestParam("precioMercado") float precioMercado,
@@ -209,14 +219,14 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("success",
                 "Jugador '" + nuevoJugador.getNombreJugador() + "' creado exitosamente");
 
-            return "redirect:/admin/equipos/" + equipoId;
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId;
 
         } catch (JugadorException | EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos/" + equipoId + "/jugador/nuevo";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error inesperado al crear el jugador");
-            return "redirect:/admin/equipos/" + equipoId + "/jugador/nuevo";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
         }
     }
 
@@ -225,6 +235,7 @@ public class EquipoController {
      */
     @PostMapping("/{equipoId}/jugador/eliminar/{jugadorId}")
     public String eliminarJugador(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("equipoId") Long equipoId,
             @PathVariable("jugadorId") Long jugadorId,
             RedirectAttributes redirectAttributes) {
@@ -242,7 +253,7 @@ public class EquipoController {
                 if (numPorteros <= 1) {
                     redirectAttributes.addFlashAttribute("error",
                         "No se puede eliminar al único portero del equipo. Debe haber al menos un portero.");
-                    return "redirect:/admin/equipos/" + equipoId;
+                    return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId;
                 }
             }
 
@@ -256,7 +267,7 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("error", "Error al eliminar el jugador");
         }
 
-        return "redirect:/admin/equipos/" + equipoId;
+        return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId;
     }
 
     /**
@@ -264,6 +275,7 @@ public class EquipoController {
      */
     @GetMapping("/{equipoId}/jugador/{jugadorId}/editar")
     public String mostrarFormularioEditarJugador(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("equipoId") Long equipoId,
             @PathVariable("jugadorId") Long jugadorId,
             Model model,
@@ -275,7 +287,7 @@ public class EquipoController {
             // Verificar que el jugador pertenece al equipo
             if (!jugador.getEquipo().getIdEquipo().equals(equipoId)) {
                 redirectAttributes.addFlashAttribute("error", "El jugador no pertenece a este equipo");
-                return "redirect:/admin/equipos/" + equipoId;
+                return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId;
             }
 
             // Contar porteros del equipo
@@ -286,12 +298,13 @@ public class EquipoController {
             model.addAttribute("equipo", equipo);
             model.addAttribute("jugador", jugador);
             model.addAttribute("numPorteros", numPorteros);
+            model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "gestionarEquipos");
 
             return "editarJugador";
         } catch (JugadorException | EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos";
+            return "redirect:/liga/" + ligaId + "/admin/equipos";
         }
     }
 
@@ -300,12 +313,13 @@ public class EquipoController {
      */
     @PostMapping("/{equipoId}/jugador/{jugadorId}/actualizar")
     public String actualizarJugador(
+            @PathVariable("ligaId") Long ligaId,
             @PathVariable("equipoId") Long equipoId,
             @PathVariable("jugadorId") Long jugadorId,
             @RequestParam("nombreJugador") String nombreJugador,
             @RequestParam("precioMercado") float precioMercado,
             @RequestParam("avatarUrl") String avatarUrl,
-            @RequestParam("esPortero") boolean esPortero,
+            @RequestParam(value = "esPortero", required = false, defaultValue = "false") boolean esPortero,
             RedirectAttributes redirectAttributes) {
         try {
             // Obtener el equipo y el jugador
@@ -323,7 +337,7 @@ public class EquipoController {
                 if (numPorteros <= 1) {
                     redirectAttributes.addFlashAttribute("error",
                         "No se puede cambiar la posición. El equipo debe tener al menos un portero.");
-                    return "redirect:/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
+                    return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
                 }
             }
 
@@ -335,14 +349,14 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("success",
                 "Jugador '" + jugadorActualizado.getNombreJugador() + "' actualizado exitosamente");
 
-            return "redirect:/admin/equipos/" + equipoId;
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId;
 
         } catch (JugadorException | EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error inesperado al actualizar el jugador");
-            return "redirect:/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
+            return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/" + jugadorId + "/editar";
         }
     }
 }
