@@ -10,6 +10,9 @@ public class Jornada {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idJornada;
 
+    // Número de la jornada (1, 2, 3, etc.)
+    private Integer numeroJornada;
+
     // Relación N a 1: Muchas jornadas pertenecen a una liga
     @ManyToOne
     @JoinColumn(name = "liga_id")
@@ -32,6 +35,10 @@ public class Jornada {
     // Getters y Setters
     public Long getIdJornada() { return idJornada; }
     public void setIdJornada(Long idJornada) { this.idJornada = idJornada; }
+
+    public Integer getNumeroJornada() { return numeroJornada; }
+    public void setNumeroJornada(Integer numeroJornada) { this.numeroJornada = numeroJornada; }
+
     public LigaCume getLiga() { return liga; }
     public void setLiga(LigaCume liga) { this.liga = liga; }
 

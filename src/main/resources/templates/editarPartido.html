@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Partido - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0A0E27;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-volver:hover {
+            background: rgba(217, 70, 166, 0.3);
+            border-color: #D946A6;
+            color: white;
+        }
+
+        .marcador-partido {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(109, 21, 21, 0.3), rgba(217, 70, 166, 0.2));
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .equipo-marcador {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .escudo-grande {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nombre-equipo-marcador {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: #FFD700;
+        }
+
+        .goles-marcador {
+            font-size: 64px;
+            font-weight: 800;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .vs-marcador {
+            font-size: 32px;
+            font-weight: 700;
+            color: #D946A6;
+        }
+
+        .equipos-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .equipo-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .equipo-section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(217, 70, 166, 0.3);
+        }
+
+        .escudo-pequeño {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+        }
+
+        .equipo-section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #D946A6;
+            margin: 0;
+        }
+
+        .jugador-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .jugador-item:hover {
+            background: rgba(217, 70, 166, 0.2);
+            border-color: #D946A6;
+        }
+
+        .jugador-item.selected {
+            background: rgba(217, 70, 166, 0.3);
+            border-color: #D946A6;
+        }
+
+        .jugador-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .jugador-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #D946A6;
+        }
+
+        .jugador-nombre {
+            flex: 1;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .jugador-puntos {
+            background: #FFD700;
+            color: #0A0E27;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .jugador-stats {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .jugador-item.selected .jugador-stats {
+            display: block;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+        }
+
+        .stat-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 15px;
+        }
+
+        .stat-input:focus {
+            outline: none;
+            border-color: #D946A6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .portero-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #D946A6, #FF3366);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .btn-guardar:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(217, 70, 166, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .equipos-container {
+                grid-template-columns: 1fr;
+            }
+
+            .marcador-partido {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .escudo-grande {
+                width: 80px;
+                height: 80px;
+            }
+
+            .goles-marcador {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Incluir menú lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="header-container">
+            <h1 class="page-title">Editar Resultado del Partido</h1>
+            <a th:href="@{/liga/{id}/admin/agregar-resultados(id=${ligaId})}" class="btn-volver">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+
+        <!-- Marcador del partido -->
+        <div class="marcador-partido" th:if="${partido != null}">
+            <div class="equipo-marcador">
+                <img th:if="${partido.equipoLocal != null and partido.equipoLocal.escudoURL != null and !partido.equipoLocal.escudoURL.isEmpty()}"
+                     th:src="${partido.equipoLocal.escudoURL}"
+                     th:alt="${partido.equipoLocal.nombreEquipo}"
+                     class="escudo-grande">
+                <div class="nombre-equipo-marcador" th:text="${partido.equipoLocal != null ? partido.equipoLocal.nombreEquipo : 'Equipo Local'}">Equipo Local</div>
+                <div class="goles-marcador" id="golesLocal" th:text="${partido.golesLocal != null ? partido.golesLocal : 0}">0</div>
+            </div>
+
+            <span class="vs-marcador">-</span>
+
+            <div class="equipo-marcador">
+                <img th:if="${partido.equipoVisitante != null and partido.equipoVisitante.escudoURL != null and !partido.equipoVisitante.escudoURL.isEmpty()}"
+                     th:src="${partido.equipoVisitante.escudoURL}"
+                     th:alt="${partido.equipoVisitante.nombreEquipo}"
+                     class="escudo-grande">
+                <div class="nombre-equipo-marcador" th:text="${partido.equipoVisitante != null ? partido.equipoVisitante.nombreEquipo : 'Equipo Visitante'}">Equipo Visitante</div>
+                <div class="goles-marcador" id="golesVisitante" th:text="${partido.golesVisitante != null ? partido.golesVisitante : 0}">0</div>
+            </div>
+        </div>
+
+        <!-- Mensaje de error si no hay partido -->
+        <div th:if="${partido == null}" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> Error: No se pudo cargar el partido.
+        </div>
+
+        <!-- Equipos -->
+        <div class="equipos-container" th:if="${partido != null}">
+            <!-- Equipo Local -->
+            <div class="equipo-section">
+                <div class="equipo-section-header">
+                    <img th:if="${partido.equipoLocal != null and partido.equipoLocal.escudoURL != null and !partido.equipoLocal.escudoURL.isEmpty()}"
+                         th:src="${partido.equipoLocal.escudoURL}"
+                         th:alt="${partido.equipoLocal.nombreEquipo}"
+                         class="escudo-pequeño">
+                    <h2 class="equipo-section-title">
+                        <i class="bi bi-house-fill"></i> <span th:text="${partido.equipoLocal != null ? partido.equipoLocal.nombreEquipo : 'Equipo Local'}">Equipo Local</span>
+                    </h2>
+                </div>
+                <div id="jugadoresLocal"></div>
+            </div>
+
+            <!-- Equipo Visitante -->
+            <div class="equipo-section">
+                <div class="equipo-section-header">
+                    <img th:if="${partido.equipoVisitante != null and partido.equipoVisitante.escudoURL != null and !partido.equipoVisitante.escudoURL.isEmpty()}"
+                         th:src="${partido.equipoVisitante.escudoURL}"
+                         th:alt="${partido.equipoVisitante.nombreEquipo}"
+                         class="escudo-pequeño">
+                    <h2 class="equipo-section-title">
+                        <i class="bi bi-airplane-fill"></i> <span th:text="${partido.equipoVisitante != null ? partido.equipoVisitante.nombreEquipo : 'Equipo Visitante'}">Equipo Visitante</span>
+                    </h2>
+                </div>
+                <div id="jugadoresVisitante"></div>
+            </div>
+        </div>
+
+        <button th:if="${partido != null}" class="btn-guardar" onclick="guardarEstadisticas()">
+            <i class="bi bi-save"></i> Guardar Resultados
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        const ligaId = /*[[${ligaId}]]*/ 1;
+        const partidoId = /*[[${partido != null ? partido.idPartido : 0}]]*/ 1;
+        let jugadoresData = [];
+
+        // Cargar datos del partido al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (partidoId > 0) {
+                cargarDatosPartido();
+            } else {
+                console.error('No se pudo cargar el partido');
+                alert('Error: No se pudo cargar el partido');
+            }
+        });
+
+        function cargarDatosPartido() {
+            fetch(`/liga/${ligaId}/admin/partido/${partidoId}/detalles`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    mostrarDetallesPartido(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del partido: ' + error.message);
+                });
+        }
+
+        function mostrarDetallesPartido(data) {
+            jugadoresData = [];
+
+            // Renderizar jugadores locales
+            const jugadoresLocalHTML = data.jugadoresLocal.map(jugador => {
+                jugadoresData.push(jugador);
+                return crearJugadorHTML(jugador, true);
+            }).join('');
+            document.getElementById('jugadoresLocal').innerHTML = jugadoresLocalHTML;
+
+            // Renderizar jugadores visitantes
+            const jugadoresVisitanteHTML = data.jugadoresVisitante.map(jugador => {
+                jugadoresData.push(jugador);
+                return crearJugadorHTML(jugador, false);
+            }).join('');
+            document.getElementById('jugadoresVisitante').innerHTML = jugadoresVisitanteHTML;
+
+            actualizarMarcador();
+        }
+
+        function crearJugadorHTML(jugador, esLocal) {
+            const porteroBadge = jugador.esPortero ? '<span class="portero-badge">PORTERO</span>' : '';
+            const avatarDefault = 'https://via.placeholder.com/50';
+            const avatar = jugador.avatarUrl || avatarDefault;
+
+            return `
+                <div class="jugador-item" id="jugador-${jugador.idJugador}">
+                    <div class="jugador-header" onclick="toggleJugador(${jugador.idJugador})" style="cursor: pointer;">
+                        <img src="${avatar}" class="jugador-avatar" onerror="this.src='${avatarDefault}'" alt="${jugador.nombre}">
+                        <span class="jugador-nombre">${jugador.nombre}${porteroBadge}</span>
+                        <span class="jugador-puntos" id="puntos-${jugador.idJugador}">${jugador.puntosJornada}</span>
+                    </div>
+                    <div class="jugador-stats">
+                        <div class="stat-row">
+                            <div class="stat-group">
+                                <label class="stat-label">Goles</label>
+                                <input type="number" class="stat-input" id="goles-${jugador.idJugador}"
+                                       value="${jugador.goles}" min="0"
+                                       onchange="actualizarEstadisticas(${jugador.idJugador})"
+                                       onclick="event.stopPropagation()">
+                            </div>
+                            <div class="stat-group">
+                                <label class="stat-label">Asistencias</label>
+                                <input type="number" class="stat-input" id="asistencias-${jugador.idJugador}"
+                                       value="${jugador.asistencias}" min="0"
+                                       onchange="actualizarEstadisticas(${jugador.idJugador})"
+                                       onclick="event.stopPropagation()">
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-group">
+                                <label class="stat-label">Tarjetas Amarillas</label>
+                                <select class="stat-input" id="tarjetasAmarillas-${jugador.idJugador}"
+                                        onchange="actualizarEstadisticas(${jugador.idJugador})"
+                                        onclick="event.stopPropagation()">
+                                    <option value="0" ${jugador.tarjetasAmarillas === 0 ? 'selected' : ''}>0</option>
+                                    <option value="1" ${jugador.tarjetasAmarillas === 1 ? 'selected' : ''}>1</option>
+                                    <option value="2" ${jugador.tarjetasAmarillas === 2 ? 'selected' : ''}>2</option>
+                                </select>
+                            </div>
+                            <div class="stat-group">
+                                <label class="checkbox-label" onclick="event.stopPropagation()">
+                                    <input type="checkbox" class="stat-checkbox" id="tarjetaRoja-${jugador.idJugador}"
+                                           ${jugador.tarjetaRoja ? 'checked' : ''}
+                                           onchange="actualizarEstadisticas(${jugador.idJugador})"
+                                           onclick="event.stopPropagation()">
+                                    <span class="stat-label">Tarjeta Roja</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-group">
+                                <label class="checkbox-label" onclick="event.stopPropagation()">
+                                    <input type="checkbox" class="stat-checkbox" id="minMinutosJugados-${jugador.idJugador}"
+                                           ${jugador.minMinutosJugados ? 'checked' : ''}
+                                           onchange="actualizarEstadisticas(${jugador.idJugador})"
+                                           onclick="event.stopPropagation()">
+                                    <span class="stat-label">Mínimo Minutos Jugados</span>
+                                </label>
+                            </div>
+                            ${jugador.esPortero ? `
+                            <div class="stat-group">
+                                <label class="stat-label">Goles Recibidos</label>
+                                <input type="number" class="stat-input" id="golesRecibidos-${jugador.idJugador}"
+                                       value="${jugador.golesRecibidos}" min="0" readonly
+                                       style="background: rgba(255,255,255,0.05);"
+                                       onclick="event.stopPropagation()">
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleJugador(idJugador) {
+            const elemento = document.getElementById(`jugador-${idJugador}`);
+            elemento.classList.toggle('selected');
+        }
+
+        function actualizarEstadisticas(idJugador) {
+            const jugador = jugadoresData.find(j => j.idJugador === idJugador);
+            if (!jugador) return;
+
+            const goles = parseInt(document.getElementById(`goles-${idJugador}`).value) || 0;
+            const asistencias = parseInt(document.getElementById(`asistencias-${idJugador}`).value) || 0;
+            const tarjetasAmarillas = parseInt(document.getElementById(`tarjetasAmarillas-${idJugador}`).value) || 0;
+            const tarjetaRoja = document.getElementById(`tarjetaRoja-${idJugador}`).checked;
+            const minMinutosJugados = document.getElementById(`minMinutosJugados-${idJugador}`).checked;
+
+            if (tarjetasAmarillas === 2) {
+                document.getElementById(`tarjetaRoja-${idJugador}`).checked = true;
+            }
+
+            let puntos = 0;
+
+            if (minMinutosJugados) {
+                puntos += 1;
+            }
+
+            if (jugador.esPortero) {
+                puntos += goles * 6;
+                puntos += asistencias * 3;
+
+                const golesRecibidos = parseInt(document.getElementById(`golesRecibidos-${idJugador}`)?.value) || 0;
+                if (golesRecibidos === 0 && minMinutosJugados) {
+                    puntos += 5;
+                } else if (golesRecibidos >= 1 && golesRecibidos <= 2) {
+                    puntos -= 1;
+                } else if (golesRecibidos >= 3) {
+                    puntos -= 2;
+                }
+            } else {
+                puntos += goles * 4;
+                puntos += asistencias * 3;
+            }
+
+            puntos -= tarjetasAmarillas;
+            if (tarjetaRoja) {
+                puntos -= 3;
+            }
+
+            document.getElementById(`puntos-${idJugador}`).textContent = puntos;
+
+            actualizarMarcador();
+        }
+
+        function actualizarMarcador() {
+            let golesLocal = 0;
+            let golesVisitante = 0;
+
+            jugadoresData.forEach(jugador => {
+                const goles = parseInt(document.getElementById(`goles-${jugador.idJugador}`)?.value) || 0;
+                const jugadorElement = document.getElementById(`jugador-${jugador.idJugador}`);
+
+                if (jugadorElement && jugadorElement.closest('#jugadoresLocal')) {
+                    golesLocal += goles;
+                } else if (jugadorElement && jugadorElement.closest('#jugadoresVisitante')) {
+                    golesVisitante += goles;
+                }
+            });
+
+            document.getElementById('golesLocal').textContent = golesLocal;
+            document.getElementById('golesVisitante').textContent = golesVisitante;
+
+            // Actualizar goles recibidos de porteros
+            jugadoresData.forEach(jugador => {
+                if (jugador.esPortero) {
+                    const jugadorElement = document.getElementById(`jugador-${jugador.idJugador}`);
+                    const golesRecibidosInput = document.getElementById(`golesRecibidos-${jugador.idJugador}`);
+
+                    if (golesRecibidosInput) {
+                        if (jugadorElement && jugadorElement.closest('#jugadoresLocal')) {
+                            golesRecibidosInput.value = golesVisitante;
+                        } else if (jugadorElement && jugadorElement.closest('#jugadoresVisitante')) {
+                            golesRecibidosInput.value = golesLocal;
+                        }
+                        recalcularPuntosPortero(jugador.idJugador);
+                    }
+                }
+            });
+        }
+
+        function recalcularPuntosPortero(idJugador) {
+            const jugador = jugadoresData.find(j => j.idJugador === idJugador);
+            if (!jugador || !jugador.esPortero) return;
+
+            const goles = parseInt(document.getElementById(`goles-${idJugador}`)?.value) || 0;
+            const asistencias = parseInt(document.getElementById(`asistencias-${idJugador}`)?.value) || 0;
+            const tarjetasAmarillas = parseInt(document.getElementById(`tarjetasAmarillas-${idJugador}`)?.value) || 0;
+            const tarjetaRoja = document.getElementById(`tarjetaRoja-${idJugador}`)?.checked || false;
+            const minMinutosJugados = document.getElementById(`minMinutosJugados-${idJugador}`)?.checked || false;
+            const golesRecibidos = parseInt(document.getElementById(`golesRecibidos-${idJugador}`)?.value) || 0;
+
+            let puntos = 0;
+            if (minMinutosJugados) puntos += 1;
+            puntos += goles * 6;
+            puntos += asistencias * 3;
+
+            if (golesRecibidos === 0 && minMinutosJugados) {
+                puntos += 5;
+            } else if (golesRecibidos >= 1 && golesRecibidos <= 2) {
+                puntos -= 1;
+            } else if (golesRecibidos >= 3) {
+                puntos -= 2;
+            }
+
+            puntos -= tarjetasAmarillas;
+            if (tarjetaRoja) puntos -= 3;
+
+            document.getElementById(`puntos-${idJugador}`).textContent = puntos;
+        }
+
+        function guardarEstadisticas() {
+            const jugadores = jugadoresData.map(jugador => ({
+                idJugador: jugador.idJugador,
+                goles: parseInt(document.getElementById(`goles-${jugador.idJugador}`).value) || 0,
+                asistencias: parseInt(document.getElementById(`asistencias-${jugador.idJugador}`).value) || 0,
+                tarjetasAmarillas: parseInt(document.getElementById(`tarjetasAmarillas-${jugador.idJugador}`).value) || 0,
+                tarjetaRoja: document.getElementById(`tarjetaRoja-${jugador.idJugador}`).checked,
+                minMinutosJugados: document.getElementById(`minMinutosJugados-${jugador.idJugador}`).checked,
+                golesRecibidos: parseInt(document.getElementById(`golesRecibidos-${jugador.idJugador}`)?.value) || 0
+            }));
+
+            fetch(`/liga/${ligaId}/admin/partido/${partidoId}/guardar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ jugadores })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Estadísticas guardadas correctamente');
+                    window.location.href = `/liga/${ligaId}/admin/agregar-resultados`;
+                } else {
+                    alert('Error: ' + (data.error || 'Error desconocido'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al guardar las estadísticas');
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -138,6 +138,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Jornada jornada1 = new Jornada();
         jornada1.setLiga(liga);
+        jornada1.setNumeroJornada(1);
         jornada1 = jornadaRepository.save(jornada1);
         System.out.println("📅 Jornada 1 creada (ID: " + jornada1.getIdJornada() + ")\n");
 
@@ -183,6 +184,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Jornada jornada2 = new Jornada();
         jornada2.setLiga(liga);
+        jornada2.setNumeroJornada(2);
         jornada2 = jornadaRepository.save(jornada2);
         System.out.println("📅 Jornada 2 creada (ID: " + jornada2.getIdJornada() + ")\n");
 

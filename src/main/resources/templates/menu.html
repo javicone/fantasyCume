@@ -56,22 +56,28 @@
 
         <div class="nav-section-title">OPCIONES ADMIN</div>
 
-        <div class="dropdown">
-            <a class="nav-item dropdown-toggle"
-               href="#"
-               id="adminDropdown"
-               role="button"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">
-                <i class="bi bi-gear-fill"></i>
-                Opciones Admin
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                <li><a class="dropdown-item" th:href="@{/liga/{id}/admin/equipos(id=${ligaId})}">Gestionar Equipos</a></li>
-                <li><a class="dropdown-item" th:href="@{/agregar-resultados}">Agregar Resultados</a></li>
-                <li><a class="dropdown-item" th:href="@{/generar-cuadros-jornadas}">Generar cuadros de jornadas</a></li>
-            </ul>
-        </div>
+        <a th:href="@{/liga/{id}/admin/equipos(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'gestionarEquipos'} ? 'active' : ''">
+            <i class="bi bi-shield-fill"></i>
+            Gestionar Equipos
+        </a>
+
+        <a th:href="@{/liga/{id}/admin/agregar-resultados(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'agregarResultados'} ? 'active' : ''">
+            <i class="bi bi-pencil-square"></i>
+            Agregar Resultados
+        </a>
+
+        <a th:href="@{/generar-cuadros-jornadas}"
+           class="nav-item"
+           th:classappend="${currentPage == 'generarJornadas'} ? 'active' : ''">
+            <i class="bi bi-calendar-week"></i>
+            Generar Jornadas
+        </a>
+
+        <div class="nav-divider"></div>
 
         <form th:action="@{/usuario/logout}" method="post" style="display: inline;">
             <button type="submit" class="nav-item nav-item-danger" style="background:none; border:none; width:100%; cursor:pointer; text-align: left;">

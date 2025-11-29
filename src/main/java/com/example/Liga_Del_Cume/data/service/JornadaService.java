@@ -76,6 +76,11 @@ public class JornadaService {
         Jornada jornada = new Jornada();
         jornada.setLiga(ligaExistente);
 
+        // Calcular automáticamente el número de jornada
+        List<Jornada> jornadasExistentes = jornadaRepository.findByLigaIdLigaCume(liga.getIdLigaCume());
+        int numeroJornada = jornadasExistentes.size() + 1;
+        jornada.setNumeroJornada(numeroJornada);
+
         // Guardar y retornar la jornada creada
         return jornadaRepository.save(jornada);
     }
