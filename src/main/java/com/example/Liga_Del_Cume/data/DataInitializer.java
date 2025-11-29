@@ -84,6 +84,8 @@ public class DataInitializer implements CommandLineRunner {
         Usuario usuario1 = crearUsuario("Ibai Llanos", "ibai@fantasy.com", "pass123", liga);
         Usuario usuario2 = crearUsuario("ElRubius", "rubius@fantasy.com", "pass123", liga);
         Usuario usuario3 = crearUsuario("DJMaRiiO", "djmario@fantasy.com", "pass123", liga);
+        Usuario usuario4 = crearUsuario("aaa", "aaa@ex.com", "123123", liga);
+
         System.out.println();
 
         // ============ PASO 3: CREAR EQUIPOS ============
@@ -261,6 +263,16 @@ public class DataInitializer implements CommandLineRunner {
         usuario.setPassword(password);
         usuario.setPuntosAcumulados(0);
         usuario.setLiga(liga);
+        usuario = usuarioRepository.save(usuario);
+        System.out.println("✓ Usuario: " + nombre);
+        return usuario;
+    }
+
+    private Usuario crearUsuarioSinLiga(String nombre, String email, String password) {
+        Usuario usuario = new Usuario();
+        usuario.setNombreUsuario(nombre);
+        usuario.setEmail(email);
+        usuario.setPassword(password);
         usuario = usuarioRepository.save(usuario);
         System.out.println("✓ Usuario: " + nombre);
         return usuario;

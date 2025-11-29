@@ -3,12 +3,14 @@ package com.example.Liga_Del_Cume.data.Controller;
 import com.example.Liga_Del_Cume.data.model.Usuario;
 import com.example.Liga_Del_Cume.data.service.UsuarioService;
 import com.example.Liga_Del_Cume.data.exceptions.UsuarioException;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -53,8 +55,10 @@ public class RankingController {
     public String mostrarRanking(
             @PathVariable("ligaId") Long ligaId,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         try {
+            Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
             // Obtener el ranking de usuarios ordenados por puntos (mayor a menor)
             List<Usuario> usuarios = usuarioService.obtenerRankingLiga(ligaId);
 
@@ -62,7 +66,7 @@ public class RankingController {
             model.addAttribute("usuarios", usuarios);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "ranking");
-
+            model.addAttribute("usuario", usuarioSesion);
             // Si hay usuarios, agregar información adicional
             if (!usuarios.isEmpty()) {
                 model.addAttribute("totalUsuarios", usuarios.size());

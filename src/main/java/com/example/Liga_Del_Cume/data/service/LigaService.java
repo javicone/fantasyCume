@@ -4,6 +4,7 @@ import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.repository.LigaCumeRepository;
 import com.example.Liga_Del_Cume.data.exceptions.LigaException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.AbstractPersistable_;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class LigaService {
         }
         return ligaCumeRepository.save(liga);
     }
+
 
     /**
      * Obtiene una liga por su nombre.
@@ -221,5 +223,8 @@ public class LigaService {
 
         return ligaCumeRepository.save(liga);
     }
+
+
+
 }
 

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<!-- Fragmento del Menú Lateral -->
 <div th:fragment="menuLateral" class="sidebar">
     <div class="sidebar-header">
         <h3>Mis Ligas</h3>
@@ -18,7 +17,7 @@
             Ranking
         </a>
 
-        <a th:href="@{/liga/{id}/historial(id=${ligaId})}"
+        <a th:href="@{/liga/{id}/historial(id=${ligaId}, usuarioId=${session.usuario?.idUsuario})}"
            class="nav-item"
            th:classappend="${currentPage == 'historial'} ? 'active' : ''">
             <i class="bi bi-clock-history"></i>
@@ -55,7 +54,6 @@
 
         <div class="nav-divider"></div>
 
-        <!-- Desplegable de Opciones Admin -->
         <div class="nav-section-title">OPCIONES ADMIN</div>
 
         <div class="dropdown">
@@ -75,21 +73,31 @@
             </ul>
         </div>
 
-        <a href="#" class="nav-item nav-item-danger">
-            <i class="bi bi-box-arrow-right"></i>
-            CERRAR SESIÓN
-        </a>
+        <form th:action="@{/usuario/logout}" method="post" style="display: inline;">
+            <button type="submit" class="nav-item nav-item-danger" style="background:none; border:none; width:100%; cursor:pointer; text-align: left;">
+                <i class="bi bi-box-arrow-right"></i>
+                CERRAR SESIÓN
+            </button>
+        </form>
 
-        <a th:href="@{/liga/{id}/abandonar(id=${ligaId})}"
-           class="nav-item nav-item-danger"
-           onclick="return confirm('¿Estás seguro de que deseas abandonar esta liga?');">
-            <i class="bi bi-door-open"></i>
-            ABANDONAR LIGA
-        </a>
+        <form th:action="@{/usuario/eliminar}" method="post" style="display: block;">
+
+            <input type="hidden" name="ligaId" th:value="${ligaId}" />
+
+            <input type="hidden" name="usuarioId" th:value="${session.usuario?.idUsuario}" />
+
+            <button type="submit"
+                    class="nav-item nav-item-danger"
+                    onclick="return confirm('¿Estás seguro de que deseas abandonar esta liga?');"
+                    style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; padding: 0.9rem 1.2rem; display: flex; align-items: center;">
+
+                <i class="bi bi-door-open" style="margin-right: 0.8rem; font-size: 1.1rem;"></i>
+                BORRAR CUENTA
+            </button>
+        </form>
     </nav>
 </div>
 
-<!-- Estilos del Menú -->
 <style th:fragment="menuStyles">
     .sidebar {
         position: fixed;

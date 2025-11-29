@@ -48,7 +48,7 @@ public class JugadorController {
         model.addAttribute("golesTotalesMap", golesTotalesMap);
         model.addAttribute("buscar", buscar);
         model.addAttribute("ordenar", ordenar);
-        model.addAttribute("idLiga", idLiga);
+        model.addAttribute("ligaId", idLiga);
 
         // Es importante enviar el valor de 'mostrarPorteros' al modelo
         // La RequestParam ya lo tiene, pero para claridad en Thymeleaf lo añadimos.

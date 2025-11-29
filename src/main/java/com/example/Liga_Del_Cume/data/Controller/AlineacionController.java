@@ -3,6 +3,7 @@ package com.example.Liga_Del_Cume.data.Controller;
 import com.example.Liga_Del_Cume.data.model.*;
 import com.example.Liga_Del_Cume.data.service.*;
 import com.example.Liga_Del_Cume.data.repository.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,7 +73,7 @@ public class AlineacionController {
                     .orElseGet(() -> usuarioRepository.findById(usuario.getIdUsuario())
                             .map(Usuario::getLiga).orElse(null));
 
-            Long presupuestoMaximo = liga != null ? liga.getPresupuestoMaximo() : 100000000L;
+            Long presupuestoMaximo =  100000000L;
 
             // Pasar datos al modelo
             model.addAttribute("proximaJornada", proximaJornadaNumero);
@@ -165,24 +166,42 @@ public class AlineacionController {
     @PostMapping("/alineacion-futura/guardar")
     public String guardarAlineacionFutura(
             @PathVariable("ligaId") Long ligaId,
-            @RequestParam("usuarioId") Long usuarioId,
+            // Eliminamos @RequestParam("usuarioId") porque lo sacamos de la sesión por seguridad
             @RequestParam("portero") Long porteroId,
             @RequestParam("jugador1") Long jugador1Id,
             @RequestParam("jugador2") Long jugador2Id,
             @RequestParam("jugador3") Long jugador3Id,
             @RequestParam("jugador4") Long jugador4Id,
+            HttpSession session, // <--- IMPORTANTE: Inyectamos la sesión
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Obtener o crear próxima jornada
-            List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
+            // 1. OBTENER USUARIO DE LA SESIÓN (SEGURIDAD)
+            Usuario usuarioSession = (Usuario) session.getAttribute("usuario");
 
-            Jornada proximaJornada;
-            // Verificar si ya existe una jornada futura sin partidos
+            if (usuarioSession == null) {
+                redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para guardar la alineación.");
+                return "redirect:/";
+            }
+
+            // Refrescamos el usuario desde la BD para asegurar que está "vivo" en Hibernate
+            // y evitar errores de LazyLoading o entidades detatched.
+            Usuario usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
+                    .orElseThrow(() -> new Exception("Usuario no encontrado en base de datos"));
+
+            // 2. VALIDAR QUE EL USUARIO PERTENECE A LA LIGA
+            if (usuario.getLiga() == null || !usuario.getLiga().getIdLigaCume().equals(ligaId)) {
+                redirectAttributes.addFlashAttribute("error", "No puedes guardar alineación en una liga a la que no perteneces.");
+                return "redirect:/liga/" + ligaId + "/alineacion-futura";
+            }
+
+            // 3. LOGICA DE JORNADA (Mantenemos tu lógica original)
+            List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
+            Jornada proximaJornada = null;
             boolean jornadaFuturaExiste = false;
-            proximaJornada = null;
 
             for (Jornada j : jornadas) {
+                // Buscamos una jornada que aún no tenga partidos (asumimos que es la futura)
                 if (j.getPartidos().isEmpty()) {
                     proximaJornada = j;
                     jornadaFuturaExiste = true;
@@ -191,58 +210,58 @@ public class AlineacionController {
             }
 
             if (!jornadaFuturaExiste) {
-                // Crear nueva jornada
-                Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow();
+                // Crear nueva jornada vinculada a la liga del usuario
                 proximaJornada = new Jornada();
                 proximaJornada.setLiga(usuario.getLiga());
                 proximaJornada = jornadaRepository.save(proximaJornada);
             }
 
-            // Obtener jugadores
-            Jugador portero = jugadorRepository.findById(porteroId).orElseThrow();
-            Jugador jugador1 = jugadorRepository.findById(jugador1Id).orElseThrow();
-            Jugador jugador2 = jugadorRepository.findById(jugador2Id).orElseThrow();
-            Jugador jugador3 = jugadorRepository.findById(jugador3Id).orElseThrow();
-            Jugador jugador4 = jugadorRepository.findById(jugador4Id).orElseThrow();
+            // 4. OBTENER JUGADORES
+            Jugador portero = jugadorRepository.findById(porteroId).orElseThrow(() -> new Exception("Portero no encontrado"));
+            Jugador jugador1 = jugadorRepository.findById(jugador1Id).orElseThrow(() -> new Exception("Jugador 1 no encontrado"));
+            Jugador jugador2 = jugadorRepository.findById(jugador2Id).orElseThrow(() -> new Exception("Jugador 2 no encontrado"));
+            Jugador jugador3 = jugadorRepository.findById(jugador3Id).orElseThrow(() -> new Exception("Jugador 3 no encontrado"));
+            Jugador jugador4 = jugadorRepository.findById(jugador4Id).orElseThrow(() -> new Exception("Jugador 4 no encontrado"));
 
-            // Verificar si ya existe una alineación para este usuario y jornada
-            Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow();
+            // 5. BUSCAR SI YA EXISTE ALINEACIÓN PARA ESTE USUARIO Y JORNADA
             Optional<Alineacion> alineacionExistente = alineacionRepository
-                .findByUsuarioIdUsuarioAndJornadaIdJornada(usuarioId, proximaJornada.getIdJornada());
+                    .findByUsuarioIdUsuarioAndJornadaIdJornada(usuario.getIdUsuario(), proximaJornada.getIdJornada());
 
             Alineacion alineacion;
             if (alineacionExistente.isPresent()) {
                 // Actualizar alineación existente
                 alineacion = alineacionExistente.get();
-                alineacion.getJugadores().clear();
+                alineacion.getJugadores().clear(); // Limpiamos los anteriores
             } else {
                 // Crear nueva alineación
                 alineacion = new Alineacion();
-                alineacion.setUsuario(usuario);
+                alineacion.setUsuario(usuario); // <--- AQUI SE VINCULA AL USUARIO LOGUEADO
                 alineacion.setJornada(proximaJornada);
             }
 
-            // Agregar jugadores
+            // 6. AGREGAR JUGADORES
             alineacion.getJugadores().add(portero);
             alineacion.getJugadores().add(jugador1);
             alineacion.getJugadores().add(jugador2);
             alineacion.getJugadores().add(jugador3);
             alineacion.getJugadores().add(jugador4);
 
-            // Puntos iniciales en 0 (se calcularán después de los partidos)
             alineacion.setPuntosTotalesJornada(0);
 
-            // Guardar
+            // 7. GUARDAR
             alineacionRepository.save(alineacion);
 
             redirectAttributes.addFlashAttribute("success",
-                "Alineación guardada correctamente para la jornada " + proximaJornada.getIdJornada());
+                    "Alineación guardada correctamente para la jornada " + proximaJornada.getIdJornada());
 
-            return "redirect:/liga/" + ligaId + "/alineacion-futura?usuarioId=" + usuarioId;
+            // Redirigimos pasando el usuarioId para que la vista GET lo reconozca si lo necesita,
+            // aunque idealmente el GET también debería usar la sesión.
+            return "redirect:/liga/" + ligaId + "/alineacion-futura?usuarioId=" + usuario.getIdUsuario();
 
         } catch (Exception e) {
+            e.printStackTrace(); // Útil para depurar en consola
             redirectAttributes.addFlashAttribute("error",
-                "Error al guardar la alineación: " + e.getMessage());
+                    "Error al guardar la alineación: " + e.getMessage());
             return "redirect:/liga/" + ligaId + "/alineacion-futura";
         }
     }
@@ -292,7 +311,7 @@ public class AlineacionController {
     @GetMapping("/historial")
     public String mostrarHistorialAlineaciones(
             @PathVariable("ligaId") Long ligaId,
-            @RequestParam(value = "usuarioId", required = false) Long usuarioId,
+            @RequestParam(value = "usuarioId") Long usuarioId,
             @RequestParam(value = "jornadaId", required = false) Long jornadaId,
             Model model,
             RedirectAttributes redirectAttributes) {
