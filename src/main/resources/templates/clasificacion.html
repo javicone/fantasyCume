@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificación - Liga del Cume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Estilos del menú -->
+    <style th:replace="~{menu :: menuStyles}"></style>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0A0E27;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-content {
+            margin-left: 230px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .clasificacion-container {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 28px;
+        }
+
+        .clasificacion-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 8px 0 32px;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Tabla principal */
+        .clasificacion-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 14px 30px rgba(2, 6, 23, 0.7);
+            background: #ffffff;
+        }
+
+        /* Header borgoña */
+        .clasificacion-table thead th {
+            background: linear-gradient(180deg, #6d1515, #5a1010);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 18px 20px;
+            text-align: center;
+        }
+
+        /* Filas */
+        .clasificacion-table tbody td {
+            padding: 16px 20px;
+            font-size: 18px;
+            color: #222;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            background: #fff;
+            vertical-align: middle;
+        }
+
+        .clasificacion-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Resaltar top 3 */
+        .clasificacion-table tbody tr:nth-child(1) {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+        }
+
+        .clasificacion-table tbody tr:nth-child(1) td.position {
+            color: #ffd700;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .clasificacion-table tbody tr:nth-child(2) {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
+        }
+
+        .clasificacion-table tbody tr:nth-child(2) td.position {
+            color: #c0c0c0;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .clasificacion-table tbody tr:nth-child(3) {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
+        }
+
+        .clasificacion-table tbody tr:nth-child(3) td.position {
+            color: #cd7f32;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        /* Hover suave */
+        .clasificacion-table tbody tr:hover td {
+            background: linear-gradient(90deg, rgba(109, 21, 21, 0.08), rgba(109, 21, 21, 0.02));
+            transition: all 0.2s ease;
+        }
+
+        /* Columna de equipo con escudo */
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left !important;
+            padding-left: 30px !important;
+        }
+
+        .team-logo {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 18px;
+            color: #222;
+        }
+
+        /* Columna de puntos destacada */
+        .points-cell {
+            font-weight: 800;
+            font-size: 22px;
+            color: #6d1515;
+        }
+
+        /* Ancho de columnas */
+        .clasificacion-table th.position,
+        .clasificacion-table td.position {
+            width: 8%;
+        }
+
+        .clasificacion-table th.team,
+        .clasificacion-table td.team {
+            width: 30%;
+            text-align: left;
+        }
+
+        .clasificacion-table th.pj,
+        .clasificacion-table td.pj,
+        .clasificacion-table th.v,
+        .clasificacion-table td.v,
+        .clasificacion-table th.e,
+        .clasificacion-table td.e,
+        .clasificacion-table th.d,
+        .clasificacion-table td.d {
+            width: 8%;
+        }
+
+        .clasificacion-table th.gf,
+        .clasificacion-table td.gf,
+        .clasificacion-table th.gc,
+        .clasificacion-table td.gc,
+        .clasificacion-table th.dif,
+        .clasificacion-table td.dif {
+            width: 8%;
+        }
+
+        .clasificacion-table th.pts,
+        .clasificacion-table td.pts {
+            width: 10%;
+        }
+
+        /* Mensaje cuando no hay equipos */
+        .no-equipos {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .no-equipos i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: block;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .clasificacion-container {
+                padding: 16px;
+                margin: 12px;
+            }
+
+            .clasificacion-title {
+                font-size: 36px;
+            }
+
+            .clasificacion-table {
+                font-size: 14px;
+            }
+
+            .clasificacion-table tbody td,
+            .clasificacion-table thead th {
+                font-size: 14px;
+                padding: 12px 8px;
+            }
+
+            .team-logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .team-name {
+                font-size: 15px;
+            }
+
+            .team-cell {
+                gap: 10px;
+                padding-left: 15px !important;
+            }
+
+            /* Ocultar columnas menos importantes en móvil */
+            .clasificacion-table th.e,
+            .clasificacion-table td.e,
+            .clasificacion-table th.gf,
+            .clasificacion-table td.gf,
+            .clasificacion-table th.gc,
+            .clasificacion-table td.gc {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Incluir menú lateral -->
+    <div th:replace="~{menu :: menuLateral}"></div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="clasificacion-container">
+            <h1 class="clasificacion-title">Clasificación</h1>
+
+            <!-- Mensaje si no hay equipos -->
+            <div th:if="${#lists.isEmpty(clasificacion)}" class="no-equipos">
+                <i class="bi bi-trophy"></i>
+                <p>No hay equipos en la clasificación de esta liga</p>
+            </div>
+
+            <!-- Tabla de clasificación -->
+            <table th:if="${!#lists.isEmpty(clasificacion)}" class="clasificacion-table">
+                <thead>
+                    <tr>
+                        <th class="position">Pos</th>
+                        <th class="team">Equipo</th>
+                        <th class="pj">PJ</th>
+                        <th class="v">V</th>
+                        <th class="e">E</th>
+                        <th class="d">D</th>
+                        <th class="gf">GF</th>
+                        <th class="gc">GC</th>
+                        <th class="dif">DIF</th>
+                        <th class="pts">PTS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="equipo, iterStat : ${clasificacion}">
+                        <td class="position" th:text="${iterStat.index + 1}">1</td>
+                        <td class="team">
+                            <div class="team-cell">
+                                <img th:if="${equipo.escudoURL != null and !equipo.escudoURL.isEmpty()}"
+                                     th:src="${equipo.escudoURL}"
+                                     th:alt="${equipo.nombreEquipo}"
+                                     class="team-logo"
+                                     onerror="this.style.display='none'">
+                                <span th:if="${equipo.escudoURL == null or equipo.escudoURL.isEmpty()}"
+                                      class="team-logo"
+                                      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    <i class="bi bi-shield-fill"></i>
+                                </span>
+                                <span class="team-name" th:text="${equipo.nombreEquipo}">Equipo</span>
+                            </div>
+                        </td>
+                        <td class="pj" th:text="${equipo.partidosJugados}">0</td>
+                        <td class="v" th:text="${equipo.victorias}">0</td>
+                        <td class="e" th:text="${equipo.empates}">0</td>
+                        <td class="d" th:text="${equipo.derrotas}">0</td>
+                        <td class="gf" th:text="${equipo.golesAFavor}">0</td>
+                        <td class="gc" th:text="${equipo.golesEnContra}">0</td>
+                        <td class="dif" th:text="${equipo.diferenciaGoles}">0</td>
+                        <td class="pts points-cell" th:text="${equipo.puntosTotales}">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
