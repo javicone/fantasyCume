@@ -1,3 +1,5 @@
+# NOTA: DATAINITIALIZER HA SIDO ACTUALIADO POR LO QUE ESTO IGUAL NO FUNCIONA
+
 # 🗄️ Script de Inicialización de Base de Datos
 
 ## 📋 Descripción
