@@ -78,7 +78,7 @@ public class AlineacionController {
             Long presupuestoMaximo = 100000000L;
 
             // Obtener el nombre de la liga
-            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            LigaCume ligaObj = ligaService.buscarLigaPorId(ligaId);
             String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
 
             // Pasar datos al modelo
@@ -256,25 +256,29 @@ public class AlineacionController {
                 return "redirect:/liga/" + ligaId + "/alineacion-futura";
             }
 
-            // 3. LOGICA DE JORNADA (Mantenemos tu lógica original)
+            // 3. OBTENER LA PRÓXIMA JORNADA SIN RESULTADOS
             List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
-            Jornada proximaJornada = null;
-            boolean jornadaFuturaExiste = false;
+            if (jornadas.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "No hay jornadas disponibles en esta liga.");
+                return "redirect:/liga/" + ligaId + "/alineacion-futura";
+            }
 
+            // Ordenar jornadas por número
+            jornadas.sort((j1, j2) -> j1.getNumeroJornada().compareTo(j2.getNumeroJornada()));
+
+            // Buscar la primera jornada sin resultados
+            Jornada proximaJornada = null;
             for (Jornada j : jornadas) {
-                // Buscamos una jornada que aún no tenga partidos (asumimos que es la futura)
-                if (j.getPartidos().isEmpty()) {
+                if (jornadaSinResultados(j)) {
                     proximaJornada = j;
-                    jornadaFuturaExiste = true;
                     break;
                 }
             }
 
-            if (!jornadaFuturaExiste) {
-                // Crear nueva jornada vinculada a la liga del usuario
-                proximaJornada = new Jornada();
-                proximaJornada.setLiga(usuario.getLiga());
-                proximaJornada = jornadaRepository.save(proximaJornada);
+            if (proximaJornada == null) {
+                redirectAttributes.addFlashAttribute("error",
+                    "No hay jornadas disponibles. Todas las jornadas ya tienen resultados.");
+                return "redirect:/liga/" + ligaId + "/alineacion-futura";
             }
 
             // 4. OBTENER JUGADORES
@@ -313,10 +317,9 @@ public class AlineacionController {
             alineacionRepository.save(alineacion);
 
             redirectAttributes.addFlashAttribute("success",
-                    "Alineación guardada correctamente para la jornada " + proximaJornada.getIdJornada());
+                    "Alineación guardada correctamente para la Jornada " + proximaJornada.getNumeroJornada());
 
-            // Redirigimos pasando el usuarioId para que la vista GET lo reconozca si lo necesita,
-            // aunque idealmente el GET también debería usar la sesión.
+            // Redirigimos pasando el usuarioId
             return "redirect:/liga/" + ligaId + "/alineacion-futura?usuarioId=" + usuario.getIdUsuario();
 
         } catch (Exception e) {
@@ -456,7 +459,7 @@ public class AlineacionController {
             }
 
             // Obtener el nombre de la liga
-            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            LigaCume ligaObj = ligaService.buscarLigaPorId(ligaId);
             String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
 
             // Pasar datos al modelo
