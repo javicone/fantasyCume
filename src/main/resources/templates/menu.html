@@ -70,9 +70,28 @@
             Agregar Resultados
         </a>
 
-        <a href="@{/generar-cuadros-jornadas}" th:onclick="${ligaId} != null ? 'confirmarGenerar(' + ${ligaId} + ')' : 'window.location.href=\'/liga\''"
+        <!-- Si hay ligaId en el modelo, úsalo -->
+        <a th:if="${ligaId != null}"
+           th:href="@{/generar-cuadros-jornadas(ligaId=${ligaId}, force=true)}"
            class="nav-item"
-           th:classappend="${currentPage == 'generarJornadas'} ? 'active' : ''">
+           th:classappend="${currentPage == 'generarJornadas'} ? 'active' : ''"
+           onclick="return confirm('ATENCIÓN: Se van a SOBREESCRIBIR las estadísticas y resultados actuales de la liga.\n\nEsto RESETEARÁ todas las estadísticas y resultados pero NO eliminará jugadores ni equipos.\n\n¿Deseas continuar?')">
+            <i class="bi bi-calendar-week"></i>
+            Generar Jornadas
+        </a>
+
+        <!-- Si no hay ligaId en el modelo pero el usuario en sesión tiene liga, usarla -->
+        <a th:if="${ligaId == null and session.usuario != null and session.usuario.liga != null}"
+           th:href="@{/generar-cuadros-jornadas(ligaId=${session.usuario.liga.idLigaCume}, force=true)}"
+           class="nav-item"
+           th:classappend="${currentPage == 'generarJornadas'} ? 'active' : ''"
+           onclick="return confirm('ATENCIÓN: Se van a SOBREESCRIBIR las estadísticas y resultados actuales de la liga.\n\nEsto RESETEARÁ todas las estadísticas y resultados pero NO eliminará jugadores ni equipos.\n\n¿Deseas continuar?')">
+            <i class="bi bi-calendar-week"></i>
+            Generar Jornadas
+        </a>
+
+        <!-- Si no hay liga en sesión ni en modelo, redirigir al selector de ligas -->
+        <a th:if="${ligaId == null and (session.usuario == null or session.usuario.liga == null)}" th:href="@{/liga}" class="nav-item">
             <i class="bi bi-calendar-week"></i>
             Generar Jornadas
         </a>

@@ -8,15 +8,20 @@ import com.example.Liga_Del_Cume.data.service.JornadaService;
 import com.example.Liga_Del_Cume.data.service.PartidoService;
 import com.example.Liga_Del_Cume.data.service.LigaService;
 import com.example.Liga_Del_Cume.data.service.EstadisticaService;
+import com.example.Liga_Del_Cume.data.repository.AlineacionRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,6 +31,8 @@ import java.util.List;
  */
 @Controller
 public class JornadaController {
+
+    private static final Logger log = LoggerFactory.getLogger(JornadaController.class);
 
     @Autowired
     private EquipoService equipoService;
@@ -42,6 +49,9 @@ public class JornadaController {
     @Autowired
     private EstadisticaService estadisticaService;
 
+    @Autowired
+    private AlineacionRepository alineacionRepository;
+
     public JornadaController() {
         // constructor
     }
@@ -51,7 +61,8 @@ public class JornadaController {
      * POST /jornada/generar?ligaId={id}&force={true|false}
      * Si existe ya al menos una jornada y force != true, se aborta para evitar duplicados.
      */
-    @PostMapping("/jornada/generar")
+    @RequestMapping(path = "/jornada/generar", method = {RequestMethod.GET, RequestMethod.POST})
+    @Transactional
     public String generarJornadas(@RequestParam Long ligaId,
                                   @RequestParam(required = false, defaultValue = "false") boolean force,
                                   RedirectAttributes redirectAttributes) {
@@ -72,16 +83,16 @@ public class JornadaController {
             return "redirect:/liga";
         }
 
-        // Si ya existen jornadas y no se fuerza, abortar
+        // Comprobar si ya existen jornadas
         int jornadasExistentes = jornadaService.contarJornadasPorLiga(ligaId);
-        if (jornadasExistentes > 0 && !force) {
-            redirectAttributes.addFlashAttribute("message", "La liga ya tiene jornadas. Si quieres resetear estadísticas y resultados, confirma en el diálogo (Generar Jornadas).");
-            redirectAttributes.addFlashAttribute("messageType", "warning");
-            return "redirect:/liga/" + ligaId + "/clasificacion";
-        }
+        if (jornadasExistentes > 0) {
+            if (!force) {
+                redirectAttributes.addFlashAttribute("message", "La liga ya tiene jornadas. Si quieres resetear estadísticas y resultados, confirma en el diálogo (Generar Jornadas).");
+                redirectAttributes.addFlashAttribute("messageType", "warning");
+                return "redirect:/liga/" + ligaId + "/clasificacion";
+            }
 
-        // Si force = true pero ya hay jornadas, SOLO reseteamos estadísticas y resultados (no eliminar jornadas)
-        if (jornadasExistentes > 0 && force) {
+            // force == true -> reseteamos estadísticas y resultados (no eliminar jornadas)
             try {
                 estadisticaService.resetEstadisticasYResultadosDeLiga(ligaId);
             } catch (Exception e) {
@@ -90,9 +101,35 @@ public class JornadaController {
                 return "redirect:/liga/" + ligaId + "/clasificacion";
             }
 
-            redirectAttributes.addFlashAttribute("message", "Estadísticas y resultados reseteados correctamente (jugadores y equipos preservados). Si deseas regenerar el calendario, borra las jornadas manualmente o usa la opción específica.");
-            redirectAttributes.addFlashAttribute("messageType", "success");
-            return "redirect:/liga/" + ligaId + "/clasificacion";
+            // BORRAR alineaciones de todas las jornadas de la liga
+            try {
+                List<Jornada> existentes = jornadaService.listarJornadasPorLiga(ligaId);
+                for (Jornada j : existentes) {
+                    // borrar alineaciones de la jornada
+                    List<com.example.Liga_Del_Cume.data.model.Alineacion> alineaciones = alineacionRepository.findByJornadaIdJornada(j.getIdJornada());
+                    if (alineaciones != null && !alineaciones.isEmpty()) {
+                        alineacionRepository.deleteAll(alineaciones);
+                    }
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("message", "Error al borrar alineaciones: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("messageType", "danger");
+                return "redirect:/liga/" + ligaId + "/clasificacion";
+            }
+
+            // Ahora intentamos eliminar las jornadas existentes (y sus partidos)
+            try {
+                List<Jornada> existentes = jornadaService.listarJornadasPorLiga(ligaId);
+                for (Jornada j : existentes) {
+                    jornadaService.eliminarJornada(j.getIdJornada());
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("message", "No se pueden eliminar las jornadas existentes: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("messageType", "danger");
+                return "redirect:/liga/" + ligaId + "/clasificacion";
+            }
+
+            // seguimos adelante: al haber eliminado jornadas, procedemos a generar de nuevo (no retornamos aquí)
         }
 
         // Si no hay jornadas, seguimos con la generación normal (creación de jornadas y partidos)
@@ -114,25 +151,36 @@ public class JornadaController {
         int rondas = n - 1;
         int partidosPorRonda = n / 2;
 
-        // Algoritmo round-robin (círculo)
+        // Construir emparejamientos para cada ronda (primera vuelta)
+        List<List<Equipo[]>> rondasEmparejamientos = new ArrayList<>();
         List<Equipo> rotantes = new ArrayList<>(lista);
-
-        for (int ronda = 0; ronda < rondas; ronda++) {
-            Jornada jornada = jornadaService.crearJornada(liga);
-
+        for (int r = 0; r < rondas; r++) {
+            List<Equipo[]> emparejamientos = new ArrayList<>();
             for (int i = 0; i < partidosPorRonda; i++) {
-                Equipo equipoLocal = rotantes.get(i);
-                Equipo equipoVisitante = rotantes.get(n - 1 - i);
-
-                if (equipoLocal == null || equipoVisitante == null) continue; // bye
-
-                // Crear partido con 0-0 inicial (sin resultado)
-                partidoService.agregarPartido(equipoLocal, equipoVisitante, 0, 0, jornada);
+                Equipo local = rotantes.get(i);
+                Equipo visitante = rotantes.get(n - 1 - i);
+                if (local == null || visitante == null) continue; // bye
+                emparejamientos.add(new Equipo[]{local, visitante});
             }
+            rondasEmparejamientos.add(emparejamientos);
+            // rotar sublista manteniendo índice 0 fijo
+            if (rotantes.size() > 1) Collections.rotate(rotantes.subList(1, rotantes.size()), 1);
+        }
 
-            // Rotación: tomar el último y colocarlo en la posición 1
-            Equipo ultimo = rotantes.remove(rotantes.size() - 1);
-            rotantes.add(1, ultimo);
+        // Crear jornadas para la primera vuelta
+        for (List<Equipo[]> emparejamientos : rondasEmparejamientos) {
+            Jornada jornada = jornadaService.crearJornada(liga);
+            for (Equipo[] pair : emparejamientos) {
+                partidoService.agregarPartido(pair[0], pair[1], 0, 0, jornada);
+            }
+        }
+
+        // Crear jornadas para la segunda vuelta (vuelta: invertir local/visitante)
+        for (List<Equipo[]> emparejamientos : rondasEmparejamientos) {
+            Jornada jornada = jornadaService.crearJornada(liga);
+            for (Equipo[] pair : emparejamientos) {
+                partidoService.agregarPartido(pair[1], pair[0], 0, 0, jornada);
+            }
         }
 
         redirectAttributes.addFlashAttribute("message", "Jornadas generadas correctamente");
@@ -141,29 +189,38 @@ public class JornadaController {
     }
 
     /**
-     * Endpoint GET para facilitar la invocación desde navegador (redirige a POST).
-     */
-    @GetMapping("/jornada/generar")
-    public String generarJornadasGet(@RequestParam Long ligaId, RedirectAttributes redirectAttributes) {
-        // redirigir al POST sin force
-        return generarJornadas(ligaId, false, redirectAttributes);
-    }
-
-    /**
      * Ruta compatible con el menú: /generar-cuadros-jornadas
      * Acepta un parámetro opcional ligaId. Si no se proporciona, redirige a /liga
      * para que el usuario seleccione la liga.
      */
-    @GetMapping(path = "/generar-cuadros-jornadas")
+    @RequestMapping(path = "/generar-cuadros-jornadas", method = {RequestMethod.GET, RequestMethod.POST})
     public String generarCuadrosDesdeMenu(@RequestParam(required = false) Long ligaId,
                                           @RequestParam(required = false, defaultValue = "false") boolean force,
-                                          RedirectAttributes redirectAttributes) {
+                                          RedirectAttributes redirectAttributes,
+                                          HttpSession session) {
+        boolean sessionHasUser = session != null && session.getAttribute("usuario") != null;
+        log.info("/generar-cuadros-jornadas called with ligaId={} force={} sessionUserPresent={}", ligaId, force, sessionHasUser);
+
+        // Si no viene ligaId, intentar obtenerlo de la sesión (usuario logueado)
+        if (ligaId == null) {
+            Object usuarioObj = null;
+            if (session != null) {
+                usuarioObj = session.getAttribute("usuario");
+            }
+            if (usuarioObj instanceof com.example.Liga_Del_Cume.data.model.Usuario usuario) {
+                if (usuario.getLiga() != null) {
+                    ligaId = usuario.getLiga().getIdLigaCume();
+                }
+            }
+        }
+
         if (ligaId == null) {
             redirectAttributes.addFlashAttribute("message", "Selecciona primero una liga para generar sus jornadas.");
             redirectAttributes.addFlashAttribute("messageType", "warning");
             return "redirect:/liga";
         }
-        // Llamar al generador pasando el parámetro force segun venga
-        return generarJornadas(ligaId, force, redirectAttributes);
+
+        // Redirigir al endpoint /jornada/generar para que la operación sea tratada por Spring MVC
+        return "redirect:/jornada/generar?ligaId=" + ligaId + "&force=" + force;
     }
 }
