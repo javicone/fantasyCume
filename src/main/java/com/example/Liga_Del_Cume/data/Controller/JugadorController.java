@@ -2,8 +2,12 @@ package com.example.Liga_Del_Cume.data.Controller;
 
 import com.example.Liga_Del_Cume.data.model.EstadisticaJugadorPartido;
 import com.example.Liga_Del_Cume.data.model.Jugador;
+import com.example.Liga_Del_Cume.data.model.Usuario;
+import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.service.JugadorService;
 import com.example.Liga_Del_Cume.data.service.EstadisticaService;
+import com.example.Liga_Del_Cume.data.service.LigaService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,17 +26,24 @@ public class JugadorController {
 
     @Autowired
     private EstadisticaService estadisticaService;
+
+    @Autowired
+    private LigaService ligaService;
+
     /**
      * Muestra la lista de estadísticas de jugadores con filtros
      */
     @GetMapping("/liga/{idLiga}/estadisticasJugadores")
     public String mostrarEstadisticasJugadores(
             @PathVariable Long idLiga,
-            @RequestParam Long idUsuario,
             @RequestParam(required = false) String buscar,
             @RequestParam(required = false, defaultValue = "false") boolean mostrarPorteros,
             @RequestParam(required = false) String ordenar,
+            HttpSession session,
             Model model) {
+
+        // Obtener usuario de la sesión
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
         List<Jugador> jugadores;
         jugadores = jugadorService.listarTodosLosJugadores();
@@ -43,7 +53,10 @@ public class JugadorController {
         Map<Long, Integer> golesTotalesMap = jugadores.stream()
                 .collect(Collectors.toMap(Jugador::getIdJugador, this::calcularGolesTotal));
 
-        model.addAttribute("idUsuario", idUsuario);
+        // Obtener el nombre de la liga
+        LigaCume ligaObj = ligaService.obtenerLigaPorId(idLiga);
+        String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
         // 5. AÑADIR AL MODELO (Esto es correcto)
         model.addAttribute("jugadores", jugadores);
         model.addAttribute("puntosTotalesMap", puntosTotalesMap);
@@ -51,6 +64,9 @@ public class JugadorController {
         model.addAttribute("buscar", buscar);
         model.addAttribute("ordenar", ordenar);
         model.addAttribute("ligaId", idLiga);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("nombreLiga", nombreLiga);
+        model.addAttribute("currentPage", "estadisticas");
 
         // Es importante enviar el valor de 'mostrarPorteros' al modelo
         // La RequestParam ya lo tiene, pero para claridad en Thymeleaf lo añadimos.

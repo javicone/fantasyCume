@@ -45,10 +45,9 @@
             Ver Resultados
         </a>
 
-        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${ligaId}, usuarioId=${session.usuario?.idUsuario})}"           th:classappend="${currentPage == 'estadisticas'} ? 'active' : ''">
-            class="nav-item"
-            th:classappend="${currentPage == 'estadisticas'} ? 'active' : ''">
-
+        <a th:href="@{/liga/{id}/estadisticasJugadores(id=${ligaId})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'estadisticas'} ? 'active' : ''">
             <i class="bi bi-graph-up"></i>
             Ver Estadísticas Jugadores
         </a>
