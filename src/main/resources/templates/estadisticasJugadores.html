@@ -128,7 +128,7 @@
     <div class="jugadores-grid" id="lista-jugadores">
 
         <a th:each="jugador : ${jugadores}"
-           th:href="@{/liga/{idLiga}/jugador/{jugadorId}/usuario/{idUsuario}(idLiga=${ligaId}, jugadorId=${jugador.idJugador}, idUsuario=${usuario?.idUsuario})}"
+           th:href="@{/liga/{idLiga}/jugador/{jugadorId}(idLiga=${ligaId}, jugadorId=${jugador.idJugador})}"
            class="jugador-card-row"
            th:data-es-portero="${jugador.esPortero}"
            th:data-nombre="${#strings.toLowerCase(jugador.nombreJugador)}"
