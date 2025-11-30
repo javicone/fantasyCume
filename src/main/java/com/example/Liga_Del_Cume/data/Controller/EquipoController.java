@@ -206,15 +206,39 @@ public class EquipoController {
             @RequestParam("nombreJugador") String nombreJugador,
             @RequestParam("precioMercado") float precioMercado,
             @RequestParam("avatarUrl") String avatarUrl,
-            @RequestParam("esPortero") boolean esPortero,
+            @RequestParam(value = "esPortero", required = false) Boolean esPortero,
             RedirectAttributes redirectAttributes) {
         try {
+            // Validar que se haya seleccionado la posición
+            if (esPortero == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar la posición del jugador (Portero o Jugador de Campo)");
+                return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
+            }
+
+            // Validar nombre del jugador
+            if (nombreJugador == null || nombreJugador.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "El nombre del jugador es obligatorio");
+                return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
+            }
+
+            // Validar URL del avatar
+            if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "La URL del avatar es obligatoria");
+                return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
+            }
+
+            // Validar precio
+            if (precioMercado <= 0) {
+                redirectAttributes.addFlashAttribute("error", "El precio debe ser mayor a 0");
+                return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
+            }
+
             // Obtener el equipo
             Equipo equipo = equipoService.obtenerEquipo(equipoId);
 
             // Crear el jugador
             Jugador nuevoJugador = jugadorService.agregarJugador(
-                nombreJugador, esPortero, equipo, precioMercado, avatarUrl
+                nombreJugador.trim(), esPortero, equipo, precioMercado, avatarUrl.trim()
             );
 
             redirectAttributes.addFlashAttribute("success",
@@ -226,7 +250,7 @@ public class EquipoController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error inesperado al crear el jugador");
+            redirectAttributes.addFlashAttribute("error", "Error inesperado al crear el jugador: " + e.getMessage());
             return "redirect:/liga/" + ligaId + "/admin/equipos/" + equipoId + "/jugador/nuevo";
         }
     }

@@ -32,13 +32,18 @@
         }
 
         .page-title {
-            color: white;
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
+            font-size: 64px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 8px 0 40px;
+            letter-spacing: -2px;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            text-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-container {
@@ -55,7 +60,7 @@
             height: 80px;
             border-radius: 50%;
             background: white;
-            padding: 0.5rem;
+            padding: 0.8rem;
             margin: 0 auto 1rem;
             display: flex;
             align-items: center;
@@ -67,6 +72,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            object-position: center;
         }
 
         .team-name-label {
@@ -278,13 +284,16 @@
                 <div class="mb-3">
                     <label for="esPortero" class="form-label">
                         <i class="bi bi-shield-fill form-icon"></i>
-                        Posición
+                        Posición <span style="color: #ff3366;">*</span>
                     </label>
                     <select class="form-select" id="esPortero" name="esPortero" required>
-                        <option value="" selected disabled>Selecciona una posición</option>
-                        <option value="true">Portero</option>
-                        <option value="false">Jugador de Campo</option>
+                        <option value="" selected disabled>⚠️ Selecciona una posición (obligatorio)</option>
+                        <option value="true">🧤 Portero</option>
+                        <option value="false">⚽ Jugador de Campo</option>
                     </select>
+                    <small style="color: rgba(255, 255, 255, 0.8); display: block; margin-top: 0.5rem;">
+                        <i class="bi bi-info-circle"></i> Debes seleccionar la posición del jugador antes de guardar
+                    </small>
                 </div>
 
                 <div class="btn-container">
@@ -351,16 +360,57 @@
             }
         }
 
+        // Validar formulario antes de mostrar el modal
+        function validarFormulario() {
+            const nombreJugador = document.getElementById('nombreJugador').value.trim();
+            const precioMercado = document.getElementById('precioMercado').value;
+            const avatarUrl = document.getElementById('avatarUrl').value.trim();
+            const esPortero = document.getElementById('esPortero').value;
+
+            // Validar que todos los campos estén completos
+            if (!nombreJugador) {
+                alert('⚠️ Por favor, ingresa el nombre del jugador');
+                document.getElementById('nombreJugador').focus();
+                return false;
+            }
+
+            if (!precioMercado || parseFloat(precioMercado) <= 0) {
+                alert('⚠️ Por favor, ingresa un precio válido mayor a 0');
+                document.getElementById('precioMercado').focus();
+                return false;
+            }
+
+            if (!avatarUrl) {
+                alert('⚠️ Por favor, ingresa la URL de la foto del jugador');
+                document.getElementById('avatarUrl').focus();
+                return false;
+            }
+
+            if (!esPortero || esPortero === '') {
+                alert('⚠️ Por favor, selecciona la posición del jugador (Portero o Jugador de Campo)');
+                document.getElementById('esPortero').focus();
+                return false;
+            }
+
+            return true;
+        }
+
         // Actualizar modal de confirmación
-        document.getElementById('confirmModal').addEventListener('show.bs.modal', function () {
+        document.getElementById('confirmModal').addEventListener('show.bs.modal', function (event) {
+            // Validar formulario antes de mostrar el modal
+            if (!validarFormulario()) {
+                event.preventDefault();
+                return;
+            }
+
             const nombreJugador = document.getElementById('nombreJugador').value;
             const precioMercado = document.getElementById('precioMercado').value;
             const avatarUrl = document.getElementById('avatarUrl').value;
             const esPortero = document.getElementById('esPortero').value;
 
             document.getElementById('modalNombreJugador').textContent = nombreJugador;
-            document.getElementById('modalPrecio').textContent = precioMercado;
-            document.getElementById('modalPosicion').textContent = esPortero === 'true' ? 'Portero' : 'Jugador de Campo';
+            document.getElementById('modalPrecio').textContent = parseFloat(precioMercado).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('modalPosicion').textContent = esPortero === 'true' ? '🧤 Portero' : '⚽ Jugador de Campo';
             document.getElementById('modalAvatarPreview').src = avatarUrl || 'https://via.placeholder.com/100?text=Jugador';
         });
 
@@ -372,6 +422,15 @@
         // Actualizar vista previa al cargar la página si hay valor
         window.addEventListener('load', function() {
             actualizarVistaPrevia();
+        });
+
+        // Agregar indicador visual cuando se selecciona la posición
+        document.getElementById('esPortero').addEventListener('change', function() {
+            const select = this;
+            if (select.value) {
+                select.style.borderColor = '#56ab2f';
+                select.style.boxShadow = '0 0 10px rgba(86, 171, 47, 0.3)';
+            }
         });
     </script>
 </body>

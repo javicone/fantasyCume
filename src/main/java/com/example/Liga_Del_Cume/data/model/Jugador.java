@@ -13,7 +13,7 @@ public class Jugador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idJugador;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String avatarUrl;
 
     // Relación N a 1: Muchos jugadores pertenecen a un equipo
