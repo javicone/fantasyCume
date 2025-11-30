@@ -29,6 +29,7 @@ public class JugadorController {
     @GetMapping("/liga/{idLiga}/estadisticasJugadores")
     public String mostrarEstadisticasJugadores(
             @PathVariable Long idLiga,
+            @RequestParam Long idUsuario,
             @RequestParam(required = false) String buscar,
             @RequestParam(required = false, defaultValue = "false") boolean mostrarPorteros,
             @RequestParam(required = false) String ordenar,
@@ -42,6 +43,7 @@ public class JugadorController {
         Map<Long, Integer> golesTotalesMap = jugadores.stream()
                 .collect(Collectors.toMap(Jugador::getIdJugador, this::calcularGolesTotal));
 
+        model.addAttribute("idUsuario", idUsuario);
         // 5. AÑADIR AL MODELO (Esto es correcto)
         model.addAttribute("jugadores", jugadores);
         model.addAttribute("puntosTotalesMap", puntosTotalesMap);
@@ -61,12 +63,14 @@ public class JugadorController {
     /**
      * Muestra el detalle de un jugador específico
      */
-    @GetMapping("/liga/{idLiga}/jugador/{idJugador}")
+    @GetMapping("/liga/{idLiga}/jugador/{idJugador}/usuario/{idUsuario}")
     public String verDetalleJugador(
             @PathVariable Long idLiga,
             @PathVariable Long idJugador,
+            @RequestParam Long idUsuario,
             Model model) {
 
+        model.addAttribute("idUsuario", idUsuario);
 
         Jugador jugador = jugadorService.obtenerJugador(idJugador);
         List<EstadisticaJugadorPartido> estadisticas = estadisticaService.obtenerEstadisticasJugador(idJugador);

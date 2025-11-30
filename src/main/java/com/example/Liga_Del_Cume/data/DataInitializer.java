@@ -7,379 +7,355 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Script para poblar la base de datos con datos iniciales de prueba
- *
- * Este componente se ejecuta automáticamente al iniciar la aplicación
- * y crea una liga completa con usuarios, equipos, jugadores, jornadas,
- * partidos, estadísticas y alineaciones.
- *
- * NOTA: Solo se ejecuta con el perfil 'dev' activo
- * Para activarlo, agregar en application.properties:
- * spring.profiles.active=dev
- *
- * Para desactivarlo, comentar la línea anterior o cambiar el perfil.
+ * Script extendido para poblar la base de datos.
+ * Genera una liga de 6 equipos, 5 usuarios y simula media temporada (5 jornadas).
  */
 @Component
-@Profile("dev") // Solo se ejecuta en modo desarrollo
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
-    @Autowired
-    private LigaCumeRepository ligaCumeRepository;
+    @Autowired private LigaCumeRepository ligaCumeRepository;
+    @Autowired private EquipoRepository equipoRepository;
+    @Autowired private JugadorRepository jugadorRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private JornadaRepository jornadaRepository;
+    @Autowired private PartidoRepository partidoRepository;
+    @Autowired private AlineacionRepository alineacionRepository;
+    @Autowired private EstadisticaJugadorPartidoRepository estadisticaRepository;
 
-    @Autowired
-    private EquipoRepository equipoRepository;
-
-    @Autowired
-    private JugadorRepository jugadorRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private JornadaRepository jornadaRepository;
-
-    @Autowired
-    private PartidoRepository partidoRepository;
-
-    @Autowired
-    private AlineacionRepository alineacionRepository;
-
-    @Autowired
-    private EstadisticaJugadorPartidoRepository estadisticaRepository;
+    private final Random random = new Random();
 
     @Override
     public void run(String... args) throws Exception {
-        // Verificar si ya hay datos en la base de datos
         if (ligaCumeRepository.count() > 0) {
             System.out.println("\n⚠️  La base de datos ya contiene datos. Saltando inicialización.\n");
             return;
         }
 
         System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
-        System.out.println("║          INICIALIZANDO BASE DE DATOS                          ║");
+        System.out.println("║          INICIALIZANDO LIGA FANTASY EXTENDIDA                 ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════╝\n");
 
-        poblarBaseDatos();
+        poblarBaseDatosCompleta();
 
         System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
         System.out.println("║           ✅ BASE DE DATOS INICIALIZADA CORRECTAMENTE         ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════╝\n");
     }
 
-    private void poblarBaseDatos() {
-        // ============ PASO 1: CREAR LIGA ============
-        System.out.println("📋 PASO 1: Creando Liga...");
+    private void poblarBaseDatosCompleta() {
+        // 1. Crear Liga
         LigaCume liga = new LigaCume();
         liga.setNombreLiga("LigaCume Fantasy 2024-2025");
         liga.setPresupuestoMaximo(100000000L);
         liga = ligaCumeRepository.save(liga);
         System.out.println("✓ Liga creada: " + liga.getNombreLiga());
-        System.out.println("  Presupuesto máximo: " + liga.getPresupuestoMaximo() + "€\n");
 
-        // ============ PASO 2: CREAR USUARIOS ============
-        System.out.println("👥 PASO 2: Creando 3 usuarios...");
-        Usuario usuario1 = crearUsuario("Ibai Llanos", "ibai@fantasy.com", "pass123", liga);
-        Usuario usuario2 = crearUsuario("ElRubius", "rubius@fantasy.com", "pass123", liga);
-        Usuario usuario3 = crearUsuario("DJMaRiiO", "djmario@fantasy.com", "pass123", liga);
-        Usuario usuario4 = crearUsuario("aaa", "aaa@ex.com", "123123", liga);
+        // 2. Crear 5 Usuarios
+        List<Usuario> usuarios = new ArrayList<>();
+        usuarios.add(crearUsuario("Ibai Llanos", "ibai@fantasy.com", liga));
+        usuarios.add(crearUsuario("ElRubius", "rubius@fantasy.com", liga));
+        usuarios.add(crearUsuario("DJMaRiiO", "djmario@fantasy.com", liga));
+        usuarios.add(crearUsuario("TheGrefg", "grefg@fantasy.com", liga));
+        usuarios.add(crearUsuario("IlloJuan", "illojuan@fantasy.com", liga));
+        System.out.println("✓ 5 Usuarios creados");
 
-        System.out.println();
+        // 3. Crear 6 Equipos y sus Jugadores
+        List<Equipo> equipos = crearEquiposYJugadores(liga);
 
-        // ============ PASO 3: CREAR EQUIPOS ============
-        System.out.println("⚽ PASO 3: Creando 4 equipos...");
-        Equipo equipo1 = crearEquipo("Real Madrid", "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg", liga);
-        Equipo equipo2 = crearEquipo("FC Barcelona", "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona.svg", liga);
-        Equipo equipo3 = crearEquipo("Atlético Madrid", "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid.svg", liga);
-        Equipo equipo4 = crearEquipo("Sevilla FC", "https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg", liga);
-        System.out.println("✓ Equipos creados correctamente\n");
+        // 4. Generar Calendario (10 Jornadas) y Simular las primeras 5
+        generarYSimularJornadas(liga, equipos, usuarios);
 
-        // ============ PASO 4: CREAR JUGADORES (5 por equipo = 20 total) ============
-        System.out.println("🏃 PASO 4: Creando jugadores (5 por equipo)...");
+        // 5. Calcular Clasificación Final
+        mostrarClasificacion(liga);
+    }
 
-        // Real Madrid
-        Jugador rm1 = crearJugador("Courtois", true, equipo1, 40000000);
-        Jugador rm2 = crearJugador("Vinicius Jr", false, equipo1, 80000000);
-        Jugador rm3 = crearJugador("Bellingham", false, equipo1, 100000000);
-        Jugador rm4 = crearJugador("Rodrygo", false, equipo1, 60000000);
-        Jugador rm5 = crearJugador("Valverde", false, equipo1, 70000000);
-        System.out.println("✓ Real Madrid: 5 jugadores");
+    // ==================== CREACIÓN DE EQUIPOS Y JUGADORES ====================
 
-        // FC Barcelona
-        Jugador fcb1 = crearJugador("Ter Stegen", true, equipo2, 30000000);
-        Jugador fcb2 = crearJugador("Lewandowski", false, equipo2, 45000000);
-        Jugador fcb3 = crearJugador("Gavi", false, equipo2, 90000000);
-        Jugador fcb4 = crearJugador("Pedri", false, equipo2, 80000000);
-        Jugador fcb5 = crearJugador("Raphinha", false, equipo2, 50000000);
-        System.out.println("✓ FC Barcelona: 5 jugadores");
+    private List<Equipo> crearEquiposYJugadores(LigaCume liga) {
+        System.out.println("\n⚽ Creando equipos y jugadores...");
+        List<Equipo> listaEquipos = new ArrayList<>();
 
-        // Atlético Madrid
-        Jugador atm1 = crearJugador("Oblak", true, equipo3, 35000000);
-        Jugador atm2 = crearJugador("Griezmann", false, equipo3, 40000000);
-        Jugador atm3 = crearJugador("Morata", false, equipo3, 25000000);
-        Jugador atm4 = crearJugador("Koke", false, equipo3, 15000000);
-        Jugador atm5 = crearJugador("De Paul", false, equipo3, 30000000);
-        System.out.println("✓ Atlético Madrid: 5 jugadores");
+        // Equipo 1: Real Madrid
+        Equipo rm = crearEquipo("Real Madrid", "https://logodownload.org/wp-content/uploads/2016/03/real-madrid-logo-1.png", liga);
+        crearJugadoresEquipo(rm, "Courtois", "Vinicius Jr", "Bellingham", "Rodrygo", "Valverde");
+        listaEquipos.add(rm);
 
-        // Sevilla FC
-        Jugador sev1 = crearJugador("Bounou", true, equipo4, 20000000);
-        Jugador sev2 = crearJugador("Ocampos", false, equipo4, 25000000);
-        Jugador sev3 = crearJugador("En-Nesyri", false, equipo4, 20000000);
-        Jugador sev4 = crearJugador("Rakitic", false, equipo4, 10000000);
-        Jugador sev5 = crearJugador("Acuña", false, equipo4, 15000000);
-        System.out.println("✓ Sevilla FC: 5 jugadores\n");
+        // Equipo 2: FC Barcelona
+        Equipo fcb = crearEquipo("FC Barcelona", "https://logodownload.org/wp-content/uploads/2015/05/barcelona-logo-escudo-1.png", liga);
+        crearJugadoresEquipo(fcb, "Ter Stegen", "Lewandowski", "Lamine Yamal", "Pedri", "Gavi");
+        listaEquipos.add(fcb);
 
-        // ============ JORNADA 1 ============
-        System.out.println("═══════════════════════════════════════════════════════════════");
-        System.out.println("                         JORNADA 1                             ");
-        System.out.println("═══════════════════════════════════════════════════════════════\n");
+        // Equipo 3: Atlético Madrid
+        Equipo atm = crearEquipo("Atlético Madrid", "https://logodownload.org/wp-content/uploads/2016/10/atletico-madrid-logo-1.png", liga);
+        crearJugadoresEquipo(atm, "Oblak", "Griezmann", "Julián Álvarez", "Koke", "De Paul");
+        listaEquipos.add(atm);
 
-        Jornada jornada1 = new Jornada();
-        jornada1.setLiga(liga);
-        jornada1.setNumeroJornada(1);
-        jornada1 = jornadaRepository.save(jornada1);
-        System.out.println("📅 Jornada 1 creada (ID: " + jornada1.getIdJornada() + ")\n");
+        // Equipo 4: Sevilla FC
+        Equipo sev = crearEquipo("Sevilla FC", "https://logodownload.org/wp-content/uploads/2018/05/sevilla-fc-logo-1.png", liga);
+        crearJugadoresEquipo(sev, "Nyland", "Ocampos", "Isaac Romero", "Jesús Navas", "Sow");
+        listaEquipos.add(sev);
 
-        // Partido 1: Real Madrid vs Barcelona
-        System.out.println("⚽ Partido 1: Real Madrid 2 - 1 Barcelona");
-        Partido partido1J1 = crearPartido(equipo1, equipo2, 2, 1, jornada1);
+        // Equipo 5: Valencia CF
+        Equipo vcf = crearEquipo("Valencia CF", "https://logodownload.org/wp-content/uploads/2018/05/valencia-cf-logo-1.png", liga);
+        crearJugadoresEquipo(vcf, "Mamardashvili", "Hugo Duro", "Pepelu", "Gayà", "Javi Guerra");
+        listaEquipos.add(vcf);
 
-        // Estadísticas Partido 1
-        crearEstadistica(rm1, partido1J1, 0, 0, 0, false, true, 1, 3);
-        crearEstadistica(rm2, partido1J1, 1, 1, 0, false, true, 0, 12);
-        crearEstadistica(rm3, partido1J1, 1, 0, 0, false, true, 0, 7);
-        crearEstadistica(fcb1, partido1J1, 0, 0, 0, false, true, 2, 1);
-        crearEstadistica(fcb2, partido1J1, 1, 0, 1, false, true, 0, 5);
-        crearEstadistica(fcb3, partido1J1, 0, 1, 0, false, true, 0, 5);
-        System.out.println("  ✓ Estadísticas registradas\n");
+        // Equipo 6: Real Betis
+        Equipo bet = crearEquipo("Real Betis", "https://logodownload.org/wp-content/uploads/2017/02/real-betis-logo-1.png", liga);
+        crearJugadoresEquipo(bet, "Rui Silva", "Isco", "Lo Celso", "Fekir", "Bartra");
+        listaEquipos.add(bet);
 
-        // Partido 2: Atlético Madrid vs Sevilla
-        System.out.println("⚽ Partido 2: Atlético Madrid 3 - 0 Sevilla");
-        Partido partido2J1 = crearPartido(equipo3, equipo4, 3, 0, jornada1);
+        return listaEquipos;
+    }
 
-        // Estadísticas Partido 2
-        crearEstadistica(atm1, partido2J1, 0, 0, 0, false, true, 0, 8);
-        crearEstadistica(atm2, partido2J1, 2, 0, 0, false, true, 0, 14);
-        crearEstadistica(atm3, partido2J1, 1, 2, 0, false, true, 0, 12);
-        crearEstadistica(sev1, partido2J1, 0, 0, 0, false, true, 3, -2);
-        crearEstadistica(sev2, partido2J1, 0, 0, 1, false, true, 0, 1);
-        System.out.println("  ✓ Estadísticas registradas\n");
+    private void crearJugadoresEquipo(Equipo equipo, String... nombres) {
+        boolean primerEsPortero = true;
+        for (String nombre : nombres) {
+            Jugador j = new Jugador();
+            j.setNombreJugador(nombre);
+            j.setEsPortero(primerEsPortero);
+            j.setEquipo(equipo);
+            // Precio aleatorio entre 5M y 100M
+            j.setPrecioMercado(5000000 + random.nextInt(95000000));
+            j.setAvatarUrl("https://ui-avatars.com/api/?name=" + nombre.replace(" ", "+") + "&background=random");
+            jugadorRepository.save(j);
+            primerEsPortero = false; // Solo el primero es portero
+        }
+    }
 
-        // Crear alineaciones para Jornada 1
-        System.out.println("📝 Creando alineaciones para Jornada 1...");
-        crearAlineacion(usuario1, jornada1, rm1, rm2, fcb2, atm2, atm3);
-        crearAlineacion(usuario2, jornada1, atm1, rm3, fcb3, atm2, sev2);
-        crearAlineacion(usuario3, jornada1, fcb1, rm2, atm3, fcb2, sev2);
-        System.out.println("✓ Alineaciones creadas\n");
+    // ==================== LÓGICA DE JORNADAS Y SIMULACIÓN ====================
 
-        // Mostrar resultados Jornada 1
-        mostrarResultadosJornada("JORNADA 1", jornada1, usuario1, usuario2, usuario3);
+    private void generarYSimularJornadas(LigaCume liga, List<Equipo> equipos, List<Usuario> usuarios) {
+        // Algoritmo Round Robin simple para 6 equipos
+        // Indices: 0 vs 5, 1 vs 4, 2 vs 3 en la primera rotación
+        int numEquipos = equipos.size(); // 6
+        int numJornadasIda = numEquipos - 1; // 5
+        int totalJornadas = numJornadasIda * 2; // 10
 
-        // ============ JORNADA 2 ============
-        System.out.println("\n═══════════════════════════════════════════════════════════════");
-        System.out.println("                         JORNADA 2                             ");
-        System.out.println("═══════════════════════════════════════════════════════════════\n");
+        // Copia para rotar
+        List<Equipo> equiposRotacion = new ArrayList<>(equipos);
+        Equipo equipoFijo = equiposRotacion.remove(0); // Mantenemos uno fijo para el algoritmo
 
-        Jornada jornada2 = new Jornada();
-        jornada2.setLiga(liga);
-        jornada2.setNumeroJornada(2);
-        jornada2 = jornadaRepository.save(jornada2);
-        System.out.println("📅 Jornada 2 creada (ID: " + jornada2.getIdJornada() + ")\n");
+        System.out.println("\n📅 Generando " + totalJornadas + " jornadas...");
 
-        // Partido 1: Barcelona vs Atlético Madrid
-        System.out.println("⚽ Partido 1: Barcelona 1 - 1 Atlético Madrid");
-        Partido partido1J2 = crearPartido(equipo2, equipo3, 1, 1, jornada2);
+        for (int dia = 0; dia < totalJornadas; dia++) {
+            int numeroJornada = dia + 1;
+            Jornada jornada = new Jornada();
+            jornada.setLiga(liga);
+            jornada.setNumeroJornada(numeroJornada);
+            jornada = jornadaRepository.save(jornada);
 
-        // Estadísticas Partido 1
-        crearEstadistica(fcb1, partido1J2, 0, 0, 0, false, true, 1, 3);
-        crearEstadistica(fcb2, partido1J2, 1, 0, 0, false, true, 0, 7);
-        crearEstadistica(fcb4, partido1J2, 0, 1, 0, false, true, 0, 5);
-        crearEstadistica(atm1, partido1J2, 0, 0, 0, false, true, 1, 3);
-        crearEstadistica(atm2, partido1J2, 1, 0, 0, false, true, 0, 7);
-        crearEstadistica(atm4, partido1J2, 0, 1, 1, false, true, 0, 3);
-        System.out.println("  ✓ Estadísticas registradas\n");
+            boolean esSimulada = numeroJornada <= 5; // Solo simulamos las primeras 5
+            System.out.println("  ➜ Jornada " + numeroJornada + (esSimulada ? " (Simulada)" : " (Pendiente)"));
 
-        // Partido 2: Sevilla vs Real Madrid
-        System.out.println("⚽ Partido 2: Sevilla 0 - 4 Real Madrid");
-        Partido partido2J2 = crearPartido(equipo4, equipo1, 0, 4, jornada2);
+            // Generar los 3 partidos de la jornada
+            int equipoIdx1 = 0; // El fijo siempre juega con el que toca en el ciclo
+            int equipoIdx2 = equiposRotacion.size() - 1;
 
-        // Estadísticas Partido 2
-        crearEstadistica(sev1, partido2J2, 0, 0, 0, false, true, 4, -3);
-        crearEstadistica(sev3, partido2J2, 0, 0, 0, false, false, 0, -1);
-        crearEstadistica(rm1, partido2J2, 0, 0, 0, false, true, 0, 8);
-        crearEstadistica(rm2, partido2J2, 2, 1, 0, false, true, 0, 17);
-        crearEstadistica(rm4, partido2J2, 1, 1, 0, false, true, 0, 12);
-        crearEstadistica(rm5, partido2J2, 1, 0, 0, false, true, 0, 7);
-        System.out.println("  ✓ Estadísticas registradas\n");
+            // Partido del equipo fijo
+            Equipo localFijo, visitanteFijo;
+            // Alternar local/visitante cada jornada
+            if (dia % 2 == 0) {
+                localFijo = equipoFijo;
+                visitanteFijo = equiposRotacion.get(equipoIdx2);
+            } else {
+                localFijo = equiposRotacion.get(equipoIdx2);
+                visitanteFijo = equipoFijo;
+            }
+            procesarPartido(jornada, localFijo, visitanteFijo, esSimulada);
+            equipoIdx2--;
 
-        // Crear alineaciones para Jornada 2
-        System.out.println("📝 Creando alineaciones para Jornada 2...");
-        crearAlineacion(usuario1, jornada2, rm1, rm2, rm4, fcb2, atm2);
-        crearAlineacion(usuario2, jornada2, fcb1, rm2, rm5, fcb4, atm4);
-        crearAlineacion(usuario3, jornada2, atm1, rm4, fcb2, sev3, atm2);
-        System.out.println("✓ Alineaciones creadas\n");
+            // Resto de partidos
+            for (int i = 0; i < (equiposRotacion.size() / 2); i++) {
+                Equipo e1 = equiposRotacion.get(i);
+                Equipo e2 = equiposRotacion.get(equipoIdx2);
 
-        // Mostrar resultados Jornada 2
-        mostrarResultadosJornada("JORNADA 2", jornada2, usuario1, usuario2, usuario3);
+                Equipo local, visitante;
+                if (dia % 2 == 0) {
+                    local = e1; visitante = e2;
+                } else {
+                    local = e2; visitante = e1;
+                }
 
-        // ============ RESUMEN FINAL ============
-        System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                    CLASIFICACIÓN FINAL                        ║");
-        System.out.println("╚═══════════════════════════════════════════════════════════════╝\n");
+                procesarPartido(jornada, local, visitante, esSimulada);
+                equipoIdx2--;
+            }
 
-        // Actualizar puntos acumulados de usuarios
-        actualizarPuntosUsuario(usuario1, jornada1, jornada2);
-        actualizarPuntosUsuario(usuario2, jornada1, jornada2);
-        actualizarPuntosUsuario(usuario3, jornada1, jornada2);
+            // Simular alineaciones de usuarios si la jornada está simulada
+            if (esSimulada) {
+                simularAlineacionesUsuarios(usuarios, jornada);
+            }
 
-        // Obtener clasificación
-        List<Usuario> clasificacion = usuarioRepository.findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(liga.getIdLigaCume());
+            // Rotar equipos (excepto el fijo)
+            Collections.rotate(equiposRotacion, 1);
+        }
+    }
 
-        int posicion = 1;
-        for (Usuario u : clasificacion) {
-            String medalla = posicion == 1 ? "🥇" : posicion == 2 ? "🥈" : "🥉";
-            System.out.printf("%s %d. %-20s %4d puntos%n", medalla, posicion, u.getNombreUsuario(), u.getPuntosAcumulados());
-            posicion++;
+    private void procesarPartido(Jornada jornada, Equipo local, Equipo visitante, boolean simular) {
+        Partido partido = new Partido();
+        partido.setJornada(jornada);
+        partido.setEquipoLocal(local);
+        partido.setEquipoVisitante(visitante);
+
+        if (simular) {
+            // Generar resultado aleatorio
+            int golesLocal = random.nextInt(4); // 0-3
+            int golesVisitante = random.nextInt(3); // 0-2
+            partido.setGolesLocal(golesLocal);
+            partido.setGolesVisitante(golesVisitante);
+            partido = partidoRepository.save(partido);
+
+            // Generar estadísticas para los jugadores
+            generarEstadisticasEquipo(local, partido, golesLocal, golesVisitante, true);
+            generarEstadisticasEquipo(visitante, partido, golesVisitante, golesLocal, false);
+        } else {
+            // Partido futuro
+            partido.setGolesLocal(0);
+            partido.setGolesVisitante(0);
+            partidoRepository.save(partido);
+        }
+    }
+
+    private void generarEstadisticasEquipo(Equipo equipo, Partido partido, int golesFavor, int golesContra, boolean esLocal) {
+        List<Jugador> jugadores = jugadorRepository.findByEquipoIdEquipo(equipo.getIdEquipo());
+
+        // Repartir los goles aleatoriamente entre los jugadores (excepto portero si se quiere realismo, pero lo simplificamos)
+        int golesPorAsignar = golesFavor;
+
+        for (Jugador jugador : jugadores) {
+            EstadisticaJugadorPartido est = new EstadisticaJugadorPartido();
+            est.setJugador(jugador);
+            est.setPartido(partido);
+            est.setMinMinutosJugados(true); // Asumimos que todos jugaron
+            est.setGolesRecibidos(jugador.isEsPortero() ? golesContra : 0);
+
+            // Asignar Goles
+            int golesJugador = 0;
+            if (golesPorAsignar > 0 && !jugador.isEsPortero()) {
+                if (random.nextBoolean()) { // 50% chance de meter gol si quedan goles
+                    golesJugador = 1 + random.nextInt(golesPorAsignar); // al menos 1
+                    if(golesJugador > golesPorAsignar) golesJugador = golesPorAsignar;
+                    golesPorAsignar -= golesJugador;
+                }
+            }
+            est.setGolesAnotados(golesJugador);
+
+            // Asistencias y Tarjetas (Aleatorio simple)
+            est.setAsistencias(golesFavor > 0 && random.nextInt(10) > 7 ? 1 : 0);
+            est.setTarjetaAmarillas(random.nextInt(10) > 8 ? 1 : 0);
+            est.setTarjetaRojas(false);
+
+            // Calcular Puntos Fantasy (Lógica simplificada)
+            // Base: 2 pts. Gol: +4. Asistencia: +2. Portería a 0 (si ganó y no recibió goles): +3
+            int puntos = 2; // Por jugar
+            puntos += (est.getGolesAnotados() * 4);
+            puntos += (est.getAsistencias() * 2);
+            puntos -= (est.getTarjetaAmarillas());
+            if (jugador.isEsPortero() && golesContra == 0) puntos += 3;
+            if (golesFavor > golesContra) puntos += 1; // Bonus victoria
+
+            // Variación aleatoria de rendimiento
+            puntos += (random.nextInt(5) - 2);
+
+            est.setPuntosJornada(Math.max(0, puntos)); // No negativos para este ejemplo
+            estadisticaRepository.save(est);
+        }
+    }
+
+    private void simularAlineacionesUsuarios(List<Usuario> usuarios, Jornada jornada) {
+        // Obtenemos todos los jugadores disponibles en la BBDD para elegir al azar
+        List<Jugador> todosJugadores = jugadorRepository.findAll();
+
+        for (Usuario usuario : usuarios) {
+            Alineacion alineacion = new Alineacion();
+            alineacion.setUsuario(usuario);
+            alineacion.setJornada(jornada);
+
+            // Seleccionar 5 jugadores aleatorios diferentes
+            Collections.shuffle(todosJugadores);
+            List<Jugador> seleccionados = todosJugadores.stream().limit(5).collect(Collectors.toList());
+
+            alineacion.getJugadores().addAll(seleccionados);
+
+            // Calcular puntos basados en las estadísticas ya generadas
+            int totalPuntos = 0;
+            for (Jugador j : seleccionados) {
+                // Buscar la estadística de este jugador en esta jornada (a través del partido)
+                // Nota: Esto asume que el jugador jugó en esa jornada. Como simulamos liga completa, sí jugó.
+                // En SQL real sería más directo, aquí filtramos en memoria por simplicidad del script
+                List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(j.getIdJugador());
+                for (EstadisticaJugadorPartido stat : stats) {
+                    if (stat.getPartido().getJornada().getIdJornada().equals(jornada.getIdJornada())) {
+                        totalPuntos += stat.getPuntosJornada();
+                    }
+                }
+            }
+
+            alineacion.setPuntosTotalesJornada(totalPuntos);
+            alineacionRepository.save(alineacion);
+        }
+    }
+
+    // ==================== RESULTADOS FINALES ====================
+
+    private void mostrarClasificacion(LigaCume liga) {
+        // Actualizar puntos acumulados de usuarios sumando alineaciones
+        List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(liga.getIdLigaCume());
+
+        for (Usuario u : usuarios) {
+            int suma = 0;
+            List<Alineacion> alineaciones = alineacionRepository.findByUsuarioIdUsuario(u.getIdUsuario());
+            for (Alineacion al : alineaciones) {
+                suma += al.getPuntosTotalesJornada();
+            }
+            u.setPuntosAcumulados(suma);
+            usuarioRepository.save(u);
         }
 
-        // Resumen de datos creados
-        System.out.println("\n📊 RESUMEN DE DATOS CREADOS:");
-        System.out.println("  • Ligas: " + ligaCumeRepository.count());
-        System.out.println("  • Usuarios: " + usuarioRepository.count());
-        System.out.println("  • Equipos: " + equipoRepository.count());
-        System.out.println("  • Jugadores: " + jugadorRepository.count());
-        System.out.println("  • Jornadas: " + jornadaRepository.count());
-        System.out.println("  • Partidos: " + partidoRepository.count());
-        System.out.println("  • Alineaciones: " + alineacionRepository.count());
-        System.out.println("  • Estadísticas: " + estadisticaRepository.count());
+        // Volver a cargar ordenados
+        usuarios = usuarioRepository.findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(liga.getIdLigaCume());
+
+        System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
+        System.out.println("║            🏆 CLASIFICACIÓN TRAS 5 JORNADAS                   ║");
+        System.out.println("╚═══════════════════════════════════════════════════════════════╝");
+
+        int pos = 1;
+        for (Usuario u : usuarios) {
+            String icono = pos == 1 ? "🥇" : pos == 2 ? "🥈" : pos == 3 ? "🥉" : "  ";
+            System.out.printf("%s %d. %-15s | Puntos: %4d%n", icono, pos, u.getNombreUsuario(), u.getPuntosAcumulados());
+            pos++;
+        }
+        System.out.println("─────────────────────────────────────────────────────────────────");
+        System.out.println("📊 Datos Generados:");
+        System.out.println("   Equipos: " + equipoRepository.count());
+        System.out.println("   Jugadores: " + jugadorRepository.count());
+        System.out.println("   Jornadas: " + jornadaRepository.count());
+        System.out.println("   Partidos: " + partidoRepository.count() + " (15 jugados, 15 pendientes)");
+        System.out.println("   Estadísticas: " + estadisticaRepository.count());
     }
 
-    // ==================== MÉTODOS AUXILIARES ====================
+    // ==================== HELPERS SIMPLES ====================
 
-    private Usuario crearUsuario(String nombre, String email, String password, LigaCume liga) {
-        Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(nombre);
-        usuario.setEmail(email);
-        usuario.setPassword(password);
-        usuario.setPuntosAcumulados(0);
-        usuario.setLiga(liga);
-        usuario = usuarioRepository.save(usuario);
-        System.out.println("✓ Usuario: " + nombre);
-        return usuario;
-    }
-
-    private Usuario crearUsuarioSinLiga(String nombre, String email, String password) {
-        Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(nombre);
-        usuario.setEmail(email);
-        usuario.setPassword(password);
-        usuario = usuarioRepository.save(usuario);
-        System.out.println("✓ Usuario: " + nombre);
-        return usuario;
+    private Usuario crearUsuario(String nombre, String email, LigaCume liga) {
+        Usuario u = new Usuario();
+        u.setNombreUsuario(nombre);
+        u.setEmail(email);
+        u.setPassword("pass123");
+        u.setLiga(liga);
+        u.setPuntosAcumulados(0);
+        return usuarioRepository.save(u);
     }
 
     private Equipo crearEquipo(String nombre, String escudo, LigaCume liga) {
-        Equipo equipo = new Equipo();
-        equipo.setNombreEquipo(nombre);
-        equipo.setEscudoURL(escudo);
-        equipo.setLiga(liga);
-        equipo = equipoRepository.save(equipo);
-        System.out.println("  ✓ " + nombre);
-        return equipo;
-    }
-
-    private Jugador crearJugador(String nombre, boolean esPortero, Equipo equipo, int precio) {
-        Jugador jugador = new Jugador();
-        jugador.setNombreJugador(nombre);
-        jugador.setEsPortero(esPortero);
-        jugador.setEquipo(equipo);
-        jugador.setPrecioMercado(precio);
-        jugador.setAvatarUrl("https://via.placeholder.com/150");
-        return jugadorRepository.save(jugador);
-    }
-
-    private Partido crearPartido(Equipo local, Equipo visitante, int golesLocal, int golesVisitante, Jornada jornada) {
-        Partido partido = new Partido();
-        partido.setEquipoLocal(local);
-        partido.setEquipoVisitante(visitante);
-        partido.setGolesLocal(golesLocal);
-        partido.setGolesVisitante(golesVisitante);
-        partido.setJornada(jornada);
-        return partidoRepository.save(partido);
-    }
-
-    private void crearEstadistica(Jugador jugador, Partido partido, int goles, int asistencias,
-                                  int amarillas, boolean roja, boolean jugador60, int golesRecibidos, int puntos) {
-        EstadisticaJugadorPartido est = new EstadisticaJugadorPartido();
-        est.setJugador(jugador);
-        est.setPartido(partido);
-        est.setGolesAnotados(goles);
-        est.setAsistencias(asistencias);
-        est.setTarjetaAmarillas(amarillas);
-        est.setTarjetaRojas(roja);
-        est.setMinMinutosJugados(jugador60);
-        est.setGolesRecibidos(golesRecibidos);
-        est.setPuntosJornada(puntos);
-        estadisticaRepository.save(est);
-    }
-
-    private void crearAlineacion(Usuario usuario, Jornada jornada, Jugador j1, Jugador j2,
-                                 Jugador j3, Jugador j4, Jugador j5) {
-        Alineacion alineacion = new Alineacion();
-        alineacion.setUsuario(usuario);
-        alineacion.setJornada(jornada);
-        alineacion.getJugadores().add(j1);
-        alineacion.getJugadores().add(j2);
-        alineacion.getJugadores().add(j3);
-        alineacion.getJugadores().add(j4);
-        alineacion.getJugadores().add(j5);
-
-        // Calcular puntos
-        int puntos = calcularPuntosAlineacion(alineacion);
-        alineacion.setPuntosTotalesJornada(puntos);
-
-        alineacionRepository.save(alineacion);
-    }
-
-    private int calcularPuntosAlineacion(Alineacion alineacion) {
-        int total = 0;
-        for (Jugador jugador : alineacion.getJugadores()) {
-            List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
-            for (EstadisticaJugadorPartido stat : stats) {
-                if (stat.getPartido().getJornada().getIdJornada().equals(alineacion.getJornada().getIdJornada())) {
-                    total += stat.getPuntosJornada();
-                }
-            }
-        }
-        return total;
-    }
-
-    private void mostrarResultadosJornada(String nombreJornada, Jornada jornada, Usuario... usuarios) {
-        System.out.println("📊 Puntuaciones " + nombreJornada + ":");
-        for (Usuario usuario : usuarios) {
-            alineacionRepository.findByUsuarioIdUsuarioAndJornadaIdJornada(
-                    usuario.getIdUsuario(), jornada.getIdJornada()
-            ).ifPresent(alin ->
-                System.out.printf("  • %-20s: %3d puntos%n", usuario.getNombreUsuario(), alin.getPuntosTotalesJornada())
-            );
-        }
-        System.out.println();
-    }
-
-    private void actualizarPuntosUsuario(Usuario usuario, Jornada... jornadas) {
-        int puntosTotal = 0;
-        for (Jornada jornada : jornadas) {
-            var alineacionOpt = alineacionRepository.findByUsuarioIdUsuarioAndJornadaIdJornada(
-                    usuario.getIdUsuario(), jornada.getIdJornada()
-            );
-            if (alineacionOpt.isPresent()) {
-                puntosTotal += alineacionOpt.get().getPuntosTotalesJornada();
-            }
-        }
-        usuario.setPuntosAcumulados(puntosTotal);
-        usuarioRepository.save(usuario);
+        Equipo e = new Equipo();
+        e.setNombreEquipo(nombre);
+        e.setEscudoURL(escudo);
+        e.setLiga(liga);
+        return equipoRepository.save(e);
     }
 }
-
