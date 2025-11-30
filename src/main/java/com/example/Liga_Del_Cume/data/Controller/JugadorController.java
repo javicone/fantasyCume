@@ -79,24 +79,29 @@ public class JugadorController {
     /**
      * Muestra el detalle de un jugador específico
      */
-    @GetMapping("/liga/{idLiga}/jugador/{idJugador}/usuario/{idUsuario}")
+    @GetMapping("/liga/{idLiga}/jugador/{idJugador}")
     public String verDetalleJugador(
             @PathVariable Long idLiga,
             @PathVariable Long idJugador,
-            @RequestParam Long idUsuario,
+            HttpSession session,
             Model model) {
 
-        model.addAttribute("idUsuario", idUsuario);
+        // Obtener usuario de la sesión
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
         Jugador jugador = jugadorService.obtenerJugador(idJugador);
         List<EstadisticaJugadorPartido> estadisticas = estadisticaService.obtenerEstadisticasJugador(idJugador);
-        // IMPORTANTE: Ordenar las estadísticas por número de jornada para la gráfica
-        // Asumiendo que EstadisticaJugadorPartido tiene -> getPartido() -> getJornada() -> getNumeroJornada()
+
+        // Obtener el nombre de la liga
+        LigaCume ligaObj = ligaService.obtenerLigaPorId(idLiga);
+        String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
 
         model.addAttribute("jugador", jugador);
-        // Pasamos la lista completa en lugar de los totales sueltos
         model.addAttribute("estadisticas", estadisticas);
-        model.addAttribute("idLiga", idLiga);
+        model.addAttribute("ligaId", idLiga);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("nombreLiga", nombreLiga);
+        model.addAttribute("currentPage", "estadisticas");
 
         // Calcular estadísticas totales
         int golesTotal = calcularGolesTotal(jugador);

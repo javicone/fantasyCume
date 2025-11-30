@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <h2>Totales de Temporada</h2>
+        <h2>Estadísticas de la temporada</h2>
         <div class="estadisticas-grid">
             <div class="stat-card">
                 <div class="stat-label">Valor Mercado</div>
@@ -110,12 +110,12 @@
 
             <div class="stat-card">
                 <div class="stat-label">T. Amarillas</div>
-                <div class="stat-value" style="color: #FFD700;" th:text="${amarillasTotal}">0</div>
+                <div class="stat-value" style="color: #FFD700;" th:text="${tarjetasAmarillasTotal}">0</div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-label">T. Rojas</div>
-                <div class="stat-value" style="color: #FF3333;" th:text="${rojasTotal}">0</div>
+                <div class="stat-value" style="color: #FF3333;" th:text="${tarjetasRojasTotal}">0</div>
             </div>
 
             <div class="stat-card portero-only" th:classappend="${jugador.esPortero ? 'visible' : ''}">
@@ -185,15 +185,6 @@
                 </div>
 
             </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselJornadas" data-bs-slide="prev" th:unless="${#lists.isEmpty(estadisticas)}">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselJornadas" data-bs-slide="next" th:unless="${#lists.isEmpty(estadisticas)}">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Siguiente</span>
-            </button>
         </div>
 
     </div>
