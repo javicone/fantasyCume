@@ -217,9 +217,16 @@
                 </div>
 
                 <div class="marcador">
-                    <span th:text="${partido.golesLocal}">0</span>
+                    <!-- Mostrar marcador solo si hay goles -->
+                    <span th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                          th:text="${partido.golesLocal}">0</span>
+                    <span th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                          style="visibility: hidden;">-</span>
                     <span>-</span>
-                    <span th:text="${partido.golesVisitante}">0</span>
+                    <span th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                          th:text="${partido.golesVisitante}">0</span>
+                    <span th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                          style="visibility: hidden;">-</span>
                 </div>
             </a>
         </div>

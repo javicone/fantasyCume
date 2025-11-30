@@ -303,9 +303,16 @@
 
                     <!-- Resultado -->
                     <div class="resultado-section">
-                        <span class="goles" th:text="${partido.golesLocal}">1</span>
+                        <!-- Mostrar goles solo si el partido se ha jugado (al menos un equipo tiene goles o hay estadísticas) -->
+                        <span class="goles" th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                              th:text="${partido.golesLocal}">1</span>
+                        <span class="goles" th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                              style="visibility: hidden;">-</span>
                         <span class="separador">-</span>
-                        <span class="goles" th:text="${partido.golesVisitante}">0</span>
+                        <span class="goles" th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                              th:text="${partido.golesVisitante}">0</span>
+                        <span class="goles" th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                              style="visibility: hidden;">-</span>
                     </div>
 
                     <!-- Equipo Visitante -->
