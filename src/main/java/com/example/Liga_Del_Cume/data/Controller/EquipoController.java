@@ -5,6 +5,7 @@ import com.example.Liga_Del_Cume.data.model.Jugador;
 import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.service.EquipoService;
 import com.example.Liga_Del_Cume.data.service.JugadorService;
+import com.example.Liga_Del_Cume.data.service.LigaService;
 import com.example.Liga_Del_Cume.data.repository.LigaCumeRepository;
 import com.example.Liga_Del_Cume.data.exceptions.EquipoException;
 import com.example.Liga_Del_Cume.data.exceptions.JugadorException;
@@ -37,6 +38,9 @@ public class EquipoController {
     @Autowired
     private LigaCumeRepository ligaCumeRepository;
 
+    @Autowired
+    private LigaService ligaService;
+
 
     /**
      * GET: Mostrar página de gestión de equipos
@@ -48,9 +52,14 @@ public class EquipoController {
             // Obtener todos los equipos
             List<Equipo> equipos = equipoService.listarTodosEquipos();
 
+            // Obtener el nombre de la liga
+            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
             model.addAttribute("equipos", equipos);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "gestionarEquipos");
+            model.addAttribute("nombreLiga", nombreLiga);
 
             return "gestionarEquipos";
         } catch (Exception e) {

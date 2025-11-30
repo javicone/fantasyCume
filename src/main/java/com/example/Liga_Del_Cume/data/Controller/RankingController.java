@@ -1,7 +1,9 @@
 package com.example.Liga_Del_Cume.data.Controller;
 
 import com.example.Liga_Del_Cume.data.model.Usuario;
+import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.service.UsuarioService;
+import com.example.Liga_Del_Cume.data.service.LigaService;
 import com.example.Liga_Del_Cume.data.exceptions.UsuarioException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class RankingController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private LigaService ligaService;
 
     /**
      * Muestra el ranking de usuarios de una liga específica
@@ -62,11 +67,16 @@ public class RankingController {
             // Obtener el ranking de usuarios ordenados por puntos (mayor a menor)
             List<Usuario> usuarios = usuarioService.obtenerRankingLiga(ligaId);
 
+            // Obtener el nombre de la liga
+            LigaCume liga = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = liga != null ? liga.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos a la vista
             model.addAttribute("usuarios", usuarios);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "ranking");
             model.addAttribute("usuario", usuarioSesion);
+            model.addAttribute("nombreLiga", nombreLiga);
             // Si hay usuarios, agregar información adicional
             if (!usuarios.isEmpty()) {
                 model.addAttribute("totalUsuarios", usuarios.size());

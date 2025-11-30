@@ -37,6 +37,9 @@ public class AlineacionController {
     @Autowired
     private JugadorRepository jugadorRepository;
 
+    @Autowired
+    private LigaService ligaService;
+
     /**
      * Muestra la pantalla para crear una alineación futura (próxima jornada)
      */
@@ -75,6 +78,10 @@ public class AlineacionController {
 
             Long presupuestoMaximo =  100000000L;
 
+            // Obtener el nombre de la liga
+            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos al modelo
             model.addAttribute("proximaJornada", proximaJornadaNumero);
             model.addAttribute("presupuestoDisponible", presupuestoMaximo);
@@ -82,6 +89,7 @@ public class AlineacionController {
             model.addAttribute("usuario", usuario);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "alineacion");
+            model.addAttribute("nombreLiga", nombreLiga);
 
             return "alineacionFutura";
 
@@ -394,12 +402,17 @@ public class AlineacionController {
                 model.addAttribute("mensaje", "No hay alineación para esta jornada");
             }
 
+            // Obtener el nombre de la liga
+            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos al modelo
             model.addAttribute("jornadas", jornadas);
             model.addAttribute("jornadaSeleccionada", jornadaSeleccionada);
             model.addAttribute("usuario", usuario);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "historial");
+            model.addAttribute("nombreLiga", nombreLiga);
 
             return "historialAlineaciones";
 
