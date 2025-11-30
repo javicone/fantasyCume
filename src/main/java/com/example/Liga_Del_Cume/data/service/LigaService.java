@@ -233,7 +233,42 @@ public class LigaService {
         return ligaCumeRepository.save(liga);
     }
 
+    /**
+     * Actualiza únicamente el presupuesto máximo de una liga.
+     *
+     * Este método permite a los administradores cambiar el presupuesto máximo
+     * permitido para los managers de la liga sin modificar otros datos.
+     *
+     * @param ligaId ID de la liga a modificar
+     * @param nuevoPresupuesto Nuevo presupuesto máximo (mínimo 1.000.000€)
+     * @return La liga con el presupuesto actualizado
+     * @throws LigaException si la liga no existe o el presupuesto es inválido
+     */
+    public LigaCume actualizarPresupuestoMaximo(Long ligaId, Long nuevoPresupuesto) {
+        // Validar ID de liga
+        if (ligaId == null || ligaId <= 0) {
+            throw new LigaException("El ID de la liga debe ser válido");
+        }
 
+        // Buscar la liga
+        LigaCume liga = ligaCumeRepository.findById(ligaId)
+                .orElseThrow(() -> new LigaException("Liga no encontrada con ID: " + ligaId));
+
+        // Validar nuevo presupuesto
+        if (nuevoPresupuesto == null || nuevoPresupuesto <= 0) {
+            throw new LigaException("El presupuesto debe ser mayor a 0");
+        }
+
+        if (nuevoPresupuesto < 1000000) {
+            throw new LigaException("El presupuesto mínimo es de 1.000.000€");
+        }
+
+        // Actualizar el presupuesto
+        liga.setPresupuestoMaximo(nuevoPresupuesto);
+
+        // Guardar y retornar
+        return ligaCumeRepository.save(liga);
+    }
 
 }
 

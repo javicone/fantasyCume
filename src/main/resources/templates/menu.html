@@ -70,6 +70,11 @@
             Agregar Resultados
         </a>
 
+        <a href="#" class="nav-item" onclick="mostrarModalPresupuesto(); return false;">
+            <i class="bi bi-cash-coin"></i>
+            Cambiar Presupuesto
+        </a>
+
         <!-- Si hay ligaId en el modelo, úsalo -->
         <a th:if="${ligaId != null}"
            th:href="@{/generar-cuadros-jornadas(ligaId=${ligaId}, force=true)}"
@@ -239,7 +244,7 @@
     }
 </style>
 
-<script th:inline="javascript">
+<script th:fragment="menuScripts" th:inline="javascript">
 /*<![CDATA[*/
 function confirmarGenerar(ligaId) {
     const mensaje = 'ATENCIÓN: Se van a SOBREESCRIBIR las estadísticas y resultados actuales de la liga.\n\n' +
@@ -250,6 +255,190 @@ function confirmarGenerar(ligaId) {
         window.location.href = '/generar-cuadros-jornadas?ligaId=' + ligaId + '&force=true';
     }
 }
+
+function mostrarModalPresupuesto() {
+    const ligaId = /*[[${ligaId}]]*/ 0;
+
+    // Crear el modal dinámicamente
+    const modalHTML = `
+        <div id="modalPresupuesto" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        ">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 2.5rem;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                max-width: 500px;
+                width: 90%;
+            ">
+                <h2 style="
+                    color: white;
+                    margin: 0 0 1.5rem 0;
+                    font-size: 1.8rem;
+                    font-weight: 700;
+                    text-align: center;
+                ">
+                    💰 Cambiar Presupuesto
+                </h2>
+
+                <p style="
+                    color: rgba(255, 255, 255, 0.9);
+                    margin-bottom: 1.5rem;
+                    text-align: center;
+                    font-size: 1rem;
+                ">
+                    Ingresa el nuevo presupuesto máximo para los managers
+                </p>
+
+                <input
+                    type="number"
+                    id="nuevoPresupuesto"
+                    placeholder="Ej: 100000000"
+                    min="1000000"
+                    step="1000000"
+                    style="
+                        width: 100%;
+                        padding: 1rem;
+                        border: none;
+                        border-radius: 10px;
+                        font-size: 1.1rem;
+                        margin-bottom: 1.5rem;
+                        box-sizing: border-box;
+                        text-align: center;
+                        font-weight: 600;
+                    "
+                />
+
+                <div style="
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: space-between;
+                ">
+                    <button
+                        onclick="cerrarModalPresupuesto()"
+                        style="
+                            flex: 1;
+                            padding: 0.9rem;
+                            background: rgba(255, 255, 255, 0.2);
+                            color: white;
+                            border: 2px solid white;
+                            border-radius: 10px;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                        "
+                        onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'"
+                        onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        onclick="guardarNuevoPresupuesto()"
+                        style="
+                            flex: 1;
+                            padding: 0.9rem;
+                            background: linear-gradient(135deg, #FF3366 0%, #FF6B9D 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 10px;
+                            font-size: 1rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+                        "
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(255, 51, 102, 0.6)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(255, 51, 102, 0.4)'"
+                    >
+                        💾 Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Agregar el modal al body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Foco en el input
+    setTimeout(() => {
+        document.getElementById('nuevoPresupuesto').focus();
+    }, 100);
+}
+
+function cerrarModalPresupuesto() {
+    const modal = document.getElementById('modalPresupuesto');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function guardarNuevoPresupuesto() {
+    const ligaId = /*[[${ligaId}]]*/ 0;
+    const nuevoPresupuesto = document.getElementById('nuevoPresupuesto').value;
+
+    // Validaciones
+    if (!nuevoPresupuesto || nuevoPresupuesto <= 0) {
+        alert('❌ Por favor, ingresa un presupuesto válido mayor a 0');
+        return;
+    }
+
+    if (nuevoPresupuesto < 1000000) {
+        alert('❌ El presupuesto mínimo es de 1.000.000€');
+        return;
+    }
+
+    // Confirmar cambio
+    const presupuestoFormateado = new Intl.NumberFormat('es-ES').format(nuevoPresupuesto);
+    if (!confirm(`¿Confirmas cambiar el presupuesto máximo a ${presupuestoFormateado}€?`)) {
+        return;
+    }
+
+    // Hacer la petición al servidor
+    fetch(`/liga/${ligaId}/admin/cambiar-presupuesto`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            presupuestoMaximo: parseInt(nuevoPresupuesto)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`✅ ${data.message}`);
+            cerrarModalPresupuesto();
+            // Recargar la página para reflejar los cambios
+            window.location.reload();
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error al cambiar el presupuesto. Por favor, inténtalo de nuevo.');
+    });
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        cerrarModalPresupuesto();
+    }
+});
 /*]]>*/
 </script>
 </body>

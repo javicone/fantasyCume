@@ -74,12 +74,10 @@ public class AlineacionController {
                     .orElseThrow(() -> new Exception("Usuario no encontrado"));
             }
 
-            // Obtener presupuesto de la liga
-            Long presupuestoMaximo = 100000000L;
-
-            // Obtener el nombre de la liga
+            // Obtener el nombre y presupuesto de la liga
             LigaCume ligaObj = ligaService.buscarLigaPorId(ligaId);
             String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+            Long presupuestoMaximo = ligaObj != null ? ligaObj.getPresupuestoMaximo() : 100000000L;
 
             // Pasar datos al modelo
             model.addAttribute("proximaJornada", proximaJornadaNumero);

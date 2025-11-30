@@ -280,6 +280,60 @@ public class LigaController {
         }
     }
 
+    /**
+     * Endpoint para cambiar el presupuesto máximo de una liga
+     *
+     * @param ligaId ID de la liga a modificar
+     * @param datos Map con el nuevo presupuesto
+     * @return Respuesta JSON indicando éxito o error
+     */
+    @PostMapping("/{ligaId}/admin/cambiar-presupuesto")
+    @ResponseBody
+    public java.util.Map<String, Object> cambiarPresupuesto(
+            @PathVariable("ligaId") Long ligaId,
+            @RequestBody java.util.Map<String, Object> datos) {
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        try {
+            // Obtener el nuevo presupuesto del request
+            Long nuevoPresupuesto = ((Number) datos.get("presupuestoMaximo")).longValue();
+
+            // Validaciones
+            if (nuevoPresupuesto == null || nuevoPresupuesto <= 0) {
+                response.put("success", false);
+                response.put("error", "El presupuesto debe ser mayor a 0");
+                return response;
+            }
+
+            if (nuevoPresupuesto < 1000000) {
+                response.put("success", false);
+                response.put("error", "El presupuesto mínimo es de 1.000.000€");
+                return response;
+            }
+
+            // Actualizar el presupuesto usando el servicio
+            ligaService.actualizarPresupuestoMaximo(ligaId, nuevoPresupuesto);
+
+            // Formatear el presupuesto para mostrar
+            String presupuestoFormateado = String.format("%,d€", nuevoPresupuesto);
+
+            response.put("success", true);
+            response.put("message", "Presupuesto actualizado correctamente a " + presupuestoFormateado);
+            return response;
+
+        } catch (LigaException e) {
+            response.put("success", false);
+            response.put("error", "Liga no encontrada: " + e.getMessage());
+            return response;
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Error al actualizar el presupuesto: " + e.getMessage());
+            return response;
+        }
+    }
+
     // NOTA: El endpoint /{id}/ranking ahora está manejado por RankingController
 }
 
