@@ -70,7 +70,7 @@
             Agregar Resultados
         </a>
 
-        <a th:href="@{/generar-cuadros-jornadas}"
+        <a href="@{/generar-cuadros-jornadas}" th:onclick="${ligaId} != null ? 'confirmarGenerar(' + ${ligaId} + ')' : 'window.location.href=\'/liga\''"
            class="nav-item"
            th:classappend="${currentPage == 'generarJornadas'} ? 'active' : ''">
             <i class="bi bi-calendar-week"></i>
@@ -219,5 +219,19 @@
         }
     }
 </style>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+function confirmarGenerar(ligaId) {
+    const mensaje = 'ATENCIÓN: Se van a SOBREESCRIBIR las estadísticas y resultados actuales de la liga.\n\n' +
+                    'Esto RESETEARÁ todas las estadísticas y resultados pero NO eliminará jugadores ni equipos.\n\n' +
+                    '¿Deseas continuar?';
+    if (confirm(mensaje)) {
+        // redirigir pasando force=true para indicar confirmación
+        window.location.href = '/generar-cuadros-jornadas?ligaId=' + ligaId + '&force=true';
+    }
+}
+/*]]>*/
+</script>
 </body>
 </html>

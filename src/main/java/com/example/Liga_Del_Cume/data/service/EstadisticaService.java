@@ -543,5 +543,41 @@ public class EstadisticaService {
         // Obtener todas las estadísticas de la base de datos
         return estadisticaRepository.findAll();
     }
-}
 
+    /**
+     * Resetea todas las estadísticas de los jugadores y los resultados de los partidos
+     * pertenecientes a una liga concreta. No elimina equipos ni jugadores.
+     *
+     * Proceso:
+     * - Obtener todas las jornadas de la liga
+     * - Para cada jornada obtener sus partidos
+     * - Eliminar todas las estadísticas asociadas a cada partido
+     * - Poner los goles de cada partido a 0 (resultado reseteado)
+     *
+     * @param ligaId ID de la liga
+     */
+    public void resetEstadisticasYResultadosDeLiga(Long ligaId) {
+        if (ligaId == null) {
+            throw new EstadisticaException("El ID de la liga no puede ser nulo");
+        }
+
+        // Obtener todas las jornadas de la liga
+        List<com.example.Liga_Del_Cume.data.model.Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
+
+        for (com.example.Liga_Del_Cume.data.model.Jornada jornada : jornadas) {
+            List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornada.getIdJornada());
+            for (Partido partido : partidos) {
+                // Eliminar estadísticas asociadas al partido
+                List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByPartidoIdPartido(partido.getIdPartido());
+                if (stats != null && !stats.isEmpty()) {
+                    estadisticaRepository.deleteAll(stats);
+                }
+
+                // Resetear resultado del partido a 0-0
+                partido.setGolesLocal(0);
+                partido.setGolesVisitante(0);
+                partidoRepository.save(partido);
+            }
+        }
+    }
+}
