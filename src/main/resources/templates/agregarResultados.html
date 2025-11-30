@@ -29,14 +29,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
             font-size: 64px;
             font-weight: 900;
             color: #ffffff;
-            margin: 0 0 2rem 0;
+            margin: 0;
             letter-spacing: -2px;
             text-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
             background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
@@ -45,20 +47,38 @@
             background-clip: text;
         }
 
+        /* Selector de jornada mejorado y visible */
         .jornada-selector {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 8px 16px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 700;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .jornada-selector:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
         }
 
         .jornada-selector:focus {
             outline: none;
-            border-color: #D946A6;
-            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        .jornada-selector option {
+            background: #1e293b;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
         }
 
         .partidos-grid {

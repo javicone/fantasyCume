@@ -2,6 +2,7 @@ package com.example.Liga_Del_Cume.data.Controller;
 
 import com.example.Liga_Del_Cume.data.model.*;
 import com.example.Liga_Del_Cume.data.repository.*;
+import com.example.Liga_Del_Cume.data.service.LigaService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,9 @@ public class AgregarResultadosController {
 
     @Autowired
     private AlineacionRepository alineacionRepository;
+
+    @Autowired
+    private LigaService ligaService;
 
     /**
      * GET: Mostrar página para agregar resultados
@@ -73,6 +77,10 @@ public class AgregarResultadosController {
             // Obtener partidos de la jornada seleccionada
             List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornadaSeleccionada.getIdJornada());
 
+            // Obtener el nombre de la liga
+            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos al modelo
             model.addAttribute("jornadas", jornadas);
             model.addAttribute("jornadaSeleccionada", jornadaSeleccionada);
@@ -80,6 +88,7 @@ public class AgregarResultadosController {
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("usuario", usuario);
             model.addAttribute("currentPage", "agregarResultados");
+            model.addAttribute("nombreLiga", nombreLiga);
 
             return "agregarResultados";
 

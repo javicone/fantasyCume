@@ -2,7 +2,9 @@ package com.example.Liga_Del_Cume.data.Controller;
 
 import com.example.Liga_Del_Cume.data.model.ClasificacionEquipo;
 import com.example.Liga_Del_Cume.data.model.Usuario;
+import com.example.Liga_Del_Cume.data.model.LigaCume;
 import com.example.Liga_Del_Cume.data.service.ClasificacionService;
+import com.example.Liga_Del_Cume.data.service.LigaService;
 import com.example.Liga_Del_Cume.data.exceptions.EquipoException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class ClasificacionController {
 
     @Autowired
     private ClasificacionService clasificacionService;
+
+    @Autowired
+    private LigaService ligaService;
 
     /**
      * Muestra la clasificación de equipos de una liga específica
@@ -71,11 +76,16 @@ public class ClasificacionController {
             // Obtener la clasificación de equipos ordenada por puntos
             List<ClasificacionEquipo> clasificacion = clasificacionService.obtenerClasificacionLiga(ligaId);
 
+            // Obtener el nombre de la liga
+            LigaCume liga = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = liga != null ? liga.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos a la vista
             model.addAttribute("clasificacion", clasificacion);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "clasificacion");
             model.addAttribute("usuario", usuarioSesion);
+            model.addAttribute("nombreLiga", nombreLiga);
 
             // Si hay equipos, agregar información adicional
             if (!clasificacion.isEmpty()) {

@@ -64,6 +64,15 @@ public class LigaService {
     }
 
     /**
+     * Obtiene una liga por su ID.
+     * @param id ID de la liga a buscar.
+     * @return La liga encontrada o null si no existe.
+     */
+    public LigaCume obtenerLigaPorId(Long id) {
+        return ligaCumeRepository.findById(id).orElse(null);
+    }
+
+    /**
      * Lista todas las ligas disponibles en la base de datos.
      * @return Lista de todas las ligas.
      */

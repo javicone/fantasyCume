@@ -2,6 +2,7 @@ package com.example.Liga_Del_Cume.data.Controller;
 
 import com.example.Liga_Del_Cume.data.model.*;
 import com.example.Liga_Del_Cume.data.repository.*;
+import com.example.Liga_Del_Cume.data.service.LigaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,9 @@ public class ResultadosController {
 
     @Autowired
     private PartidoRepository partidoRepository;
+
+    @Autowired
+    private LigaService ligaService;
 
     /**
      * Muestra los resultados de los partidos de una jornada
@@ -63,12 +67,17 @@ public class ResultadosController {
             // Obtener partidos de la jornada seleccionada
             List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornadaSeleccionada.getIdJornada());
 
+            // Obtener el nombre de la liga
+            LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
+            String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+
             // Pasar datos al modelo
             model.addAttribute("jornadas", jornadas);
             model.addAttribute("jornadaSeleccionada", jornadaSeleccionada);
             model.addAttribute("partidos", partidos);
             model.addAttribute("ligaId", ligaId);
             model.addAttribute("currentPage", "resultados");
+            model.addAttribute("nombreLiga", nombreLiga);
 
             return "resultados";
 
