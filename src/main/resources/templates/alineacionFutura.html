@@ -1,4 +1,4 @@
-os<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
@@ -207,7 +207,7 @@ os<!DOCTYPE html>
         }
 
         .jugador-item {
-            background: linear-gradient(165deg, rgba(139,21,21,0.7) 0%, rgba(80,12,12,0.8) 100%);
+            background: linear-gradient(165deg, rgba(30,30,50,0.9) 0%, rgba(20,20,35,0.95) 100%);
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 1rem;
@@ -276,6 +276,21 @@ os<!DOCTYPE html>
             border-radius: 10px;
             font-weight: bold;
             font-size: 0.9rem;
+            flex-shrink: 0;
+            white-space: nowrap;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .jugador-precio.suficiente {
+            background: #28a745;
+            color: white;
+        }
+
+        .jugador-precio.insuficiente {
+            background: #dc3545;
+            color: white;
         }
 
         /* Botones de acción */
@@ -538,6 +553,10 @@ os<!DOCTYPE html>
 
                         const avatarUrl = jugador.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(jugador.nombre)}&size=128&background=random&bold=true&rounded=true`;
 
+                        // Determinar si hay dinero suficiente
+                        const tieneDineroSuficiente = presupuestoDisponible >= jugador.precio;
+                        const clasePresupuesto = tieneDineroSuficiente ? 'suficiente' : 'insuficiente';
+
                         item.innerHTML = `
                             <div style="position: relative;">
                                 <img src="${avatarUrl}" alt="${jugador.nombre}" class="jugador-avatar">
@@ -547,7 +566,7 @@ os<!DOCTYPE html>
                                 <div class="jugador-nombre">${jugador.nombre}</div>
                                 <div class="jugador-stats">Puntos Totales: ${jugador.puntosTotal}</div>
                             </div>
-                            <div class="jugador-precio">${formatearPrecio(jugador.precio)}</div>
+                            <div class="jugador-precio ${clasePresupuesto}">${formatearPrecio(jugador.precio)}</div>
                         `;
 
                         lista.appendChild(item);
@@ -628,12 +647,15 @@ os<!DOCTYPE html>
             presupuestoDisponible = presupuestoTotal - gastoTotal;
 
             const elementoPresupuesto = document.getElementById('presupuestoActual');
+            const badgeDinero = elementoPresupuesto.closest('.dinero-badge');
             elementoPresupuesto.textContent = formatearPrecio(presupuestoDisponible);
 
-            // Cambiar color si se excede
+            // Cambiar fondo del badge si se excede, texto siempre en blanco
             if (presupuestoDisponible < 0) {
-                elementoPresupuesto.style.color = '#FF3333';
+                badgeDinero.style.background = '#dc3545'; // Rojo fuerte
+                elementoPresupuesto.style.color = 'white'; // Blanco para contraste
             } else {
+                badgeDinero.style.background = 'linear-gradient(135deg, #D946A6 0%, #FF3366 100%)'; // Original
                 elementoPresupuesto.style.color = 'white';
             }
         }
