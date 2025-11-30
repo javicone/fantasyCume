@@ -314,6 +314,9 @@ public class AgregarResultadosController {
             // Actualizar goles recibidos de los porteros
             actualizarGolesRecibidosPorteros(partido, golesLocal, golesVisitante);
 
+            // NUEVO: Mover alineaciones futuras a esta jornada (historial)
+            moverAlineacionesFuturasAHistorial(partido.getJornada());
+
             // Recalcular puntos de usuarios
             recalcularPuntosUsuarios(partido.getJornada().getIdJornada());
 
@@ -433,6 +436,89 @@ public class AgregarResultadosController {
             Usuario usuario = alineacion.getUsuario();
             usuario.setPuntosAcumulados(usuario.getPuntosAcumulados() + puntosTotal);
             usuarioRepository.save(usuario);
+        }
+    }
+
+    /**
+     * Mueve las alineaciones "futuras" (sin jornada asignada o de jornadas futuras)
+     * al historial de la jornada que acaba de jugarse.
+     *
+     * Este método se ejecuta cuando se agregan resultados a un partido por primera vez.
+     *
+     * Lógica:
+     * 1. Si es la primera vez que se juega un partido de esta jornada, todas las alineaciones
+     *    que los usuarios tenían guardadas para "alineación futura" deben moverse a esta jornada.
+     * 2. Esto asegura que las alineaciones se guarden en el historial automáticamente.
+     *
+     * @param jornada La jornada que acaba de jugarse
+     */
+    private void moverAlineacionesFuturasAHistorial(Jornada jornada) {
+        try {
+            Long jornadaId = jornada.getIdJornada();
+            Long ligaId = jornada.getLiga().getIdLigaCume();
+
+            // Verificar si es la primera vez que se agregan resultados a esta jornada
+            // (es decir, si esta jornada ya tiene alineaciones guardadas, no hacemos nada)
+            List<Alineacion> alineacionesExistentes = alineacionRepository.findByJornadaIdJornada(jornadaId);
+
+            if (!alineacionesExistentes.isEmpty()) {
+                // Ya hay alineaciones guardadas para esta jornada, no hacer nada
+                return;
+            }
+
+            // Obtener la próxima jornada sin resultados (que ahora ES esta jornada que se está jugando)
+            List<Jornada> todasJornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
+            todasJornadas.sort((j1, j2) -> j1.getNumeroJornada().compareTo(j2.getNumeroJornada()));
+
+            // Encontrar la posición de la jornada actual
+            int posicionJornadaActual = -1;
+            for (int i = 0; i < todasJornadas.size(); i++) {
+                if (todasJornadas.get(i).getIdJornada().equals(jornadaId)) {
+                    posicionJornadaActual = i;
+                    break;
+                }
+            }
+
+            if (posicionJornadaActual == -1) {
+                return; // No se encontró la jornada, algo raro pasó
+            }
+
+            // Buscar alineaciones que tengan una jornada "futura" (mayor número de jornada)
+            // o que no tengan jornada asignada
+            List<Usuario> usuariosDeLiga = usuarioRepository.findByLigaIdLigaCume(ligaId);
+
+            for (Usuario usuario : usuariosDeLiga) {
+                // Buscar si el usuario tiene una alineación en una jornada futura
+                // o en una jornada sin resultados
+                Alineacion alineacionFutura = null;
+
+                // Buscar la alineación más cercana que el usuario tenga para jornadas futuras
+                for (int i = posicionJornadaActual; i < todasJornadas.size(); i++) {
+                    Jornada jornadaBusqueda = todasJornadas.get(i);
+                    Optional<Alineacion> alineacionOpt = alineacionRepository
+                        .findByUsuarioIdUsuarioAndJornadaIdJornada(
+                            usuario.getIdUsuario(),
+                            jornadaBusqueda.getIdJornada()
+                        );
+
+                    if (alineacionOpt.isPresent()) {
+                        alineacionFutura = alineacionOpt.get();
+                        break; // Encontramos la primera alineación futura
+                    }
+                }
+
+                // Si encontramos una alineación futura, moverla a esta jornada
+                if (alineacionFutura != null && !alineacionFutura.getJornada().getIdJornada().equals(jornadaId)) {
+                    // Cambiar la jornada de la alineación
+                    alineacionFutura.setJornada(jornada);
+                    alineacionRepository.save(alineacionFutura);
+                }
+            }
+
+        } catch (Exception e) {
+            // Log del error pero no interrumpir el flujo principal
+            System.err.println("Error al mover alineaciones futuras: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

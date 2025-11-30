@@ -268,7 +268,7 @@
                     <option th:each="jornada : ${jornadas}"
                             th:value="${jornada.idJornada}"
                             th:selected="${jornada.idJornada == jornadaSeleccionada?.idJornada}"
-                            th:text="'✓ JORNADA ' + ${jornada.idJornada}">
+                            th:text="'✓ JORNADA ' + ${jornada.numeroJornada}">
                         JORNADA 1
                     </option>
                 </select>
