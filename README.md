@@ -104,6 +104,215 @@ Los administradores serán tambien los **propios usuarios** (organizadores de la
 
 ---
 
+## 🆕 Nuevas Funcionalidades Implementadas (Noviembre 2025)
+
+### ⚽ **1. Clasificación de Equipos**
+Sistema completo de clasificación de equipos basado en resultados de partidos:
+
+**Características:**
+- ✅ **Tabla de clasificación dinámica** ordenada por puntos, diferencia de goles y goles a favor
+- ✅ **Sistema de puntuación**: Victoria (+3), Empate (+1), Derrota (0)
+- ✅ **Estadísticas completas**: PJ, V, E, D, GF, GC, DIF, PTS
+- ✅ **Visualización de escudos** de equipos en la tabla
+- ✅ **Actualización automática** tras agregar resultados de partidos
+- ✅ **Diseño moderno** con gradientes azulados y efectos visuales
+
+**Ubicación:** Menú lateral → Clasificación
+
+---
+
+### 📊 **2. Agregar Resultados de Partidos (Administrador)**
+Sistema completo para que los administradores registren resultados y estadísticas:
+
+**Características:**
+- ✅ **Selector de jornadas** mediante desplegable interactivo
+- ✅ **Vista de partidos por jornada** con equipos y escudos
+- ✅ **Edición de estadísticas por jugador**:
+  - Goles anotados
+  - Asistencias
+  - Tarjetas amarillas (0, 1 o 2)
+  - Tarjetas rojas (checkbox)
+  - Minutos jugados (checkbox)
+  - Goles encajados (solo porteros, se actualiza automáticamente)
+- ✅ **Actualización automática del marcador** al agregar goles
+- ✅ **Recálculo automático** de:
+  - Puntos de usuarios
+  - Clasificación de equipos
+  - Estadísticas de jugadores
+- ✅ **Interfaz intuitiva** con modal de edición para cada partido
+
+**Ubicación:** Menú lateral → Opciones Admin → Agregar Resultados
+
+---
+
+### 🔄 **3. Movimiento Automático de Alineaciones**
+Sistema inteligente que gestiona las alineaciones futuras:
+
+**Funcionamiento:**
+- ✅ Cuando se agrega el **primer resultado** de una jornada
+- ✅ Las **alineaciones futuras** se mueven automáticamente al **historial**
+- ✅ La próxima **alineación futura** pasa a la **siguiente jornada**
+- ✅ Los usuarios **no pierden** sus alineaciones configuradas
+- ✅ **Sincronización automática** entre jornadas
+
+**Ejemplo:**
+```
+Usuario configura alineación para Jornada 1
+    ↓
+Admin agrega resultados de Jornada 1
+    ↓
+Alineación se mueve automáticamente a Historial (Jornada 1) ✅
+Alineación Futura ahora es Jornada 2 ✅
+```
+
+---
+
+### 💰 **4. Cambiar Presupuesto Máximo (Administrador)**
+Funcionalidad para modificar el presupuesto de la liga:
+
+**Características:**
+- ✅ **Modal interactivo** con JavaScript
+- ✅ **Input numérico** con formato y validación
+- ✅ **Validaciones en cliente y servidor**:
+  - Presupuesto mínimo: 1.000.000€
+  - Validación de valores no nulos
+  - Confirmación antes de guardar
+- ✅ **Actualización en tiempo real** en todas las vistas
+- ✅ **Formato de moneda** con separadores de miles
+- ✅ **Feedback visual** con alertas de éxito/error
+
+**Ubicación:** Menú lateral → Opciones Admin → Cambiar Presupuesto
+
+**Integración:**
+- El nuevo presupuesto se refleja automáticamente en "Alineación Futura"
+- Todos los usuarios ven el mismo presupuesto actualizado
+- Persistencia en base de datos
+
+---
+
+### 🔄 **5. Reiniciar Liga (Mejorado)**
+Funcionalidad mejorada para reiniciar competiciones:
+
+**Características:**
+- ✅ **Confirmación de seguridad** antes de ejecutar
+- ✅ **Reseteo completo** de:
+  - Todas las estadísticas de jugadores a 0
+  - Clasificación de equipos a 0
+  - Puntos de usuarios a 0
+  - Eliminación de todas las jornadas
+  - Regeneración de calendario (ida y vuelta)
+- ✅ **Preservación** de:
+  - Jugadores y equipos existentes
+  - Usuarios de la liga
+  - Configuración de presupuesto
+- ✅ **Mensaje de advertencia** claro sobre la operación
+
+**Ubicación:** Menú lateral → Opciones Admin → Reiniciar Liga
+
+---
+
+### 🎨 **6. Mejoras Visuales Generales**
+
+**Menú Lateral:**
+- ✅ Nombre de la liga dinámico en el encabezado
+- ✅ Gradiente moderno (púrpura → rosa → rojo)
+- ✅ Iconos de Bootstrap Icons
+- ✅ Efectos hover con animaciones suaves
+
+**Tablas (Ranking y Clasificación):**
+- ✅ Diseño con gradientes azulados
+- ✅ Encabezados con color sólido (#4A90E2)
+- ✅ Filas alternadas con colores diferenciados
+- ✅ Efectos hover con elevación
+- ✅ Badges para posiciones destacadas
+
+**Desplegables de Jornadas:**
+- ✅ Estilo consistente en toda la aplicación
+- ✅ Colores acordes con el tema general
+- ✅ Mejor visibilidad y usabilidad
+
+**Imágenes:**
+- ✅ Soporte para URLs de escudos de equipos
+- ✅ Soporte para URLs de avatares de jugadores
+- ✅ Ajuste automático de tamaños
+- ✅ Fallback a avatares generados automáticamente
+
+---
+
+### 🛠️ **7. Validaciones y Manejo de Errores**
+
+**Gestión de Equipos:**
+- ✅ Validación de URLs de escudos (máximo 500 caracteres)
+- ✅ Notificaciones al usuario si falta información
+- ✅ Prevención de eliminación con datos inconsistentes
+
+**Gestión de Jugadores:**
+- ✅ Validación de URLs de avatares (máximo 500 caracteres)
+- ✅ Validación de posición obligatoria
+- ✅ Mensaje de error claro si falta información
+- ✅ Modal de confirmación al eliminar (con validación de portero único)
+
+**Agregar Resultados:**
+- ✅ Prevención de parpadeo en modales de confirmación
+- ✅ Validación de datos antes de guardar
+- ✅ Manejo de errores de red con mensajes claros
+
+---
+
+### 📱 **8. Responsive Design**
+
+Todas las nuevas funcionalidades son **completamente responsive**:
+- ✅ Adaptación automática a móviles, tablets y desktop
+- ✅ Menú lateral colapsable en dispositivos pequeños
+- ✅ Tablas con scroll horizontal en pantallas pequeñas
+- ✅ Modales optimizados para todas las resoluciones
+
+---
+
+### 🔐 **9. Seguridad y Permisos**
+
+**Opciones Admin:**
+- ✅ Solo accesibles para usuarios administradores
+- ✅ Validaciones en backend además del frontend
+- ✅ Protección contra operaciones no autorizadas
+
+**Integridad de Datos:**
+- ✅ Transacciones para operaciones críticas
+- ✅ Validaciones en cascada
+- ✅ Rollback automático en caso de error
+
+---
+
+### 📈 **10. Rendimiento y Optimización**
+
+- ✅ **Carga lazy** de relaciones en entidades JPA
+- ✅ **Queries optimizadas** para reducir consultas a BD
+- ✅ **Caché de objetos** frecuentemente usados
+- ✅ **JavaScript modular** para mejor mantenibilidad
+
+---
+
+## 📦 **Tecnologías Usadas en las Nuevas Funcionalidades**
+
+**Backend:**
+- Spring Boot 4.0.0
+- Spring Data JPA
+- Hibernate 7.1.8
+- MySQL 9.5
+
+**Frontend:**
+- Thymeleaf 3.1.3
+- Bootstrap 5.3.0
+- Bootstrap Icons 1.11.0
+- JavaScript ES6+
+- Fetch API para llamadas AJAX
+
+**Base de Datos:**
+- MySQL con soporte para URLs largas
+- Migraciones SQL para actualización de esquema
+
+---
+
 ## Diagrama entidad-relación de la base de datos
 ![Diagrama ER](imagenes/diagrama.jpeg)  
 
