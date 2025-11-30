@@ -40,6 +40,9 @@ public class AlineacionController {
     @Autowired
     private LigaService ligaService;
 
+    @Autowired
+    private PartidoRepository partidoRepository;
+
     /**
      * Muestra la pantalla para crear una alineación futura (próxima jornada)
      */
@@ -54,8 +57,8 @@ public class AlineacionController {
             // Obtener jornadas de la liga
             List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
 
-            // Calcular próxima jornada (última + 1)
-            Long proximaJornadaNumero = jornadas.isEmpty() ? 1L : (long) (jornadas.size() + 1);
+            // Calcular próxima jornada: la primera que no tiene resultados agregados
+            Long proximaJornadaNumero = calcularProximaJornada(jornadas);
 
             // Obtener usuario
             Usuario usuario;
@@ -72,11 +75,7 @@ public class AlineacionController {
             }
 
             // Obtener presupuesto de la liga
-            LigaCume liga = jornadaRepository.findById(ligaId).map(Jornada::getLiga)
-                    .orElseGet(() -> usuarioRepository.findById(usuario.getIdUsuario())
-                            .map(Usuario::getLiga).orElse(null));
-
-            Long presupuestoMaximo =  100000000L;
+            Long presupuestoMaximo = 100000000L;
 
             // Obtener el nombre de la liga
             LigaCume ligaObj = ligaService.obtenerLigaPorId(ligaId);
@@ -98,6 +97,60 @@ public class AlineacionController {
                 "Error al cargar alineación futura: " + e.getMessage());
             return "redirect:/liga/" + ligaId + "/ranking";
         }
+    }
+
+    /**
+     * Calcula el número de la próxima jornada sin resultados agregados
+     * Recorre todas las jornadas y devuelve el número de la primera que no tiene resultados
+     */
+    private Long calcularProximaJornada(List<Jornada> jornadas) {
+        if (jornadas.isEmpty()) {
+            return 1L;
+        }
+
+        // Ordenar jornadas por ID (asumiendo que ID correlaciona con el orden)
+        jornadas.sort((j1, j2) -> j1.getIdJornada().compareTo(j2.getIdJornada()));
+
+        // Buscar la primera jornada sin resultados
+        for (Jornada jornada : jornadas) {
+            if (jornadaSinResultados(jornada)) {
+                // Devolver el número de orden de esta jornada
+                return (long) (jornadas.indexOf(jornada) + 1);
+            }
+        }
+
+        // Si todas tienen resultados, la próxima es la siguiente después de la última
+        return (long) (jornadas.size() + 1);
+    }
+
+    /**
+     * Verifica si una jornada no tiene resultados agregados
+     * Una jornada sin resultados es aquella donde todos los partidos tienen 0-0
+     * y no tienen estadísticas de jugadores registradas
+     */
+    private boolean jornadaSinResultados(Jornada jornada) {
+        List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornada.getIdJornada());
+
+        if (partidos.isEmpty()) {
+            return true; // Si no hay partidos, consideramos que no tiene resultados
+        }
+
+        // Verificar si todos los partidos están sin jugar (0-0 y sin estadísticas)
+        for (Partido partido : partidos) {
+            // Si algún partido tiene goles, la jornada tiene resultados
+            if (partido.getGolesLocal() != 0 || partido.getGolesVisitante() != 0) {
+                return false;
+            }
+
+            // Si algún partido tiene estadísticas de jugadores, la jornada tiene resultados
+            List<EstadisticaJugadorPartido> estadisticas =
+                estadisticaRepository.findByPartidoIdPartido(partido.getIdPartido());
+            if (estadisticas != null && !estadisticas.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true; // Todos los partidos están sin jugar
     }
 
     /**
