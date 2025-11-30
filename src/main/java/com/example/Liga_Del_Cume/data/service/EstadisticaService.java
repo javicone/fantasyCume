@@ -7,6 +7,7 @@ import com.example.Liga_Del_Cume.data.repository.EstadisticaJugadorPartidoReposi
 import com.example.Liga_Del_Cume.data.repository.JugadorRepository;
 import com.example.Liga_Del_Cume.data.repository.PartidoRepository;
 import com.example.Liga_Del_Cume.data.repository.JornadaRepository;
+import com.example.Liga_Del_Cume.data.repository.UsuarioRepository;
 import com.example.Liga_Del_Cume.data.exceptions.EstadisticaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class EstadisticaService {
 
     @Autowired
     private JornadaRepository jornadaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     /**
      * Funcionalidad 4.1: Añadir estadísticas de un jugador en un partido
@@ -578,6 +582,13 @@ public class EstadisticaService {
                 partido.setGolesVisitante(0);
                 partidoRepository.save(partido);
             }
+        }
+
+        // Resetear puntos acumulados de todos los usuarios de la liga a 0
+        List<com.example.Liga_Del_Cume.data.model.Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
+        for (com.example.Liga_Del_Cume.data.model.Usuario usuario : usuarios) {
+            usuario.setPuntosAcumulados(0);
+            usuarioRepository.save(usuario);
         }
     }
 }

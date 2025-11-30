@@ -3,8 +3,10 @@ package com.example.Liga_Del_Cume.data.service;
 import com.example.Liga_Del_Cume.data.model.ClasificacionEquipo;
 import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.Partido;
+import com.example.Liga_Del_Cume.data.model.EstadisticaJugadorPartido;
 import com.example.Liga_Del_Cume.data.repository.EquipoRepository;
 import com.example.Liga_Del_Cume.data.repository.PartidoRepository;
+import com.example.Liga_Del_Cume.data.repository.EstadisticaJugadorPartidoRepository;
 import com.example.Liga_Del_Cume.data.exceptions.EquipoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class ClasificacionService {
 
     @Autowired
     private PartidoRepository partidoRepository;
+
+    @Autowired
+    private EstadisticaJugadorPartidoRepository estadisticaRepository;
 
     /**
      * Obtiene la clasificación completa de una liga
@@ -95,6 +100,7 @@ public class ClasificacionService {
 
     /**
      * Procesa un partido y actualiza las estadísticas de los equipos involucrados
+     * Solo procesa el partido si realmente se ha jugado (tiene goles o estadísticas)
      *
      * @param partido El partido a procesar
      * @param clasificacionMap Mapa de clasificaciones a actualizar
@@ -118,7 +124,26 @@ public class ClasificacionService {
         int golesLocal = partido.getGolesLocal();
         int golesVisitante = partido.getGolesVisitante();
 
-        // Actualizar goles
+        // NUEVO: Verificar si el partido realmente se ha jugado
+        // Un partido se considera jugado si:
+        // 1. Tiene al menos un gol (golesLocal > 0 O golesVisitante > 0), O
+        // 2. Tiene estadísticas de jugadores registradas
+        boolean tieneGoles = golesLocal > 0 || golesVisitante > 0;
+        boolean tieneEstadisticas = false;
+
+        if (!tieneGoles) {
+            // Si no hay goles, verificar si hay estadísticas
+            List<EstadisticaJugadorPartido> estadisticas =
+                estadisticaRepository.findByPartidoIdPartido(partido.getIdPartido());
+            tieneEstadisticas = estadisticas != null && !estadisticas.isEmpty();
+        }
+
+        // Si el partido no se ha jugado (0-0 sin estadísticas), no contarlo
+        if (!tieneGoles && !tieneEstadisticas) {
+            return; // No procesar este partido
+        }
+
+        // El partido se ha jugado, actualizar goles
         clasificacionLocal.addGoles(golesLocal, golesVisitante);
         clasificacionVisitante.addGoles(golesVisitante, golesLocal);
 
@@ -132,7 +157,7 @@ public class ClasificacionService {
             clasificacionLocal.addDerrota();
             clasificacionVisitante.addVictoria();
         } else {
-            // Empate
+            // Empate (solo si se ha jugado realmente)
             clasificacionLocal.addEmpate();
             clasificacionVisitante.addEmpate();
         }
