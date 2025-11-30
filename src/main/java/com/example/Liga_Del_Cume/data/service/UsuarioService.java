@@ -106,6 +106,11 @@ public class UsuarioService {
         // Crear el usuario
         Usuario usuario = new Usuario(nombreLimpio, emailLimpio, password);
 
+        // Si existe exactamente una liga en el sistema, asociar el usuario automáticamente a esa liga
+        List<LigaCume> ligasDisponibles = ligaCumeRepository.findAll();
+        if (ligasDisponibles.size() == 1) {
+            usuario.setLiga(ligasDisponibles.get(0));
+        }
 
         // Guardar y retornar el usuario creado
         return usuarioRepository.save(usuario);
@@ -582,4 +587,3 @@ public class UsuarioService {
                 .orElseThrow(() -> new UsuarioException("No existe ninguna liga con ID: " + ligaId));
     }
 }
-

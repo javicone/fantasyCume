@@ -182,10 +182,20 @@
             filter: drop-shadow(0 10px 30px rgba(59, 130, 246, 0.4));
         }
 
-        .hero-image i {
-            color: var(--azul-brillante);
+        /* Imagen del logo en la sección hero */
+        .hero-image-img {
+            width: 15rem; /* mantiene el tamaño visual similar al icono anterior */
+            max-width: 85%;
+            height: auto;
+            display: inline-block;
+            opacity: 0.95;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(59, 130, 246, 0.4));
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            padding: 0.5rem;
         }
-        
+
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -492,9 +502,10 @@
                 </div>
                 <div class="col-lg-6 text-center mt-5 mt-lg-0">
                     <div class="hero-image">
-                        <i class="bi bi-trophy" style="font-size: 15rem; opacity: 0.9;"></i>
+                        <!-- La imagen se sirve desde classpath:/static, por tanto su URL pública es /logoliga.png -->
+                        <img th:src="@{/logoliga.png}" src="/logoliga.png" alt="Logo Liga" class="hero-image-img" />
                     </div>
-                </div>
+                 </div>
             </div>
         </div>
     </section>
