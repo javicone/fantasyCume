@@ -15,7 +15,7 @@ public class Equipo {
     @JoinColumn(name = "liga_id")
     private LigaCume liga;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String escudoURL;
 
     private String nombreEquipo;

@@ -37,6 +37,7 @@ public class EquipoController {
     @Autowired
     private LigaCumeRepository ligaCumeRepository;
 
+
     /**
      * GET: Mostrar página de gestión de equipos
      * Lista todos los equipos con su información

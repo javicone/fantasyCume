@@ -224,6 +224,8 @@
                     </small>
                 </div>
 
+                <input type="hidden" id="idLiga" name="idLiga" th:value="${ligaId}">
+
                 <div class="btn-container">
                     <a th:href="@{/liga/{ligaId}/admin/equipos(ligaId=${ligaId})}" class="btn-cancel">
                         <i class="bi bi-x-circle"></i> Cancelar
