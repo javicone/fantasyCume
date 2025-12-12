@@ -64,10 +64,10 @@ public class DataInitializer implements CommandLineRunner {
         usuarios.add(crearUsuario("IlloJuan", "illojuan@fantasy.com", liga));
         System.out.println("✓ 5 Usuarios creados");
 
-        // 3. Crear 6 Equipos y sus Jugadores
-        List<Equipo> equipos = crearEquiposYJugadores(liga);
+        // 3. Crear Equipos Reales de la Liga del Cume con sus Jugadores
+        List<Equipo> equipos = crearEquiposReales(liga);
 
-        // 4. Generar Calendario (10 Jornadas) y Simular las primeras 5
+        // 4. Generar Calendario y Simular las primeras 6 jornadas
         generarYSimularJornadas(liga, equipos, usuarios);
 
         // 5. Calcular Clasificación Final
@@ -76,122 +76,161 @@ public class DataInitializer implements CommandLineRunner {
 
     // ==================== CREACIÓN DE EQUIPOS Y JUGADORES ====================
 
-    private List<Equipo> crearEquiposYJugadores(LigaCume liga) {
-        System.out.println("\n⚽ Creando equipos y jugadores...");
+    private List<Equipo> crearEquiposReales(LigaCume liga) {
+        System.out.println("\n⚽ Creando equipos y jugadores de la Liga del Cume...");
         List<Equipo> listaEquipos = new ArrayList<>();
 
-        // Equipo 1: Real Madrid
-        Equipo rm = crearEquipo("Real Madrid", "https://logodownload.org/wp-content/uploads/2016/03/real-madrid-logo-1.png", liga);
-        crearJugadoresEquipo(rm, "Courtois", "Vinicius Jr", "Bellingham", "Rodrygo", "Valverde");
-        listaEquipos.add(rm);
+        // Equipo 1: CUM UNITED
+        Equipo cumUnited = crearEquipo("CUM UNITED", "https://laliga-del-cume.web.app/images/Escudos/CUM%20UNITED.png", liga);
+        crearJugador(cumUnited, "Miguel Fernández", true, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/miguel.png");
+        crearJugador(cumUnited, "Assaad Abbadi", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/assaad.png");
+        crearJugador(cumUnited, "Eduardo Casquete", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/eduardo.png");
+        crearJugador(cumUnited, "Néstor Pérez", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/nestor.png");
+        crearJugador(cumUnited, "Mario Blázquez", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/mario.jpg");
+        crearJugador(cumUnited, "Luis Ramón Cabezas", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/luis3.png");
+        crearJugador(cumUnited, "Juan Cabezas", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/juan.png");
+        crearJugador(cumUnited, "Daniel Durán", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/daniel.png");
+        crearJugador(cumUnited, "Rodrigo Vicente", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/rodri.png");
+        crearJugador(cumUnited, "Ernesto Ruiz", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/ernesto.png");
+        crearJugador(cumUnited, "Juan Carlos Ruiz", false, "https://laliga-del-cume.web.app/images/jugadores/cumUnited/juanki.png");
+        listaEquipos.add(cumUnited);
 
-        // Equipo 2: FC Barcelona
-        Equipo fcb = crearEquipo("FC Barcelona", "https://logodownload.org/wp-content/uploads/2015/05/barcelona-logo-escudo-1.png", liga);
-        crearJugadoresEquipo(fcb, "Ter Stegen", "Lewandowski", "Lamine Yamal", "Pedri", "Gavi");
-        listaEquipos.add(fcb);
+        // Equipo 2: RAYO MARIGUANO
+        Equipo rayoMariguano = crearEquipo("RAYO MARIGUANO", "https://laliga-del-cume.web.app/images/Escudos/RAYO%20MARIGUANO.png", liga);
+        crearJugador(rayoMariguano, "Carlos Frejido", true, "https://laliga-del-cume.web.app/images/jugadores/rayo/carlos.jpg");
+        crearJugador(rayoMariguano, "Alejandro Torrado", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/alejandro.jpg");
+        crearJugador(rayoMariguano, "David Álvarez", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/david.jpg");
+        crearJugador(rayoMariguano, "Francisco López", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/francisco.jpg");
+        crearJugador(rayoMariguano, "Fernando Martínez", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/fernando.jpg");
+        crearJugador(rayoMariguano, "Álvaro Luna", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/alvaro.jpg");
+        crearJugador(rayoMariguano, "Gonzalo Bermejo", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/gonzalo.jpg");
+        crearJugador(rayoMariguano, "José María Ibáñez", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/josemaria.jpg");
+        crearJugador(rayoMariguano, "Francisco González", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/francisco2.jpg");
+        crearJugador(rayoMariguano, "Juan Ibáñez", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/juan.jpg");
+        crearJugador(rayoMariguano, "Lucía Cantonero", false, "https://laliga-del-cume.web.app/images/jugadores/rayo/lucia.jpg");
+        listaEquipos.add(rayoMariguano);
 
-        // Equipo 3: Atlético Madrid
-        Equipo atm = crearEquipo("Atlético Madrid", "https://logodownload.org/wp-content/uploads/2016/10/atletico-madrid-logo-1.png", liga);
-        crearJugadoresEquipo(atm, "Oblak", "Griezmann", "Julián Álvarez", "Koke", "De Paul");
-        listaEquipos.add(atm);
+        // Equipo 3: ATLÉTICO MORANTE
+        Equipo atleticoMorante = crearEquipo("ATLÉTICO MORANTE", "https://laliga-del-cume.web.app/images/Escudos/ATL%C3%89TICO%20MORANTE.png", liga);
+        crearJugador(atleticoMorante, "Manuel Mestre", true, "https://laliga-del-cume.web.app/images/jugadores/morante/manuel.jpg");
+        crearJugador(atleticoMorante, "Carlos Fuentes", false, "https://laliga-del-cume.web.app/images/jugadores/morante/carlos.jpg");
+        crearJugador(atleticoMorante, "Daniel Gallego", false, "https://laliga-del-cume.web.app/images/jugadores/morante/daniel.jpg");
+        crearJugador(atleticoMorante, "Javier Fernández", false, "https://laliga-del-cume.web.app/images/jugadores/morante/javier.jpg");
+        crearJugador(atleticoMorante, "Álvaro Fuentes", false, "https://laliga-del-cume.web.app/images/jugadores/morante/alvaro.jpg");
+        crearJugador(atleticoMorante, "Gonzalo García", false, "https://laliga-del-cume.web.app/images/jugadores/morante/gonzalo.jpg");
+        crearJugador(atleticoMorante, "Vicente Collado", false, "https://laliga-del-cume.web.app/images/jugadores/morante/vicente.jpg");
+        crearJugador(atleticoMorante, "Luis Miguel Lavado", false, "https://laliga-del-cume.web.app/images/jugadores/morante/luismi.jpg");
+        crearJugador(atleticoMorante, "Javier Herrero", false, "https://laliga-del-cume.web.app/images/jugadores/morante/javier2.jpg");
+        crearJugador(atleticoMorante, "Pedro José Padilla", false, "https://laliga-del-cume.web.app/images/jugadores/morante/pedro.jpg");
+        listaEquipos.add(atleticoMorante);
 
-        // Equipo 4: Sevilla FC
-        Equipo sev = crearEquipo("Sevilla FC", "https://logodownload.org/wp-content/uploads/2018/05/sevilla-fc-logo-1.png", liga);
-        crearJugadoresEquipo(sev, "Nyland", "Ocampos", "Isaac Romero", "Jesús Navas", "Sow");
-        listaEquipos.add(sev);
+        // Equipo 4: ASTON BIRRA
+        Equipo astonBirra = crearEquipo("ASTON BIRRA", "https://laliga-del-cume.web.app/images/Escudos/ASTON%20BIRRA.png", liga);
+        crearJugador(astonBirra, "Víctor Pérez", true, "https://laliga-del-cume.web.app/images/jugadores/aston/victor.jpg");
+        crearJugador(astonBirra, "Izan Campanón", false, "https://laliga-del-cume.web.app/images/jugadores/aston/izan.jpg");
+        crearJugador(astonBirra, "Iván Rodríguez", false, "https://laliga-del-cume.web.app/images/jugadores/aston/ivan.jpg");
+        crearJugador(astonBirra, "Isidro Capitán", false, "https://laliga-del-cume.web.app/images/jugadores/aston/isidro.jpg");
+        crearJugador(astonBirra, "David Gómez", false, "https://laliga-del-cume.web.app/images/jugadores/aston/david.jpg");
+        crearJugador(astonBirra, "Carlos Borja", false, "https://laliga-del-cume.web.app/images/jugadores/aston/carlos.jpg");
+        crearJugador(astonBirra, "Antonio Carrasco", false, "https://laliga-del-cume.web.app/images/jugadores/aston/antonio.jpg");
+        crearJugador(astonBirra, "Javier Conejero", false, "https://laliga-del-cume.web.app/images/jugadores/aston/javi.jpg");
+        crearJugador(astonBirra, "Antonio González", false, "https://laliga-del-cume.web.app/images/jugadores/aston/antonio2.jpg");
+        crearJugador(astonBirra, "Rubén Garrido", false, "https://laliga-del-cume.web.app/images/jugadores/aston/ruben.jpg");
+        crearJugador(astonBirra, "Álvaro Clavero", false, "https://laliga-del-cume.web.app/images/jugadores/aston/alvaro.jpg");
+        crearJugador(astonBirra, "Pablo Mimbrero", false, "https://laliga-del-cume.web.app/images/jugadores/aston/pablo.jpg");
+        listaEquipos.add(astonBirra);
 
-        // Equipo 5: Valencia CF
-        Equipo vcf = crearEquipo("Valencia CF", "https://logodownload.org/wp-content/uploads/2018/05/valencia-cf-logo-1.png", liga);
-        crearJugadoresEquipo(vcf, "Mamardashvili", "Hugo Duro", "Pepelu", "Gayà", "Javi Guerra");
-        listaEquipos.add(vcf);
+        // Equipo 5: I.E.SALA
+        Equipo ieSala = crearEquipo("I.E.SALA", "https://laliga-del-cume.web.app/images/Escudos/I.E.%20SALA.png", liga);
+        crearJugador(ieSala, "Fabio Sánchez", true, "https://laliga-del-cume.web.app/images/jugadores/iesala/fabio.png");
+        crearJugador(ieSala, "Ángel Carapeto", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/angel.png");
+        crearJugador(ieSala, "Marcos Ocaña", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/marcos.jpg");
+        crearJugador(ieSala, "Juan Luís Rodríguez", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/juanluis.png");
+        crearJugador(ieSala, "David Fernández", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/david.png");
+        crearJugador(ieSala, "Víctor Álvarez", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/victor.jpg");
+        crearJugador(ieSala, "Aarón Molina", false, "https://laliga-del-cume.web.app/images/jugadores/iesala/aaron.png");
+        listaEquipos.add(ieSala);
 
-        // Equipo 6: Real Betis
-        Equipo bet = crearEquipo("Real Betis", "https://logodownload.org/wp-content/uploads/2017/02/real-betis-logo-1.png", liga);
-        crearJugadoresEquipo(bet, "Rui Silva", "Isco", "Lo Celso", "Fekir", "Bartra");
-        listaEquipos.add(bet);
+        // Equipo 6: CUM CITY
+        Equipo cumCity = crearEquipo("CUM CITY", "https://laliga-del-cume.web.app/images/Escudos/CUM%20CITY.png", liga);
+        crearJugador(cumCity, "Carlos Zambrano", true, "https://laliga-del-cume.web.app/images/jugadores/cumCity/carlos.jpg");
+        crearJugador(cumCity, "David Cáceres", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/david.png");
+        crearJugador(cumCity, "Andrés Pajuelo", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/andres.png");
+        crearJugador(cumCity, "Justo Manuel Sánchez", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/justo.png");
+        crearJugador(cumCity, "Alberto Durán", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/alberto.jpg");
+        crearJugador(cumCity, "Juan Prieto Da Silva", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/pietro.jpg");
+        crearJugador(cumCity, "Juan Luis Fernández", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/juanlu.jpg");
+        crearJugador(cumCity, "Luis Miguel Márquez", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/luismi.jpg");
+        crearJugador(cumCity, "Ciro Benjamín Castañeda", false, "https://laliga-del-cume.web.app/images/jugadores/cumCity/ciro.jpg");
+        listaEquipos.add(cumCity);
 
+        // Equipo 7: UNIÓN DEPORTIVA PORRETA
+        Equipo udPorteta = crearEquipo("UNIÓN DEPORTIVA PORRETA", "https://laliga-del-cume.web.app/images/Escudos/UNI%C3%93N%20DEPORTIVA%20PORRETA.png", liga);
+        crearJugador(udPorteta, "José María Cabezas", true, "https://laliga-del-cume.web.app/images/jugadores/udp/josemaria.jpg");
+        crearJugador(udPorteta, "Álvaro Gobernado", false, "https://laliga-del-cume.web.app/images/jugadores/udp/alvaro.jpg");
+        crearJugador(udPorteta, "Alberto Salazar", false, "https://laliga-del-cume.web.app/images/jugadores/udp/alberto.jpg");
+        crearJugador(udPorteta, "Hugo Segovia", false, "https://laliga-del-cume.web.app/images/jugadores/udp/hugo.jpg");
+        crearJugador(udPorteta, "Asier Mariño", false, "https://laliga-del-cume.web.app/images/jugadores/udp/asier.jpg");
+        crearJugador(udPorteta, "Victor Santamaría", false, "https://laliga-del-cume.web.app/images/jugadores/udp/victor.jpg");
+        crearJugador(udPorteta, "Álex Cancho", false, "https://laliga-del-cume.web.app/images/jugadores/udp/alex.jpg");
+        crearJugador(udPorteta, "Ángel Moreno", false, "https://laliga-del-cume.web.app/images/jugadores/udp/angel.jpg");
+        crearJugador(udPorteta, "Francisco José Castro", false, "https://laliga-del-cume.web.app/images/jugadores/udp/fran.jpg");
+        crearJugador(udPorteta, "Francisco Javier Carretero", false, "https://laliga-del-cume.web.app/images/jugadores/udp/fcojavier.jpg");
+        listaEquipos.add(udPorteta);
+
+        System.out.println("✓ " + listaEquipos.size() + " equipos creados con sus jugadores");
         return listaEquipos;
     }
 
-    private void crearJugadoresEquipo(Equipo equipo, String... nombres) {
-        boolean primerEsPortero = true;
-        for (String nombre : nombres) {
-            Jugador j = new Jugador();
-            j.setNombreJugador(nombre);
-            j.setEsPortero(primerEsPortero);
-            j.setEquipo(equipo);
-            // Precio aleatorio entre 5M y 100M
-            j.setPrecioMercado(5000000 + random.nextInt(95000000));
-            j.setAvatarUrl("https://ui-avatars.com/api/?name=" + nombre.replace(" ", "+") + "&background=random");
-            jugadorRepository.save(j);
-            primerEsPortero = false; // Solo el primero es portero
-        }
+    private void crearJugador(Equipo equipo, String nombre, boolean esPortero, String avatarUrl) {
+        Jugador j = new Jugador();
+        j.setNombreJugador(nombre);
+        j.setEsPortero(esPortero);
+        j.setEquipo(equipo);
+        j.setPrecioMercado(100000); // Todos empiezan con 100.000
+        j.setAvatarUrl(avatarUrl);
+        jugadorRepository.save(j);
     }
 
     // ==================== LÓGICA DE JORNADAS Y SIMULACIÓN ====================
 
     private void generarYSimularJornadas(LigaCume liga, List<Equipo> equipos, List<Usuario> usuarios) {
-        // Algoritmo Round Robin simple para 6 equipos
-        // Indices: 0 vs 5, 1 vs 4, 2 vs 3 en la primera rotación
-        int numEquipos = equipos.size(); // 6
-        int numJornadasIda = numEquipos - 1; // 5
-        int totalJornadas = numJornadasIda * 2; // 10
+        // Algoritmo Round Robin para 7 equipos (número impar - uno descansa cada jornada)
+        int numEquipos = equipos.size(); // 7
+        int numJornadasIda = numEquipos; // 7 (uno descansa cada jornada)
+
+        // Solo simulamos 6 jornadas como se solicitó
+        int jornadasASimular = 6;
 
         // Copia para rotar
         List<Equipo> equiposRotacion = new ArrayList<>(equipos);
-        Equipo equipoFijo = equiposRotacion.remove(0); // Mantenemos uno fijo para el algoritmo
 
-        System.out.println("\n📅 Generando " + totalJornadas + " jornadas...");
+        System.out.println("\n📅 Generando " + jornadasASimular + " jornadas...");
 
-        for (int dia = 0; dia < totalJornadas; dia++) {
+        for (int dia = 0; dia < jornadasASimular; dia++) {
             int numeroJornada = dia + 1;
             Jornada jornada = new Jornada();
             jornada.setLiga(liga);
             jornada.setNumeroJornada(numeroJornada);
             jornada = jornadaRepository.save(jornada);
 
-            boolean esSimulada = numeroJornada <= 5; // Solo simulamos las primeras 5
-            System.out.println("  ➜ Jornada " + numeroJornada + (esSimulada ? " (Simulada)" : " (Pendiente)"));
+            System.out.println("  ➜ Jornada " + numeroJornada + " (Simulada)");
 
-            // Generar los 3 partidos de la jornada
-            int equipoIdx1 = 0; // El fijo siempre juega con el que toca en el ciclo
-            int equipoIdx2 = equiposRotacion.size() - 1;
+            // Con 7 equipos, uno descansa cada jornada (el primero de la lista rotativa)
+            // Se forman 3 partidos
+            for (int i = 1; i < numEquipos; i += 2) {
+                if (i + 1 < numEquipos) {
+                    Equipo local = equiposRotacion.get(i);
+                    Equipo visitante = equiposRotacion.get(i + 1);
 
-            // Partido del equipo fijo
-            Equipo localFijo, visitanteFijo;
-            // Alternar local/visitante cada jornada
-            if (dia % 2 == 0) {
-                localFijo = equipoFijo;
-                visitanteFijo = equiposRotacion.get(equipoIdx2);
-            } else {
-                localFijo = equiposRotacion.get(equipoIdx2);
-                visitanteFijo = equipoFijo;
-            }
-            procesarPartido(jornada, localFijo, visitanteFijo, esSimulada);
-            equipoIdx2--;
-
-            // Resto de partidos
-            for (int i = 0; i < (equiposRotacion.size() / 2); i++) {
-                Equipo e1 = equiposRotacion.get(i);
-                Equipo e2 = equiposRotacion.get(equipoIdx2);
-
-                Equipo local, visitante;
-                if (dia % 2 == 0) {
-                    local = e1; visitante = e2;
-                } else {
-                    local = e2; visitante = e1;
+                    procesarPartido(jornada, local, visitante, true);
                 }
-
-                procesarPartido(jornada, local, visitante, esSimulada);
-                equipoIdx2--;
             }
 
-            // Simular alineaciones de usuarios si la jornada está simulada
-            if (esSimulada) {
-                simularAlineacionesUsuarios(usuarios, jornada);
-            }
+            // Simular alineaciones de usuarios
+            simularAlineacionesUsuarios(usuarios, jornada);
 
-            // Rotar equipos (excepto el fijo)
+            // Rotar equipos para la siguiente jornada
             Collections.rotate(equiposRotacion, 1);
         }
     }
@@ -321,7 +360,7 @@ public class DataInitializer implements CommandLineRunner {
         usuarios = usuarioRepository.findByLigaIdLigaCumeOrderByPuntosAcumuladosDesc(liga.getIdLigaCume());
 
         System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
-        System.out.println("║            🏆 CLASIFICACIÓN TRAS 5 JORNADAS                   ║");
+        System.out.println("║            🏆 CLASIFICACIÓN TRAS 6 JORNADAS                   ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════╝");
 
         int pos = 1;
@@ -335,7 +374,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("   Equipos: " + equipoRepository.count());
         System.out.println("   Jugadores: " + jugadorRepository.count());
         System.out.println("   Jornadas: " + jornadaRepository.count());
-        System.out.println("   Partidos: " + partidoRepository.count() + " (15 jugados, 15 pendientes)");
+        System.out.println("   Partidos: " + partidoRepository.count() + " (jugados en 6 jornadas)");
         System.out.println("   Estadísticas: " + estadisticaRepository.count());
     }
 
