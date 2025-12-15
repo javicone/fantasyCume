@@ -14,20 +14,20 @@
     <style th:replace="~{menu :: menuStyles}"></style>
 
     <style>
-        /* (TUS ESTILOS SE MANTIENEN IGUAL, SOLO AÑADO UNO PARA OCULTAR ELEMENTOS) */
-        body { margin: 0; padding: 0; background: #0A0E27; color: white; font-family: Arial, sans-serif; min-height: 100vh; }
+        /* Nueva Paleta: #282828 fondo, #03DAC6 títulos, #6200EE/#BB86FC elementos */
+        body { margin: 0; padding: 0; background: #282828; color: white; font-family: Arial, sans-serif; min-height: 100vh; }
         .main-content { margin-left: 230px; padding: 2rem; min-height: 100vh; }
         .page-header { margin-bottom: 2rem; text-align: center; }
         .page-title {
             font-size: 64px;
             font-weight: 900;
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 2rem;
             letter-spacing: -2px;
-            text-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+            text-shadow: 0 4px 20px rgba(3, 218, 198, 0.5);
         }
 
         .search-container { max-width: 800px; margin: 0 auto 2rem auto; position: relative; }
@@ -169,8 +169,8 @@
                 </div>
 
                 <div class="stat-box">
-                    <div class="price-tag" th:text="${#numbers.formatDecimal(jugador.precioMercado / 1000000.0, 1, 2) + ' M€'}">
-                        10.5 M€
+                    <div class="price-tag" th:text="${#numbers.formatInteger(jugador.precioMercado, 0, 'DEFAULT')} + '€'">
+                        100000€
                     </div>
                 </div>
             </div>

@@ -130,33 +130,39 @@
 </div>
 
 <style th:fragment="menuStyles">
+    /* MENÚ LATERAL - Nueva Paleta #282828 #03DAC6 #6200EE #BB86FC */
     .sidebar {
         position: fixed;
         left: 0;
         top: 0;
         width: 230px;
         height: 100vh;
-        background: linear-gradient(180deg, #8B2A8B 0%, #D946A6 50%, #FF3366 100%);
+        background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
         padding: 0;
         overflow-y: auto;
         z-index: 1000;
-        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.8);
+        border-right: 2px solid rgba(187, 134, 252, 0.3);
     }
 
     .sidebar-header {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(98, 0, 238, 0.1);
         padding: 1.5rem 1rem;
         text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 2px solid rgba(187, 134, 252, 0.3);
     }
 
     .sidebar-header h3 {
-        color: white;
+        background: linear-gradient(135deg, #03DAC6 0%, #BB86FC 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-size: 1.3rem;
-        font-weight: 700;
+        font-weight: 900;
         margin: 0;
         text-transform: uppercase;
         letter-spacing: 1px;
+        text-shadow: 0 0 20px rgba(3, 218, 198, 0.5);
     }
 
     .sidebar-nav {
@@ -167,54 +173,87 @@
         display: flex;
         align-items: center;
         padding: 0.9rem 1.2rem;
-        color: white;
+        color: #FFFFFF;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.9rem;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
         margin: 0.2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, rgba(187, 134, 252, 0.2) 0%, transparent 100%);
+        transition: width 0.3s ease;
+    }
+
+    .nav-item:hover::before {
+        width: 100%;
     }
 
     .nav-item i {
         margin-right: 0.8rem;
         font-size: 1.1rem;
+        transition: all 0.3s ease;
     }
 
     .nav-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-left-color: white;
+        background: rgba(187, 134, 252, 0.15);
+        border-left-color: #BB86FC;
         padding-left: 1.5rem;
+        color: #BB86FC;
+    }
+
+    .nav-item:hover i {
+        transform: scale(1.2);
+        color: #BB86FC;
     }
 
     .nav-item.active {
-        background: rgba(255, 51, 51, 0.4);
-        border-left-color: #FFFFFF;
-        box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.5);
+        background: linear-gradient(90deg, rgba(3, 218, 198, 0.25) 0%, transparent 100%);
+        border-left-color: #03DAC6;
+        color: #03DAC6;
+        font-weight: 800;
+        box-shadow: inset 0 0 20px rgba(3, 218, 198, 0.2);
+    }
+
+    .nav-item.active i {
+        color: #03DAC6;
+        text-shadow: 0 0 15px rgba(3, 218, 198, 0.8);
     }
 
     .nav-divider {
         height: 2px;
-        background: rgba(255, 255, 255, 0.2);
+        background: linear-gradient(90deg, transparent 0%, rgba(187, 134, 252, 0.3) 50%, transparent 100%);
         margin: 1rem 0.5rem;
     }
 
     .nav-section-title {
-        color: rgba(255, 255, 255, 0.9);
+        color: #BB86FC;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         padding: 1rem 1.2rem 0.5rem;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
     }
 
     .nav-item-danger {
-        color: #FFD4D4;
+        color: #ff6b9d;
     }
 
     .nav-item-danger:hover {
-        background: rgba(255, 51, 51, 0.3);
-        color: white;
+        background: rgba(255, 107, 157, 0.15);
+        color: #ff6b9d;
+        border-left-color: #ff6b9d;
     }
 
     /* Scrollbar personalizada */
@@ -223,16 +262,16 @@
     }
 
     .sidebar::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.4);
     }
 
     .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
+        background: #BB86FC;
+        border-radius: 10px;
     }
 
     .sidebar::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.5);
+        background: #03DAC6;
     }
 
     /* Responsive */

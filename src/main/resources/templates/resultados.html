@@ -18,7 +18,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #0A0E27;
+            background: #282828;
             color: white;
             font-family: Arial, sans-serif;
         }
@@ -39,18 +39,17 @@
         .page-title {
             font-size: 64px;
             font-weight: 900;
-            color: #ffffff;
             margin: 0 0 2rem 0;
             letter-spacing: -2px;
-            text-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 4px 20px rgba(3, 218, 198, 0.5);
         }
 
         .jornada-selector {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #6200EE 0%, #3700B3 100%);
             border: none;
             border-radius: 16px;
             padding: 14px 24px;
@@ -60,19 +59,19 @@
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+            box-shadow: 0 6px 20px rgba(98, 0, 238, 0.4);
             transition: all 0.3s ease;
         }
 
         .jornada-selector:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
-            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            box-shadow: 0 10px 30px rgba(187, 134, 252, 0.6);
+            background: linear-gradient(135deg, #7c3aed 0%, #BB86FC 100%);
         }
 
         .jornada-selector:focus {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.5);
         }
 
         .jornada-selector option {
@@ -94,17 +93,21 @@
         }
 
         .partido-card {
-            background: linear-gradient(135deg, #D946A6 0%, #8B2A8B 50%, #6B1515 100%);
+            background: linear-gradient(135deg, #6200EE 0%, #3700B3 50%, #1a1a2e 100%);
             border-radius: 20px;
             padding: 2rem;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.3);
+            box-shadow: 0 5px 25px rgba(98, 0, 238, 0.3);
+            border: 1px solid rgba(187, 134, 252, 0.2);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+        }
+
+        .partido-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(187, 134, 252, 0.4);
+            border-color: rgba(187, 134, 252, 0.4);
         }
 
         .partido-card::before {
@@ -114,14 +117,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
             pointer-events: none;
         }
 
-        .partido-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(255, 51, 102, 0.5);
-        }
 
         .equipo-section {
             display: flex;
