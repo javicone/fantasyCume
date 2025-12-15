@@ -62,10 +62,21 @@ public class JornadaController {
      * Si existe ya al menos una jornada y force != true, se aborta para evitar duplicados.
      */
     @RequestMapping(path = "/jornada/generar", method = {RequestMethod.GET, RequestMethod.POST})
-    @Transactional
     public String generarJornadas(@RequestParam Long ligaId,
                                   @RequestParam(required = false, defaultValue = "false") boolean force,
                                   RedirectAttributes redirectAttributes) {
+        try {
+            return generarJornadasTransactional(ligaId, force, redirectAttributes);
+        } catch (Exception e) {
+            log.error("Error al generar jornadas para ligaId=" + ligaId, e);
+            redirectAttributes.addFlashAttribute("message", "Error al generar jornadas: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "danger");
+            return "redirect:/liga/" + ligaId + "/clasificacion";
+        }
+    }
+
+    @Transactional
+    private String generarJornadasTransactional(Long ligaId, boolean force, RedirectAttributes redirectAttributes) {
         // Validaciones básicas
         if (ligaId == null || ligaId <= 0) {
             redirectAttributes.addFlashAttribute("message", "ID de liga inválido");
@@ -74,14 +85,7 @@ public class JornadaController {
         }
 
         // Obtener liga (lanza excepción si no existe)
-        LigaCume liga;
-        try {
-            liga = ligaService.buscarLigaPorId(ligaId);
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Liga no encontrada: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("messageType", "danger");
-            return "redirect:/liga";
-        }
+        LigaCume liga = ligaService.buscarLigaPorId(ligaId);
 
         // Comprobar si ya existen jornadas
         int jornadasExistentes = jornadaService.contarJornadasPorLiga(ligaId);
@@ -92,44 +96,24 @@ public class JornadaController {
                 return "redirect:/liga/" + ligaId + "/clasificacion";
             }
 
-            // force == true -> reseteamos estadísticas y resultados (no eliminar jornadas)
-            try {
-                estadisticaService.resetEstadisticasYResultadosDeLiga(ligaId);
-            } catch (Exception e) {
-                redirectAttributes.addFlashAttribute("message", "Error al resetear estadísticas: " + e.getMessage());
-                redirectAttributes.addFlashAttribute("messageType", "danger");
-                return "redirect:/liga/" + ligaId + "/clasificacion";
-            }
+            // force == true -> reseteamos estadísticas y resultados
+            estadisticaService.resetEstadisticasYResultadosDeLiga(ligaId);
 
             // BORRAR alineaciones de todas las jornadas de la liga
-            try {
-                List<Jornada> existentes = jornadaService.listarJornadasPorLiga(ligaId);
-                for (Jornada j : existentes) {
-                    // borrar alineaciones de la jornada
-                    List<com.example.Liga_Del_Cume.data.model.Alineacion> alineaciones = alineacionRepository.findByJornadaIdJornada(j.getIdJornada());
-                    if (alineaciones != null && !alineaciones.isEmpty()) {
-                        alineacionRepository.deleteAll(alineaciones);
-                    }
+            List<Jornada> existentes = jornadaService.listarJornadasPorLiga(ligaId);
+            for (Jornada j : existentes) {
+                // borrar alineaciones de la jornada
+                List<com.example.Liga_Del_Cume.data.model.Alineacion> alineaciones = alineacionRepository.findByJornadaIdJornada(j.getIdJornada());
+                if (alineaciones != null && !alineaciones.isEmpty()) {
+                    alineacionRepository.deleteAll(alineaciones);
                 }
-            } catch (Exception e) {
-                redirectAttributes.addFlashAttribute("message", "Error al borrar alineaciones: " + e.getMessage());
-                redirectAttributes.addFlashAttribute("messageType", "danger");
-                return "redirect:/liga/" + ligaId + "/clasificacion";
             }
 
-            // Ahora intentamos eliminar las jornadas existentes (y sus partidos)
-            try {
-                List<Jornada> existentes = jornadaService.listarJornadasPorLiga(ligaId);
-                for (Jornada j : existentes) {
-                    jornadaService.eliminarJornada(j.getIdJornada());
-                }
-            } catch (Exception e) {
-                redirectAttributes.addFlashAttribute("message", "No se pueden eliminar las jornadas existentes: " + e.getMessage());
-                redirectAttributes.addFlashAttribute("messageType", "danger");
-                return "redirect:/liga/" + ligaId + "/clasificacion";
+            // Ahora eliminamos las jornadas existentes (y sus partidos)
+            existentes = jornadaService.listarJornadasPorLiga(ligaId);
+            for (Jornada j : existentes) {
+                jornadaService.eliminarJornada(j.getIdJornada());
             }
-
-            // seguimos adelante: al haber eliminado jornadas, procedemos a generar de nuevo (no retornamos aquí)
         }
 
         // Si no hay jornadas, seguimos con la generación normal (creación de jornadas y partidos)

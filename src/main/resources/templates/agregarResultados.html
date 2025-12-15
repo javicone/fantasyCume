@@ -118,13 +118,11 @@
         }
 
         .equipo-escudo {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 10px;
             object-fit: contain;
             margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px;
         }
 
         .equipo-nombre {
@@ -177,7 +175,7 @@
             <select class="jornada-selector" id="jornadaSelector" th:if="${jornadas != null and !jornadas.isEmpty()}">
                 <option th:each="jornada : ${jornadas}"
                         th:value="${jornada.idJornada}"
-                        th:text="'Jornada ' + ${jornada.numeroJornada}"
+                        th:text="${jornada.idJornada == jornadaSeleccionada.idJornada ? '✓ JORNADA ' + jornada.numeroJornada : 'JORNADA ' + jornada.numeroJornada}"
                         th:selected="${jornada.idJornada == jornadaSeleccionada.idJornada}">
                 </option>
             </select>

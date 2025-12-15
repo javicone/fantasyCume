@@ -429,10 +429,10 @@
 
             <div class="header-info">
                 <div class="jornada-badge">
-                    ✓ JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
+                    JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
                 </div>
                 <div class="dinero-badge">
-                    Dinero: <span id="presupuestoActual" th:text="${#numbers.formatDecimal(presupuestoDisponible / 1000000, 1, 0)} + '.' + ${#numbers.formatDecimal((presupuestoDisponible % 1000000) / 1000, 3, 0)} + '€'">200.000€</span>
+                    Presupuesto disponible: <span id="presupuestoActual" th:text="${#numbers.formatInteger(presupuestoDisponible, 0, 'DEFAULT')} + '€'">200000€</span>
                 </div>
             </div>
         </div>
@@ -661,9 +661,8 @@
         }
 
         function formatearPrecio(precio) {
-            const millones = Math.floor(precio / 1000000);
-            const miles = Math.floor((precio % 1000000) / 1000);
-            return `${millones}.${miles.toString().padStart(3, '0')}€`;
+            // Formatear precio en miles sin decimales
+            return `${precio.toLocaleString('es-ES')}€`;
         }
 
         function guardarAlineacion() {

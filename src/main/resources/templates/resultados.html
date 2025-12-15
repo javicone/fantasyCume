@@ -129,16 +129,10 @@
         }
 
         .equipo-escudo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 4px solid white;
-            background: white;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
             object-position: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            padding: 0.5rem;
-            overflow: hidden;
             flex-shrink: 0;
         }
 
@@ -268,7 +262,7 @@
                     <option th:each="jornada : ${jornadas}"
                             th:value="${jornada.idJornada}"
                             th:selected="${jornada.idJornada == jornadaSeleccionada?.idJornada}"
-                            th:text="'✓ JORNADA ' + ${jornada.numeroJornada}">
+                            th:text="${jornada.idJornada == jornadaSeleccionada?.idJornada ? '✓ JORNADA ' + jornada.numeroJornada : 'JORNADA ' + jornada.numeroJornada}">
                         JORNADA 1
                     </option>
                 </select>
@@ -302,8 +296,7 @@
                     </div>
 
                     <!-- Resultado -->
-                    <div class="resultado-section">
-                        <!-- Mostrar goles solo si el partido se ha jugado (al menos un equipo tiene goles o hay estadísticas) -->
+                    <div class="resultado-section"><!-- Mostrar goles solo si el partido se ha jugado (al menos un equipo tiene goles o hay estadísticas) -->
                         <span class="goles" th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
                               th:text="${partido.golesLocal}">1</span>
                         <span class="goles" th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"

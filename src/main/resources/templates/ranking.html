@@ -201,6 +201,53 @@
             box-shadow: 0 18px 52px rgba(205, 127, 50, 0.5);
         }
 
+        /* Estilo especial para el usuario actual (sesión) */
+        .ranking-table tbody tr.current-user {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.6) 0%, rgba(139, 92, 246, 0.5) 50%, rgba(124, 58, 237, 0.4) 100%) !important;
+            border: 3px solid #a855f7 !important;
+            box-shadow: 0 12px 40px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4) !important;
+            transform: scale(1.05) !important;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .ranking-table tbody tr.current-user td {
+            font-weight: 900 !important;
+            font-size: 24px !important;
+        }
+
+        .ranking-table tbody tr.current-user td.position {
+            color: #e9d5ff;
+            font-size: 32px !important;
+            text-shadow: 0 0 25px rgba(168, 85, 247, 0.9);
+        }
+
+        .ranking-table tbody tr.current-user td.user {
+            color: #faf5ff;
+            font-size: 26px !important;
+            text-shadow: 0 3px 15px rgba(168, 85, 247, 0.7);
+        }
+
+        .ranking-table tbody tr.current-user td.points {
+            color: #e9d5ff;
+            font-size: 30px !important;
+            text-shadow: 0 0 25px rgba(168, 85, 247, 0.9);
+        }
+
+        .ranking-table tbody tr.current-user:hover {
+            transform: translateY(-8px) scale(1.08) !important;
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.6) !important;
+        }
+
+        /* Animación de pulso y brillo para el usuario actual */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 12px 40px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4);
+            }
+            50% {
+                box-shadow: 0 16px 50px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.6);
+            }
+        }
+
         /* Alineaciones específicas */
         .ranking-table td.position,
         .ranking-table th.position {
@@ -271,7 +318,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="usuario, iterStat : ${usuarios}">
+                    <tr th:each="usuario, iterStat : ${usuarios}"
+                        th:classappend="${usuario != null and usuario.idUsuario != null and usuario.idUsuario == (session.usuario != null ? session.usuario.idUsuario : null)} ? 'current-user' : ''">
                         <td class="position" th:text="${iterStat.index + 1}">1</td>
                         <td class="user" th:text="${usuario.nombreUsuario}">Usuario</td>
                         <td class="points" th:text="${usuario.puntosAcumulados}">0</td>

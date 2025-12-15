@@ -51,6 +51,7 @@ public class AlineacionController {
             @PathVariable("ligaId") Long ligaId,
             @RequestParam(value = "usuarioId", required = false) Long usuarioId,
             Model model,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -60,18 +61,33 @@ public class AlineacionController {
             // Calcular próxima jornada: la primera que no tiene resultados agregados
             Long proximaJornadaNumero = calcularProximaJornada(jornadas);
 
-            // Obtener usuario
-            Usuario usuario;
-            if (usuarioId == null) {
+            // Obtener usuario: primero de sesión, luego del parámetro, finalmente el primer usuario de la liga
+            Usuario usuario = null;
+
+            // Intentar obtener de la sesión
+            if (session != null) {
+                Object usuarioObj = session.getAttribute("usuario");
+                if (usuarioObj instanceof Usuario) {
+                    Usuario usuarioSession = (Usuario) usuarioObj;
+                    usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
+                            .orElse(null);
+                }
+            }
+
+            // Si no hay en sesión, intentar del parámetro
+            if (usuario == null && usuarioId != null) {
+                usuario = usuarioRepository.findById(usuarioId)
+                        .orElse(null);
+            }
+
+            // Si aún no hay usuario, usar el primer usuario de la liga
+            if (usuario == null) {
                 List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
                 if (usuarios.isEmpty()) {
                     model.addAttribute("mensaje", "No hay usuarios en esta liga");
                     return "alineacionFutura";
                 }
                 usuario = usuarios.get(0);
-            } else {
-                usuario = usuarioRepository.findById(usuarioId)
-                    .orElseThrow(() -> new Exception("Usuario no encontrado"));
             }
 
             // Obtener el nombre y presupuesto de la liga
@@ -225,32 +241,48 @@ public class AlineacionController {
     @PostMapping("/alineacion-futura/guardar")
     public String guardarAlineacionFutura(
             @PathVariable("ligaId") Long ligaId,
-            // Eliminamos @RequestParam("usuarioId") porque lo sacamos de la sesión por seguridad
+            @RequestParam(value = "usuarioId", required = false) Long usuarioIdParam,
             @RequestParam("portero") Long porteroId,
             @RequestParam("jugador1") Long jugador1Id,
             @RequestParam("jugador2") Long jugador2Id,
             @RequestParam("jugador3") Long jugador3Id,
             @RequestParam("jugador4") Long jugador4Id,
-            HttpSession session, // <--- IMPORTANTE: Inyectamos la sesión
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
-            // 1. OBTENER USUARIO DE LA SESIÓN (SEGURIDAD)
-            Usuario usuarioSession = (Usuario) session.getAttribute("usuario");
+            // 1. OBTENER USUARIO: primero de sesión, luego del parámetro, finalmente el primero de la liga
+            Usuario usuario = null;
 
-            if (usuarioSession == null) {
-                redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para guardar la alineación.");
-                return "redirect:/";
+            // Intentar obtener de la sesión
+            if (session != null) {
+                Object usuarioObj = session.getAttribute("usuario");
+                if (usuarioObj instanceof Usuario) {
+                    Usuario usuarioSession = (Usuario) usuarioObj;
+                    usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
+                            .orElse(null);
+                }
             }
 
-            // Refrescamos el usuario desde la BD para asegurar que está "vivo" en Hibernate
-            // y evitar errores de LazyLoading o entidades detatched.
-            Usuario usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
-                    .orElseThrow(() -> new Exception("Usuario no encontrado en base de datos"));
+            // Si no hay en sesión, intentar del parámetro
+            if (usuario == null && usuarioIdParam != null) {
+                usuario = usuarioRepository.findById(usuarioIdParam)
+                        .orElse(null);
+            }
+
+            // Si aún no hay usuario, usar el primer usuario de la liga
+            if (usuario == null) {
+                List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
+                if (usuarios.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "No hay usuarios en esta liga. Crea un usuario primero.");
+                    return "redirect:/liga/" + ligaId + "/alineacion-futura";
+                }
+                usuario = usuarios.get(0);
+            }
 
             // 2. VALIDAR QUE EL USUARIO PERTENECE A LA LIGA
             if (usuario.getLiga() == null || !usuario.getLiga().getIdLigaCume().equals(ligaId)) {
-                redirectAttributes.addFlashAttribute("error", "No puedes guardar alineación en una liga a la que no perteneces.");
+                redirectAttributes.addFlashAttribute("error", "El usuario no pertenece a esta liga.");
                 return "redirect:/liga/" + ligaId + "/alineacion-futura";
             }
 
@@ -373,9 +405,10 @@ public class AlineacionController {
     @GetMapping("/historial")
     public String mostrarHistorialAlineaciones(
             @PathVariable("ligaId") Long ligaId,
-            @RequestParam(value = "usuarioId") Long usuarioId,
+            @RequestParam(value = "usuarioId", required = false) Long usuarioId,
             @RequestParam(value = "jornadaId", required = false) Long jornadaId,
             Model model,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -398,10 +431,25 @@ public class AlineacionController {
                     .orElse(jornadas.get(0));
             }
 
-            // Por ahora, usar el primer usuario si no se especifica
-            // TODO: En el futuro, obtener de la sesión
-            Usuario usuario;
-            if (usuarioId == null) {
+            // Obtener usuario: primero intentar del parámetro, luego de la sesión, finalmente el primer usuario de la liga
+            Usuario usuario = null;
+
+            if (usuarioId != null) {
+                // Si se proporciona usuarioId en el parámetro, usarlo
+                usuario = usuarioRepository.findById(usuarioId)
+                    .orElse(null);
+            }
+
+            if (usuario == null && session != null) {
+                // Intentar obtener de la sesión
+                Object usuarioObj = session.getAttribute("usuario");
+                if (usuarioObj instanceof Usuario) {
+                    usuario = (Usuario) usuarioObj;
+                }
+            }
+
+            if (usuario == null) {
+                // Como último recurso, usar el primer usuario de la liga
                 List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
                 if (usuarios.isEmpty()) {
                     model.addAttribute("mensaje", "No hay usuarios en esta liga");
@@ -410,9 +458,6 @@ public class AlineacionController {
                     return "historialAlineaciones";
                 }
                 usuario = usuarios.get(0);
-            } else {
-                usuario = usuarioRepository.findById(usuarioId)
-                    .orElseThrow(() -> new Exception("Usuario no encontrado"));
             }
 
             // Obtener la alineación del usuario para la jornada
@@ -426,6 +471,7 @@ public class AlineacionController {
                 // Separar portero y jugadores de campo
                 Jugador portero = null;
                 List<JugadorConEstadisticas> jugadoresCampo = new ArrayList<>();
+                int puntosTotalesCalculados = 0; // Calcular puntos totales dinámicamente
 
                 for (Jugador jugador : alineacion.getJugadores()) {
                     // Obtener estadísticas del jugador para esta jornada
@@ -436,6 +482,11 @@ public class AlineacionController {
                     JugadorConEstadisticas jugadorConStats = new JugadorConEstadisticas(
                         jugador, stats
                     );
+
+                    // Sumar puntos si el jugador ha jugado
+                    if (stats.haJugado) {
+                        puntosTotalesCalculados += stats.puntos;
+                    }
 
                     if (jugador.isEsPortero()) {
                         portero = jugador;
@@ -449,7 +500,7 @@ public class AlineacionController {
                 asignarPosicionesJugadores(jugadoresCampo, model);
 
                 model.addAttribute("alineacion", alineacion);
-                model.addAttribute("puntosTotales", alineacion.getPuntosTotalesJornada());
+                model.addAttribute("puntosTotales", puntosTotalesCalculados); // Usar puntos calculados dinámicamente
                 model.addAttribute("dineroGastado", calcularDineroGastado(alineacion));
 
             } else {
