@@ -61,7 +61,7 @@ public class AlineacionController {
             // Calcular próxima jornada: la primera que no tiene resultados agregados
             Long proximaJornadaNumero = calcularProximaJornada(jornadas);
 
-            // Obtener usuario: primero de sesión, luego del parámetro, finalmente el primer usuario de la liga
+            // Obtener usuario: primero de sesión, luego del parámetro
             Usuario usuario = null;
 
             // Intentar obtener de la sesión
@@ -71,6 +71,10 @@ public class AlineacionController {
                     Usuario usuarioSession = (Usuario) usuarioObj;
                     usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
                             .orElse(null);
+                    System.out.println("🔍 [ALINEACION FUTURA] Usuario de SESIÓN: " +
+                        (usuario != null ? usuario.getNombreUsuario() + " (ID: " + usuario.getIdUsuario() + ")" : "null"));
+                } else {
+                    System.out.println("⚠️ [ALINEACION FUTURA] No hay usuario en sesión");
                 }
             }
 
@@ -78,16 +82,21 @@ public class AlineacionController {
             if (usuario == null && usuarioId != null) {
                 usuario = usuarioRepository.findById(usuarioId)
                         .orElse(null);
+                System.out.println("🔍 [ALINEACION FUTURA] Usuario del PARÁMETRO: " +
+                    (usuario != null ? usuario.getNombreUsuario() + " (ID: " + usuario.getIdUsuario() + ")" : "null"));
+
+                // Si encontramos usuario por parámetro, guardarlo en sesión
+                if (usuario != null && session != null) {
+                    session.setAttribute("usuario", usuario);
+                    System.out.println("✅ [ALINEACION FUTURA] Usuario guardado en sesión");
+                }
             }
 
-            // Si aún no hay usuario, usar el primer usuario de la liga
+            // Si aún no hay usuario, redirigir al login
             if (usuario == null) {
-                List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
-                if (usuarios.isEmpty()) {
-                    model.addAttribute("mensaje", "No hay usuarios en esta liga");
-                    return "alineacionFutura";
-                }
-                usuario = usuarios.get(0);
+                System.out.println("❌ [ALINEACION FUTURA] No hay usuario. Redirigiendo a login.");
+                redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para crear una alineación.");
+                return "redirect:/";
             }
 
             // Obtener el nombre y presupuesto de la liga
@@ -169,6 +178,7 @@ public class AlineacionController {
 
     /**
      * Obtiene la lista de jugadores disponibles para una posición
+     * Solo muestra jugadores de equipos que juegan en la próxima jornada
      */
     @GetMapping("/alineacion-futura/jugadores")
     @ResponseBody
@@ -179,6 +189,34 @@ public class AlineacionController {
 
         // Determinar si la posición es portero
         boolean esPortero = "portero".equalsIgnoreCase(posicion);
+
+        // Obtener la próxima jornada
+        List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
+        Jornada proximaJornada = null;
+
+        if (!jornadas.isEmpty()) {
+            jornadas.sort((j1, j2) -> j1.getNumeroJornada().compareTo(j2.getNumeroJornada()));
+            for (Jornada j : jornadas) {
+                if (jornadaSinResultados(j)) {
+                    proximaJornada = j;
+                    break;
+                }
+            }
+        }
+
+        // Obtener equipos que juegan en la próxima jornada
+        List<Long> equiposQueJuegan = new ArrayList<>();
+        if (proximaJornada != null) {
+            List<Partido> partidos = partidoRepository.findByJornadaIdJornada(proximaJornada.getIdJornada());
+            for (Partido partido : partidos) {
+                if (partido.getEquipoLocal() != null) {
+                    equiposQueJuegan.add(partido.getEquipoLocal().getIdEquipo());
+                }
+                if (partido.getEquipoVisitante() != null) {
+                    equiposQueJuegan.add(partido.getEquipoVisitante().getIdEquipo());
+                }
+            }
+        }
 
         // Obtener jugadores según la posición
         List<Jugador> jugadores;
@@ -204,7 +242,12 @@ public class AlineacionController {
         // Convertir a DTO y calcular puntos totales
         List<JugadorDisponible> jugadoresDisponibles = new ArrayList<>();
         for (Jugador jugador : jugadores) {
-            if (!idsSeleccionados.contains(jugador.getIdJugador())) {
+            // Solo incluir jugadores cuyo equipo juega en la próxima jornada
+            boolean equipoJuega = equiposQueJuegan.isEmpty() ||
+                                 (jugador.getEquipo() != null &&
+                                  equiposQueJuegan.contains(jugador.getEquipo().getIdEquipo()));
+
+            if (equipoJuega && !idsSeleccionados.contains(jugador.getIdJugador())) {
                 int puntosTotal = calcularPuntosTotalesJugador(jugador);
                 jugadoresDisponibles.add(new JugadorDisponible(
                     jugador.getIdJugador(),
@@ -251,8 +294,12 @@ public class AlineacionController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // 1. OBTENER USUARIO: primero de sesión, luego del parámetro, finalmente el primero de la liga
+            // 1. OBTENER USUARIO: primero de sesión, luego del parámetro
             Usuario usuario = null;
+
+            System.out.println("\n========== GUARDAR ALINEACIÓN ==========");
+            System.out.println("📋 Liga ID: " + ligaId);
+            System.out.println("📋 Usuario Param: " + usuarioIdParam);
 
             // Intentar obtener de la sesión
             if (session != null) {
@@ -261,6 +308,10 @@ public class AlineacionController {
                     Usuario usuarioSession = (Usuario) usuarioObj;
                     usuario = usuarioRepository.findById(usuarioSession.getIdUsuario())
                             .orElse(null);
+                    System.out.println("🔍 [GUARDAR] Usuario de SESIÓN: " +
+                        (usuario != null ? usuario.getNombreUsuario() + " (ID: " + usuario.getIdUsuario() + ")" : "null"));
+                } else {
+                    System.out.println("⚠️ [GUARDAR] No hay usuario en sesión");
                 }
             }
 
@@ -268,17 +319,27 @@ public class AlineacionController {
             if (usuario == null && usuarioIdParam != null) {
                 usuario = usuarioRepository.findById(usuarioIdParam)
                         .orElse(null);
+                System.out.println("🔍 [GUARDAR] Usuario del PARÁMETRO: " +
+                    (usuario != null ? usuario.getNombreUsuario() + " (ID: " + usuario.getIdUsuario() + ")" : "null"));
+
+                // Si encontramos usuario por parámetro, guardarlo en sesión
+                if (usuario != null && session != null) {
+                    session.setAttribute("usuario", usuario);
+                    System.out.println("✅ [GUARDAR] Usuario guardado en sesión");
+                }
             }
 
-            // Si aún no hay usuario, usar el primer usuario de la liga
+            // Si aún no hay usuario, redirigir al login
             if (usuario == null) {
-                List<Usuario> usuarios = usuarioRepository.findByLigaIdLigaCume(ligaId);
-                if (usuarios.isEmpty()) {
-                    redirectAttributes.addFlashAttribute("error", "No hay usuarios en esta liga. Crea un usuario primero.");
-                    return "redirect:/liga/" + ligaId + "/alineacion-futura";
-                }
-                usuario = usuarios.get(0);
+                System.out.println("❌ [GUARDAR] NO SE ENCONTRÓ USUARIO. Redirigiendo a login.");
+                System.out.println("==========================================\n");
+                redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para guardar una alineación.");
+                return "redirect:/";
             }
+
+            System.out.println("✅ [GUARDAR] Alineación será guardada para: " +
+                usuario.getNombreUsuario() + " (ID: " + usuario.getIdUsuario() + ")");
+            System.out.println("==========================================\n");
 
             // 2. VALIDAR QUE EL USUARIO PERTENECE A LA LIGA
             if (usuario.getLiga() == null || !usuario.getLiga().getIdLigaCume().equals(ligaId)) {

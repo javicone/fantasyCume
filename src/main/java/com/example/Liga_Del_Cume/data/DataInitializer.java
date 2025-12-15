@@ -307,26 +307,51 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void simularAlineacionesUsuarios(List<Usuario> usuarios, Jornada jornada) {
-        // Obtenemos todos los jugadores disponibles en la BBDD para elegir al azar
+        // Obtenemos todos los jugadores disponibles en la BBDD
         List<Jugador> todosJugadores = jugadorRepository.findAll();
+
+        // Separar porteros y jugadores de campo
+        List<Jugador> porteros = todosJugadores.stream()
+                .filter(Jugador::isEsPortero)
+                .collect(Collectors.toList());
+        List<Jugador> jugadoresCampo = todosJugadores.stream()
+                .filter(j -> !j.isEsPortero())
+                .collect(Collectors.toList());
 
         for (Usuario usuario : usuarios) {
             Alineacion alineacion = new Alineacion();
             alineacion.setUsuario(usuario);
             alineacion.setJornada(jornada);
 
-            // Seleccionar 5 jugadores aleatorios diferentes
-            Collections.shuffle(todosJugadores);
-            List<Jugador> seleccionados = todosJugadores.stream().limit(5).collect(Collectors.toList());
+            // Seleccionar SIEMPRE 1 portero
+            Collections.shuffle(porteros);
+            if (porteros.isEmpty()) {
+                System.err.println("⚠️ No hay porteros disponibles para la alineación");
+                continue;
+            }
+            Jugador porteroSeleccionado = porteros.get(0);
+            alineacion.getJugadores().add(porteroSeleccionado);
 
-            alineacion.getJugadores().addAll(seleccionados);
+            // Seleccionar 4 jugadores de campo aleatorios diferentes
+            Collections.shuffle(jugadoresCampo);
+            List<Jugador> jugadoresSeleccionados = jugadoresCampo.stream()
+                    .limit(4)
+                    .collect(Collectors.toList());
+
+            if (jugadoresSeleccionados.size() < 4) {
+                System.err.println("⚠️ No hay suficientes jugadores de campo disponibles");
+                continue;
+            }
+
+            alineacion.getJugadores().addAll(jugadoresSeleccionados);
 
             // Calcular puntos basados en las estadísticas ya generadas
             int totalPuntos = 0;
-            for (Jugador j : seleccionados) {
-                // Buscar la estadística de este jugador en esta jornada (a través del partido)
-                // Nota: Esto asume que el jugador jugó en esa jornada. Como simulamos liga completa, sí jugó.
-                // En SQL real sería más directo, aquí filtramos en memoria por simplicidad del script
+            List<Jugador> todosSeleccionados = new ArrayList<>();
+            todosSeleccionados.add(porteroSeleccionado);
+            todosSeleccionados.addAll(jugadoresSeleccionados);
+
+            for (Jugador j : todosSeleccionados) {
                 List<EstadisticaJugadorPartido> stats = estadisticaRepository.findByJugadorIdJugador(j.getIdJugador());
                 for (EstadisticaJugadorPartido stat : stats) {
                     if (stat.getPartido().getJornada().getIdJornada().equals(jornada.getIdJornada())) {
