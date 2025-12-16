@@ -18,7 +18,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #0A0E27;
+            background: #282828;
             color: white;
             font-family: Arial, sans-serif;
         }
@@ -37,16 +37,15 @@
         }
 
         .page-title {
-            font-size: 64px;
+            font-size: 48px;
             font-weight: 900;
-            color: #ffffff;
             margin: 0 0 2rem 0;
-            letter-spacing: -2px;
-            text-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 4px 20px rgba(3, 218, 198, 0.5);
         }
 
         .btn-volver {
@@ -63,58 +62,56 @@
         }
 
         .btn-volver:hover {
-            background: rgba(217, 70, 166, 0.3);
-            border-color: #D946A6;
+            background: rgba(98, 0, 238, 0.3);
+            border-color: #BB86FC;
             color: white;
+            box-shadow: 0 4px 12px rgba(98, 0, 238, 0.4);
         }
 
         .marcador-partido {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, rgba(109, 21, 21, 0.3), rgba(217, 70, 166, 0.2));
-            border-radius: 20px;
+            gap: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.3), rgba(187, 134, 252, 0.2));
+            border-radius: 16px;
             margin-bottom: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.4);
         }
 
         .equipo-marcador {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
         }
 
         .escudo-grande {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
 
         .nombre-equipo-marcador {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             text-align: center;
-            color: #FFD700;
+            color: #03DAC6;
         }
 
         .goles-marcador {
-            font-size: 64px;
+            font-size: 42px;
             font-weight: 800;
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
         .vs-marcador {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
-            color: #D946A6;
+            color: #BB86FC;
         }
 
         .equipos-container {
@@ -125,10 +122,11 @@
         }
 
         .equipo-section {
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.15), rgba(187, 134, 252, 0.1));
             border-radius: 15px;
             padding: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            box-shadow: 0 4px 16px rgba(98, 0, 238, 0.2);
         }
 
         .equipo-section-header {
@@ -136,43 +134,48 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(217, 70, 166, 0.3);
+            padding: 15px;
+            background: linear-gradient(135deg, #6200EE 0%, #BB86FC 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(98, 0, 238, 0.4);
         }
 
         .escudo-pequeño {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: contain;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
+            background: transparent;
             padding: 5px;
         }
 
         .equipo-section-title {
             font-size: 24px;
             font-weight: 700;
-            color: #D946A6;
+            color: #ffffff;
             margin: 0;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .jugador-item {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.2), rgba(187, 134, 252, 0.15));
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border: 2px solid rgba(187, 134, 252, 0.3);
         }
 
         .jugador-item:hover {
-            background: rgba(217, 70, 166, 0.2);
-            border-color: #D946A6;
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.3), rgba(187, 134, 252, 0.25));
+            border-color: #BB86FC;
+            box-shadow: 0 4px 16px rgba(98, 0, 238, 0.4);
         }
 
         .jugador-item.selected {
-            background: rgba(217, 70, 166, 0.3);
-            border-color: #D946A6;
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.4), rgba(187, 134, 252, 0.3));
+            border-color: #6200EE;
+            box-shadow: 0 4px 16px rgba(98, 0, 238, 0.5);
         }
 
         .jugador-header {
@@ -187,7 +190,7 @@
             height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #D946A6;
+            border: 2px solid #BB86FC;
         }
 
         .jugador-nombre {
@@ -197,8 +200,8 @@
         }
 
         .jugador-puntos {
-            background: #FFD700;
-            color: #0A0E27;
+            background: #03DAC6;
+            color: #282828;
             padding: 6px 15px;
             border-radius: 20px;
             font-weight: 700;
@@ -246,8 +249,9 @@
 
         .stat-input:focus {
             outline: none;
-            border-color: #D946A6;
-            background: rgba(255, 255, 255, 0.15);
+            border-color: #BB86FC;
+            background: rgba(98, 0, 238, 0.2);
+            box-shadow: 0 0 8px rgba(187, 134, 252, 0.5);
         }
 
         .stat-checkbox {
@@ -274,7 +278,7 @@
         }
 
         .btn-guardar {
-            background: linear-gradient(135deg, #D946A6, #FF3366);
+            background: linear-gradient(135deg, #6200EE, #BB86FC);
             border: none;
             color: white;
             padding: 15px 40px;
@@ -285,11 +289,12 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 30px;
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.5);
         }
 
         .btn-guardar:hover {
             transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(217, 70, 166, 0.5);
+            box-shadow: 0 12px 36px rgba(98, 0, 238, 0.7);
         }
 
         @media (max-width: 768px) {
