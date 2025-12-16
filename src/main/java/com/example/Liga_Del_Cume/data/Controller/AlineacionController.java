@@ -102,7 +102,7 @@ public class AlineacionController {
             // Obtener el nombre y presupuesto de la liga
             LigaCume ligaObj = ligaService.buscarLigaPorId(ligaId);
             String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
-            Long presupuestoMaximo = ligaObj != null ? ligaObj.getPresupuestoMaximo() : 100000000L;
+            Long presupuestoMaximo = ligaObj != null ? ligaObj.getPresupuestoMaximo() : 500000L;
 
             // Pasar datos al modelo
             model.addAttribute("proximaJornada", proximaJornadaNumero);

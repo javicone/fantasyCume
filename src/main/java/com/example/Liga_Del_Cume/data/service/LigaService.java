@@ -38,9 +38,9 @@ public class LigaService {
         LigaCume liga = new LigaCume();
         liga.setNombreLiga(nombre);
 
-        if( presupuesto < 1000000)
+        if( presupuesto < 500000)
         {
-            liga.setPresupuestoMaximo(1000000L);
+            liga.setPresupuestoMaximo(500000L);
         }
         else {
             liga.setPresupuestoMaximo(presupuesto);
@@ -140,8 +140,8 @@ public class LigaService {
         liga.setNombreLiga(nombreLimpio);
 
         // Establecer presupuesto mínimo si es muy bajo
-        if (presupuestoMaximo < 1000000) {
-            liga.setPresupuestoMaximo(1000000L);
+        if (presupuestoMaximo < 500000) {
+            liga.setPresupuestoMaximo(500000L);
         } else {
             liga.setPresupuestoMaximo(presupuestoMaximo.longValue());
         }
@@ -223,8 +223,8 @@ public class LigaService {
                 throw new LigaException("El presupuesto debe ser mayor a 0");
             }
 
-            if (nuevoPresupuesto < 1000000) {
-                liga.setPresupuestoMaximo(1000000L);
+            if (nuevoPresupuesto < 500000) {
+                liga.setPresupuestoMaximo(500000L);
             } else {
                 liga.setPresupuestoMaximo(nuevoPresupuesto.longValue());
             }
@@ -240,7 +240,7 @@ public class LigaService {
      * permitido para los managers de la liga sin modificar otros datos.
      *
      * @param ligaId ID de la liga a modificar
-     * @param nuevoPresupuesto Nuevo presupuesto máximo (mínimo 1.000.000€)
+     * @param nuevoPresupuesto Nuevo presupuesto máximo (mínimo 500.000€)
      * @return La liga con el presupuesto actualizado
      * @throws LigaException si la liga no existe o el presupuesto es inválido
      */
@@ -259,8 +259,8 @@ public class LigaService {
             throw new LigaException("El presupuesto debe ser mayor a 0");
         }
 
-        if (nuevoPresupuesto < 1000000) {
-            throw new LigaException("El presupuesto mínimo es de 1.000.000€");
+        if (nuevoPresupuesto < 500000) {
+            throw new LigaException("El presupuesto mínimo es de 500.000€");
         }
 
         // Actualizar el presupuesto
