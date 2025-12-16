@@ -58,6 +58,24 @@ public class AlineacionController {
             // Obtener jornadas de la liga
             List<Jornada> jornadas = jornadaRepository.findByLigaIdLigaCume(ligaId);
 
+            // Verificar si la liga ha terminado (todas las jornadas jugadas)
+            boolean ligaFinalizada = !jornadas.isEmpty() && todasLasJornadasJugadas(jornadas);
+
+            if (ligaFinalizada) {
+                System.out.println("🏁 [ALINEACION FUTURA] Liga finalizada. Todas las jornadas han sido jugadas.");
+                model.addAttribute("ligaFinalizada", true);
+                model.addAttribute("mensajeFinal", "La liga ha finalizado. Todas las jornadas han sido jugadas y no se pueden añadir más alineaciones.");
+                model.addAttribute("ligaId", ligaId);
+                model.addAttribute("currentPage", "alineacion");
+
+                // Obtener el nombre de la liga
+                LigaCume ligaObj = ligaService.buscarLigaPorId(ligaId);
+                String nombreLiga = ligaObj != null ? ligaObj.getNombreLiga() : "Mis Ligas";
+                model.addAttribute("nombreLiga", nombreLiga);
+
+                return "alineacionFutura";
+            }
+
             // Calcular próxima jornada: la primera que no tiene resultados agregados
             Long proximaJornadaNumero = calcularProximaJornada(jornadas);
 
@@ -174,6 +192,25 @@ public class AlineacionController {
         }
 
         return true; // Todos los partidos están sin jugar
+    }
+
+    /**
+     * Verifica si todas las jornadas de la liga han sido jugadas
+     * Retorna true si todos los partidos de todas las jornadas tienen resultados
+     */
+    private boolean todasLasJornadasJugadas(List<Jornada> jornadas) {
+        if (jornadas.isEmpty()) {
+            return false; // Si no hay jornadas, la liga no ha terminado
+        }
+
+        // Verificar que todas las jornadas tengan resultados
+        for (Jornada jornada : jornadas) {
+            if (jornadaSinResultados(jornada)) {
+                return false; // Si encontramos una jornada sin resultados, la liga no ha terminado
+            }
+        }
+
+        return true; // Todas las jornadas tienen resultados, la liga ha terminado
     }
 
     /**

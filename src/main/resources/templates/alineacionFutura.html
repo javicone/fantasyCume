@@ -447,18 +447,73 @@
     <!-- Contenido principal -->
     <div class="main-content">
         <!-- Header -->
-        <div class="header-section">
-            <h1 class="page-title">Alineación Futura</h1>
+        <h1 class="page-title">Alineación Futura</h1>
 
-            <div class="header-info">
-                <div class="jornada-badge">
-                    JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
-                </div>
-                <div class="dinero-badge">
-                    Presupuesto disponible: <span id="presupuestoActual" th:text="${#numbers.formatInteger(presupuestoDisponible, 0, 'DEFAULT')} + '€'">200000€</span>
-                </div>
+        <!-- Mensaje de liga finalizada centrado -->
+        <div th:if="${ligaFinalizada}" style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+            padding: 2rem;
+        ">
+            <div style="
+                max-width: 800px;
+                width: 100%;
+                background: linear-gradient(135deg, #6200EE 0%, #BB86FC 100%);
+                border-radius: 20px;
+                padding: 3rem;
+                text-align: center;
+                box-shadow: 0 10px 40px rgba(98, 0, 238, 0.5);
+                border: 3px solid rgba(187, 134, 252, 0.5);
+            ">
+                <i class="bi bi-trophy-fill" style="font-size: 5rem; color: #FFD700; margin-bottom: 1rem; display: block;"></i>
+                <h2 style="
+                    font-size: 2.5rem;
+                    font-weight: 900;
+                    color: white;
+                    margin-bottom: 1rem;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                ">🏁 LIGA FINALIZADA</h2>
+                <p style="
+                    font-size: 1.3rem;
+                    color: white;
+                    margin-bottom: 2rem;
+                    line-height: 1.6;
+                " th:text="${mensajeFinal}">
+                    La liga ha finalizado. Todas las jornadas han sido jugadas y no se pueden añadir más alineaciones.
+                </p>
+                <a th:href="@{/liga/{id}/ranking(id=${ligaId})}" style="
+                    display: inline-block;
+                    padding: 1rem 2.5rem;
+                    background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
+                    color: #282828;
+                    text-decoration: none;
+                    border-radius: 15px;
+                    font-weight: 900;
+                    font-size: 1.1rem;
+                    text-transform: uppercase;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 5px 20px rgba(3, 218, 198, 0.4);
+                " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 30px rgba(3, 218, 198, 0.6)'"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(3, 218, 198, 0.4)'">
+                    <i class="bi bi-arrow-left-circle"></i> VER RANKING FINAL
+                </a>
             </div>
         </div>
+
+        <div th:unless="${ligaFinalizada}">
+            <div class="header-section">
+                <div class="header-info">
+                    <div class="jornada-badge">
+                        JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
+                    </div>
+                    <div class="dinero-badge">
+                        Presupuesto disponible: <span id="presupuestoActual" th:text="${#numbers.formatInteger(presupuestoDisponible, 0, 'DEFAULT')} + '€'">200000€</span>
+                    </div>
+                </div>
+            </div>
 
         <div class="content-wrapper">
             <!-- Campo de fútbol -->
@@ -529,6 +584,7 @@
                 <i class="bi bi-check-circle"></i> Guardar Cambios
             </button>
         </div>
+        </div> <!-- Cierre de th:unless="${ligaFinalizada}" -->
     </div>
 
     <script th:inline="javascript">
