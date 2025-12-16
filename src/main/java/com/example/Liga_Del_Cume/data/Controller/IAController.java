@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controlador para gestionar las recomendaciones de alineación mediante IA
@@ -31,29 +30,58 @@ public class IAController {
     }
 
     /**
-     * Muestra la página de recomendación de IA con la sugerencia de alineación
+     * Muestra la página inicial con pantalla de carga
+     * La recomendación se carga después mediante AJAX
      *
      * @param ligaId ID de la liga
      * @param usuarioId ID del usuario que solicita la recomendación
      * @param model Modelo para pasar datos a la vista
-     * @param redirectAttributes Atributos para redirección
-     * @return Vista de recomendación IA o redirección en caso de error
+     * @return Vista de recomendación IA con pantalla de carga
      */
     @GetMapping("/alineacion-sugeria")
-    public String mostrarRecomendacionIA(
+    public String mostrarPaginaIA(
             @PathVariable("idLiga") Long ligaId,
             @RequestParam Long usuarioId,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
 
         System.out.println("\t GET /liga/" + ligaId + "/alineacion-sugeria - Usuario ID: " + usuarioId);
+
+        // Obtener información del usuario
+        Usuario usuario = usuarioService.buscarUsuarioPorId(usuarioId);
+        String nombreUsuario = usuario != null ? usuario.getNombreUsuario() : "Usuario";
+
+        // Agregar datos al modelo (la recomendación se cargará con AJAX)
+        model.addAttribute("ligaId", ligaId);
+        model.addAttribute("usuarioId", usuarioId);
+        model.addAttribute("nombreUsuario", nombreUsuario);
+        model.addAttribute("asistenteName", "Guardiol-IA");
+        model.addAttribute("currentPage", "alineacionIA");
+
+        return "alineacionSugerIA";
+    }
+
+    /**
+     * Endpoint AJAX que genera y devuelve la recomendación en formato JSON
+     *
+     * @param ligaId ID de la liga
+     * @param usuarioId ID del usuario
+     * @return ResponseEntity con la recomendación o error en JSON
+     */
+    @GetMapping("/alineacion-sugeria/generar")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<?> generarRecomendacion(
+            @PathVariable("idLiga") Long ligaId,
+            @RequestParam Long usuarioId) {
+
+        System.out.println("\t AJAX GET /liga/" + ligaId + "/alineacion-sugeria/generar - Usuario ID: " + usuarioId);
 
         try {
             // Obtener información del usuario
             Usuario usuario = usuarioService.buscarUsuarioPorId(usuarioId);
             if (usuario == null) {
-                redirectAttributes.addFlashAttribute("error", "Usuario no encontrado");
-                return "redirect:/liga/" + ligaId + "/ranking";
+                return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("error", "Usuario no encontrado. Por favor, verifica tu sesión."));
             }
 
             // Generar recomendación personalizada
@@ -62,48 +90,30 @@ public class IAController {
                 usuario.getNombreUsuario()
             );
 
-            // Agregar datos al modelo (usando ligaId para consistencia con el menú)
-            model.addAttribute("ligaId", ligaId);
-            model.addAttribute("usuarioId", usuarioId);
-            model.addAttribute("nombreUsuario", usuario.getNombreUsuario());
-            model.addAttribute("recomendacion", recomendacion);
-            model.addAttribute("asistenteName", "Guardiol-IA");
-            model.addAttribute("currentPage", "alineacionIA");
-
             System.out.println("\t ✓ Recomendación generada exitosamente");
 
-            return "alineacionSugerIA";
+            // Devolver la recomendación en formato JSON
+            return org.springframework.http.ResponseEntity.ok(
+                java.util.Map.of(
+                    "success", true,
+                    "recomendacion", recomendacion,
+                    "nombreUsuario", usuario.getNombreUsuario()
+                )
+            );
 
         } catch (Exception e) {
             System.err.println("\t ✗ Error al generar recomendación: " + e.getMessage());
             e.printStackTrace();
 
-            redirectAttributes.addFlashAttribute("error",
-                "Error al generar la recomendación: " + e.getMessage());
-            return "redirect:/liga/" + ligaId + "/ranking";
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "Error de conexión con el servicio de IA.";
+
+            return org.springframework.http.ResponseEntity
+                .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(java.util.Map.of(
+                    "success", false,
+                    "error", "No se pudo generar la recomendación. " + errorMsg
+                ));
         }
-    }
-
-    /**
-     * Endpoint alternativo para regenerar la recomendación
-     *
-     * @param ligaId ID de la liga
-     * @param usuarioId ID del usuario
-     * @param model Modelo para la vista
-     * @param redirectAttributes Atributos de redirección
-     * @return Vista actualizada con nueva recomendación
-     */
-    @GetMapping("/alineacion-sugeria/regenerar")
-    public String regenerarRecomendacion(
-            @PathVariable("idLiga") Long ligaId,
-            @RequestParam Long usuarioId,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        System.out.println("\t GET /liga/" + ligaId + "/alineacion-sugeria/regenerar");
-
-        // Redirigir al método principal para generar una nueva recomendación
-        return mostrarRecomendacionIA(ligaId, usuarioId, model, redirectAttributes);
     }
 }
 

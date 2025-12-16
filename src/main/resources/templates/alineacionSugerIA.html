@@ -120,7 +120,6 @@
             line-height: 1.6;
             max-height: 500px;
             overflow-y: auto;
-            line-height: 1.6;
         }
 
         .action-buttons {
@@ -161,21 +160,86 @@
             transform: translateY(-2px);
         }
 
-        .loading {
-            text-align: center;
-            padding: 2rem;
+        /* Pantalla de carga */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
         }
 
-        .spinner {
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            font-size: 2rem;
-            color: #667eea;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2rem;
+            animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
         }
 
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading-subtext {
+            font-size: 1.4rem;
+            font-weight: 500;
+            opacity: 0.95;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Alertas personalizadas */
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-custom i {
+            font-size: 1.5rem;
+            margin-right: 1rem;
         }
 
         /* Responsive */
@@ -204,12 +268,21 @@
     </style>
 </head>
 <body>
+    <!-- Pantalla de carga (visible por defecto) -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: flex;">
+        <div class="loading-content">
+            <img th:src="@{/logoliga.png}" alt="Logo Liga" class="loading-logo">
+            <div class="loading-text">Generando recomendación...</div>
+            <div class="loading-subtext" id="loadingMessage">Guardiol-IA está analizando los mejores jugadores para ti</div>
+        </div>
+    </div>
+
     <!-- Incluir menú lateral -->
     <div class="main-container">
         <div th:replace="~{menu :: menuLateral}"></div>
 
-        <!-- Contenedor del chat -->
-        <div class="chat-container">
+        <!-- Contenedor del chat (oculto inicialmente) -->
+        <div class="chat-container" id="chatContainer" style="opacity: 0; transition: opacity 0.5s ease;">
             <div class="chat-box">
                 <!-- Header del asistente -->
                 <div class="assistant-header">
@@ -233,33 +306,27 @@
                     </p>
                 </div>
 
-                <!-- Contenido de la recomendación -->
-                <div class="recommendation-content" th:if="${recomendacion}">
-                    <div th:text="${recomendacion}"></div>
+                <!-- Contenido de la recomendación (se llenará dinámicamente) -->
+                <div class="recommendation-content" id="recomendacionContent" style="display: none;">
+                    <!-- El contenido se cargará aquí mediante AJAX -->
                 </div>
 
-                <!-- Mensaje de error si existe -->
-                <div th:if="${error}" class="alert alert-danger" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span th:text="${error}"></span>
+                <!-- Mensaje de error (se mostrará si hay error) -->
+                <div id="errorContainer" class="alert alert-danger alert-custom" role="alert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div style="display: inline-block;">
+                        <strong>Error al generar recomendación</strong>
+                        <p id="errorMessage" style="margin: 0.5rem 0 0 0;"></p>
+                    </div>
                 </div>
 
                 <!-- Botones de acción -->
                 <div class="action-buttons">
-                    <a th:href="@{'/liga/' + ${ligaId} + '/alineacion-sugeria/regenerar?usuarioId=' + ${usuarioId}}"
-                       class="btn btn-regenerate btn-custom">
+                    <a href="#" id="btnRegenerar"
+                       class="btn btn-regenerate btn-custom"
+                       onclick="regenerarRecomendacion(); return false;">
                         <i class="fas fa-sync-alt me-2"></i>
                         Generar Nueva Recomendación
-                    </a>
-                    <a th:href="@{'/liga/' + ${ligaId} + '/alineacionFutura?usuarioId=' + ${usuarioId}}"
-                       class="btn btn-success btn-custom">
-                        <i class="fas fa-users me-2"></i>
-                        Ir a Mi Alineación
-                    </a>
-                    <a th:href="@{'/liga/' + ${ligaId} + '/ranking?usuarioId=' + ${usuarioId}}"
-                       class="btn btn-back btn-custom">
-                        <i class="fas fa-arrow-left me-2"></i>
-                        Volver al Ranking
                     </a>
                 </div>
             </div>
@@ -267,6 +334,152 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Variables del modelo Thymeleaf
+        const ligaId = /*[[${ligaId}]]*/ 0;
+        const usuarioId = /*[[${usuarioId}]]*/ 0;
+
+        // Mensajes divertidos para la pantalla de carga
+        const mensajesCarga = [
+            "Llamando a Fabricio Romano...",
+            "Activando palancas...",
+            "Pidiendo informes a Negreira...",
+            "Subiendo el sueldo del Cholo...",
+            "Recalificando los terrenos del Bernabéu...",
+            "Escuchando audios de Florentino...",
+            "Ayudando a Lamine Yamal con los deberes de Mates...",
+            "Inscribiendo a Dani Olmo en LaLiga (otra vez)...",
+            "Pidiéndole a Mbappé que baje a defender...",
+            "Buscando dónde se ha escondido Julián Álvarez...",
+            "Viendo la King's League porque no entiendo las manos dentro del área...",
+            "Comprando los billetes de avión para que Araujo se vaya a Israel...",
+        ];
+
+        let intervaloCambioMensaje = null;
+
+        /**
+         * Función para cambiar mensajes de carga aleatoriamente
+         */
+        function iniciarCambioMensajes() {
+            const elementoMensaje = document.getElementById('loadingMessage');
+            let mensajesUsados = [];
+
+            // Cambiar mensaje cada 3 segundos
+            intervaloCambioMensaje = setInterval(() => {
+                // Si ya usamos todos los mensajes, reiniciar
+                if (mensajesUsados.length === mensajesCarga.length) {
+                    mensajesUsados = [];
+                }
+
+                // Obtener mensajes disponibles (no usados aún)
+                const mensajesDisponibles = mensajesCarga.filter(msg => !mensajesUsados.includes(msg));
+
+                // Seleccionar mensaje aleatorio de los disponibles
+                const indiceAleatorio = Math.floor(Math.random() * mensajesDisponibles.length);
+                const mensajeSeleccionado = mensajesDisponibles[indiceAleatorio];
+
+                // Marcar como usado
+                mensajesUsados.push(mensajeSeleccionado);
+
+                // Cambiar el mensaje con efecto fade más suave
+                elementoMensaje.style.opacity = '0';
+                setTimeout(() => {
+                    elementoMensaje.textContent = mensajeSeleccionado;
+                    elementoMensaje.style.opacity = '1';
+                }, 400);
+            }, 3000);
+        }
+
+        /**
+         * Función para detener el cambio de mensajes
+         */
+        function detenerCambioMensajes() {
+            if (intervaloCambioMensaje) {
+                clearInterval(intervaloCambioMensaje);
+                intervaloCambioMensaje = null;
+            }
+        }
+
+        /**
+         * Función para cargar la recomendación mediante AJAX
+         */
+        function cargarRecomendacion() {
+            const url = `/liga/${ligaId}/alineacion-sugeria/generar?usuarioId=${usuarioId}`;
+
+            console.log('Cargando recomendación desde:', url);
+
+            // Mostrar overlay de carga
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('chatContainer').style.opacity = '0';
+            document.getElementById('recomendacionContent').style.display = 'none';
+            document.getElementById('errorContainer').style.display = 'none';
+
+            // Iniciar cambio de mensajes aleatorios
+            const loadingMessage = document.getElementById('loadingMessage');
+            loadingMessage.style.transition = 'opacity 0.4s ease';
+            iniciarCambioMensajes();
+
+            // Hacer petición AJAX
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Respuesta recibida:', data);
+
+                    if (data.success) {
+                        // Mostrar la recomendación
+                        document.getElementById('recomendacionContent').textContent = data.recomendacion;
+                        document.getElementById('recomendacionContent').style.display = 'block';
+                        document.getElementById('errorContainer').style.display = 'none';
+                    } else {
+                        // Mostrar error
+                        document.getElementById('errorMessage').textContent = data.error;
+                        document.getElementById('errorContainer').style.display = 'block';
+                        document.getElementById('recomendacionContent').style.display = 'none';
+                    }
+
+                    // Detener cambio de mensajes y ocultar overlay con transición suave
+                    detenerCambioMensajes();
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                        document.getElementById('chatContainer').style.opacity = '1';
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error('Error en la petición:', error);
+
+                    // Mostrar error
+                    document.getElementById('errorMessage').textContent =
+                        'Error de conexión. No se pudo contactar con el servidor.';
+                    document.getElementById('errorContainer').style.display = 'block';
+                    document.getElementById('recomendacionContent').style.display = 'none';
+
+                    // Detener cambio de mensajes y ocultar overlay
+                    detenerCambioMensajes();
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                        document.getElementById('chatContainer').style.opacity = '1';
+                    }, 500);
+                });
+        }
+
+        /**
+         * Función para regenerar la recomendación
+         */
+        function regenerarRecomendacion() {
+            cargarRecomendacion();
+        }
+
+        /**
+         * Cargar la recomendación automáticamente al cargar la página
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página cargada, iniciando petición AJAX...');
+            // Esperar un momento para que se vea la animación de carga
+            setTimeout(() => {
+                cargarRecomendacion();
+            }, 500);
+        });
+    </script>
 </body>
 </html>
 
