@@ -495,8 +495,55 @@
 
         .mensaje-vacio {
             text-align: center;
-            padding: 3rem;
-            color: #999;
+            padding: 4rem 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            background: linear-gradient(135deg, rgba(98, 0, 238, 0.2), rgba(187, 134, 252, 0.15));
+            border-radius: 20px;
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.3);
+        }
+
+        .mensaje-vacio i {
+            font-size: 4rem;
+            color: #BB86FC;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .mensaje-vacio h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #03DAC6;
+            margin-bottom: 1rem;
+        }
+
+        .mensaje-vacio p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .btn-crear-alineacion {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #6200EE, #BB86FC);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.5);
+        }
+
+        .btn-crear-alineacion:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(98, 0, 238, 0.7);
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -592,8 +639,12 @@
 
         <!-- Mensaje si no hay datos -->
         <div th:if="${mensaje != null}" class="mensaje-vacio">
-            <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
-            <p th:text="${mensaje}">No hay alineación disponible</p>
+            <i class="bi bi-info-circle"></i>
+            <h3>No hay alineación disponible para esta jornada</h3>
+            <a th:href="@{/liga/{id}/alineacion-futura(id=${ligaId})}" class="btn-crear-alineacion">
+                <i class="bi bi-people-fill"></i>
+                Ir a Alineación Futura
+            </a>
         </div>
 
         <!-- Campo de fútbol con alineación -->

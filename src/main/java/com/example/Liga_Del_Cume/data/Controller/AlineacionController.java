@@ -409,14 +409,54 @@ public class AlineacionController {
                 return "redirect:/liga/" + ligaId + "/alineacion-futura";
             }
 
-            // 4. OBTENER JUGADORES
+            // 4. VALIDAR QUE NO HAYA JUGADORES REPETIDOS
+            List<Long> jugadorIds = new ArrayList<>();
+            jugadorIds.add(porteroId);
+            jugadorIds.add(jugador1Id);
+            jugadorIds.add(jugador2Id);
+            jugadorIds.add(jugador3Id);
+            jugadorIds.add(jugador4Id);
+
+            // Buscar duplicados
+            List<Long> duplicados = new ArrayList<>();
+            for (int i = 0; i < jugadorIds.size(); i++) {
+                for (int j = i + 1; j < jugadorIds.size(); j++) {
+                    if (jugadorIds.get(i).equals(jugadorIds.get(j))) {
+                        duplicados.add(jugadorIds.get(i));
+                    }
+                }
+            }
+
+            if (!duplicados.isEmpty()) {
+                // Obtener los nombres de los jugadores duplicados
+                List<String> nombresRepetidos = new ArrayList<>();
+                for (Long jugadorId : duplicados) {
+                    jugadorRepository.findById(jugadorId).ifPresent(j -> {
+                        if (!nombresRepetidos.contains(j.getNombreJugador())) {
+                            nombresRepetidos.add(j.getNombreJugador());
+                        }
+                    });
+                }
+
+                String mensajeError;
+                if (nombresRepetidos.size() == 1) {
+                    mensajeError = "El jugador " + nombresRepetidos.get(0) + " está repetido en la alineación";
+                } else {
+                    mensajeError = "Los siguientes jugadores están repetidos: " + String.join(", ", nombresRepetidos);
+                }
+
+                redirectAttributes.addFlashAttribute("error", mensajeError);
+                return "redirect:/liga/" + ligaId + "/alineacion-futura?usuarioId=" + usuario.getIdUsuario();
+            }
+
+            // 5. OBTENER JUGADORES
             Jugador portero = jugadorRepository.findById(porteroId).orElseThrow(() -> new Exception("Portero no encontrado"));
             Jugador jugador1 = jugadorRepository.findById(jugador1Id).orElseThrow(() -> new Exception("Jugador 1 no encontrado"));
             Jugador jugador2 = jugadorRepository.findById(jugador2Id).orElseThrow(() -> new Exception("Jugador 2 no encontrado"));
             Jugador jugador3 = jugadorRepository.findById(jugador3Id).orElseThrow(() -> new Exception("Jugador 3 no encontrado"));
             Jugador jugador4 = jugadorRepository.findById(jugador4Id).orElseThrow(() -> new Exception("Jugador 4 no encontrado"));
 
-            // 5. BUSCAR SI YA EXISTE ALINEACIÓN PARA ESTE USUARIO Y JORNADA
+            // 6. BUSCAR SI YA EXISTE ALINEACIÓN PARA ESTE USUARIO Y JORNADA
             Optional<Alineacion> alineacionExistente = alineacionRepository
                     .findByUsuarioIdUsuarioAndJornadaIdJornada(usuario.getIdUsuario(), proximaJornada.getIdJornada());
 
@@ -432,7 +472,7 @@ public class AlineacionController {
                 alineacion.setJornada(proximaJornada);
             }
 
-            // 6. AGREGAR JUGADORES
+            // 7. AGREGAR JUGADORES
             alineacion.getJugadores().add(portero);
             alineacion.getJugadores().add(jugador1);
             alineacion.getJugadores().add(jugador2);
@@ -441,7 +481,7 @@ public class AlineacionController {
 
             alineacion.setPuntosTotalesJornada(0);
 
-            // 7. GUARDAR
+            // 8. GUARDAR
             alineacionRepository.save(alineacion);
 
             redirectAttributes.addFlashAttribute("success",

@@ -35,52 +35,66 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            gap: 2rem;
         }
 
         .page-title {
-            font-size: 64px;
+            font-size: 48px;
             font-weight: 900;
-            margin: 0 0 2rem 0;
-            letter-spacing: -2px;
+            margin: 0;
+            letter-spacing: -1px;
             background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-shadow: 0 4px 20px rgba(3, 218, 198, 0.5);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .header-info {
             display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+            gap: 1rem;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .jornada-badge {
-            background: linear-gradient(135deg, #6200EE 0%, #3700B3 100%);
-            border-radius: 25px;
-            padding: 0.8rem 1.5rem;
+            border: 2px solid rgba(187, 134, 252, 0.3);
+            border-radius: 16px;
+            padding: 12px 20px;
             color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(98, 0, 238, 0.4);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.5);
+            background: linear-gradient(135deg, #6200EE 0%, #BB86FC 100%);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            min-width: 160px;
+            height: 50px;
+            justify-content: center;
         }
 
         .dinero-badge {
-            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
-            border-radius: 25px;
-            padding: 0.8rem 1.5rem;
+            border: 2px solid rgba(3, 218, 198, 0.3);
+            border-radius: 16px;
+            padding: 12px 20px;
             color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(3, 218, 198, 0.4);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(3, 218, 198, 0.5);
+            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            white-space: nowrap;
+            height: 50px;
         }
 
         .content-wrapper {
@@ -446,9 +460,6 @@
 
     <!-- Contenido principal -->
     <div class="main-content">
-        <!-- Header -->
-        <h1 class="page-title">Alineación Futura</h1>
-
         <!-- Mensaje de liga finalizada centrado -->
         <div th:if="${ligaFinalizada}" style="
             display: flex;
@@ -504,7 +515,43 @@
         </div>
 
         <div th:unless="${ligaFinalizada}">
+            <!-- Mensajes de error y éxito -->
+            <div th:if="${error}" class="alert alert-danger" style="
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                border: 3px solid rgba(220, 53, 69, 0.5);
+                border-radius: 15px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                color: white;
+                font-weight: bold;
+                box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            ">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
+                <span th:text="${error}">Error</span>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" style="
+                background: linear-gradient(135deg, #28a745 0%, #20803a 100%);
+                border: 3px solid rgba(40, 167, 69, 0.5);
+                border-radius: 15px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                color: white;
+                font-weight: bold;
+                box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            ">
+                <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
+                <span th:text="${success}">Éxito</span>
+            </div>
+
             <div class="header-section">
+                <h1 class="page-title">Alineación Futura</h1>
                 <div class="header-info">
                     <div class="jornada-badge">
                         JORNADA <span id="jornadaNumero" th:text="${proximaJornada}">2</span>
