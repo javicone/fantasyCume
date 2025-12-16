@@ -84,7 +84,7 @@
         }
         .jugador-info-header { flex: 1; }
         .equipo-info { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .equipo-escudo { width: 30px; height: 30px; object-fit: contain; }
+        .equipo-escudo { width: 60px; height: 60px; object-fit: contain; }
         .equipo-nombre { font-size: 1rem; color: #ccc; }
         .jugador-nombre-detalle { font-size: 2rem; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         .jugador-posicion {
@@ -225,7 +225,9 @@
             <div class="stat-card">
                 <div class="stat-label">Valor Mercado</div>
                 <div class="stat-value" style="color: #FFD700;"
-                     th:text="${#numbers.formatDecimal(jugador.precioMercado / 1000000.0, 1, 2) + ' M€'}">0 M€</div>
+                     th:text="${jugador.precioMercado >= 1000000 ?
+                               #numbers.formatDecimal(jugador.precioMercado / 1000000.0, 1, 2) + ' M€' :
+                               #numbers.formatInteger(jugador.precioMercado, 0, 'DEFAULT') + '€'}">0€</div>
             </div>
 
             <div class="stat-card">

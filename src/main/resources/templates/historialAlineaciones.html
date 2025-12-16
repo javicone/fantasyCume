@@ -55,49 +55,89 @@
         }
 
         .jornada-selector {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            border: none;
+            border: 2px solid rgba(187, 134, 252, 0.3);
             border-radius: 16px;
-            padding: 14px 24px;
+            padding: 16px 28px;
+            padding-right: 50px;
             color: white;
             font-weight: 700;
             font-size: 18px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(98, 0, 238, 0.5);
             transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, #6200EE 0%, #BB86FC 100%);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image:
+                linear-gradient(135deg, #6200EE 0%, #BB86FC 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: 0 0, right 12px center;
+            background-size: 100% 100%, 20px 20px;
         }
 
         .jornada-selector:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
-            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+            box-shadow: 0 12px 36px rgba(187, 134, 252, 0.7);
+            background-image:
+                linear-gradient(135deg, #7C3AED 0%, #C4B5FD 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat, no-repeat;
+            background-position: 0 0, right 12px center;
+            background-size: 100% 100%, 20px 20px;
+            border-color: rgba(187, 134, 252, 0.6);
         }
 
         .jornada-selector:focus {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 4px rgba(187, 134, 252, 0.4), 0 12px 36px rgba(98, 0, 238, 0.6);
+            border-color: #BB86FC;
         }
 
         .jornada-selector option {
-            background: #1e293b;
+            background: #2d0055;
             color: white;
-            padding: 12px;
+            padding: 12px 16px;
             font-weight: 600;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .jornada-selector option:checked {
+            background: #6200EE;
+            color: white;
+            font-weight: 800;
         }
 
 
         .dinero-badge {
-            background: linear-gradient(135deg, #6B1515 0%, #FF3333 100%);
-            border-radius: 25px;
-            padding: 0.8rem 1.5rem;
-            color: white;
-            font-weight: bold;
-            font-size: 1rem;
+            background: linear-gradient(135deg, #03DAC6 0%, #01B8A8 100%);
+            border-radius: 30px;
+            padding: 1rem 2rem;
+            color: #282828;
+            font-weight: 900;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            box-shadow: 0 8px 24px rgba(3, 218, 198, 0.5);
+            border: 3px solid rgba(3, 218, 198, 0.3);
+            transition: all 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .dinero-badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(3, 218, 198, 0.7);
+            border-color: rgba(3, 218, 198, 0.6);
+        }
+
+        .dinero-badge i {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         .puntos-totales-badge {
@@ -203,6 +243,17 @@
             width: 200px;
         }
 
+        .jugador-link {
+            text-decoration: none;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .jugador-link:hover {
+            transform: translateY(-8px) scale(1.05);
+            z-index: 100;
+        }
+
         .jugador-card {
             background: linear-gradient(165deg, rgba(20,20,40,0.95) 0%, rgba(10,10,20,0.98) 100%);
             border-radius: 15px;
@@ -214,6 +265,13 @@
             min-height: 240px;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .jugador-link:hover .jugador-card {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.5);
+            border-width: 5px;
         }
 
         /* Colores según puntuación */
@@ -223,10 +281,18 @@
             box-shadow: 0 10px 30px rgba(255, 51, 51, 0.5);
         }
 
+        .jugador-link:hover .jugador-card.negativo {
+            box-shadow: 0 15px 40px rgba(255, 51, 51, 0.7), 0 0 30px rgba(255, 51, 51, 0.6);
+        }
+
         .jugador-card.bronce {
             border-color: #CD7F32;
             background: linear-gradient(165deg, rgba(139,69,19,0.9) 0%, rgba(101,51,14,0.95) 100%);
             box-shadow: 0 10px 30px rgba(205, 127, 50, 0.5);
+        }
+
+        .jugador-link:hover .jugador-card.bronce {
+            box-shadow: 0 15px 40px rgba(205, 127, 50, 0.7), 0 0 30px rgba(205, 127, 50, 0.6);
         }
 
         .jugador-card.plata {
@@ -235,16 +301,28 @@
             box-shadow: 0 10px 30px rgba(192, 192, 192, 0.5);
         }
 
+        .jugador-link:hover .jugador-card.plata {
+            box-shadow: 0 15px 40px rgba(192, 192, 192, 0.7), 0 0 30px rgba(192, 192, 192, 0.6);
+        }
+
         .jugador-card.oro {
             border-color: #FFD700;
             background: linear-gradient(165deg, rgba(218,165,32,0.9) 0%, rgba(184,134,11,0.95) 100%);
             box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
         }
 
+        .jugador-link:hover .jugador-card.oro {
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.7);
+        }
+
         .jugador-card.sin-jugar {
             border-color: #666;
             background: linear-gradient(165deg, rgba(68,68,68,0.9) 0%, rgba(40,40,40,0.95) 100%);
             box-shadow: 0 10px 30px rgba(102, 102, 102, 0.5);
+        }
+
+        .jugador-link:hover .jugador-card.sin-jugar {
+            box-shadow: 0 15px 40px rgba(102, 102, 102, 0.7), 0 0 30px rgba(102, 102, 102, 0.6);
         }
 
         /* Brillo en el borde superior */
@@ -493,7 +571,7 @@
             <!-- Puntos totales arriba a la izquierda -->
             <div th:if="${puntosTotales != null}" class="puntos-totales-badge">
                 <i class="bi bi-trophy-fill"></i>
-                <span>Total: <strong th:text="${puntosTotales} + ' puntos'">42 puntos</strong></span>
+                <span>Puntos Totales: <strong th:text="${puntosTotales} + ' puntos'">42 puntos</strong></span>
             </div>
 
             <div class="campo-container">
@@ -504,6 +582,7 @@
 
                 <!-- PORTERO -->
                 <div th:if="${portero != null}" class="jugador portero">
+                    <a th:href="@{/liga/{ligaId}/jugador/{jugadorId}(ligaId=${ligaId}, jugadorId=${portero.jugador.idJugador})}" class="jugador-link">
                     <div th:class="${portero.estadisticas.haJugado ?
                                    (portero.estadisticas.puntos < 0 ? 'jugador-card negativo' :
                                     (portero.estadisticas.puntos <= 5 ? 'jugador-card bronce' :
@@ -531,10 +610,12 @@
                         <div th:unless="${portero.estadisticas.haJugado}"
                              class="jugador-puntos-container puntos-sin-jugar">-</div>
                     </div>
+                    </a>
                 </div>
 
                 <!-- LATERAL IZQUIERDO -->
                 <div th:if="${lateralIzquierdo != null}" class="jugador lateral-izq">
+                    <a th:href="@{/liga/{ligaId}/jugador/{jugadorId}(ligaId=${ligaId}, jugadorId=${lateralIzquierdo.jugador.idJugador})}" class="jugador-link">
                     <div th:class="${lateralIzquierdo.estadisticas.haJugado ?
                                    (lateralIzquierdo.estadisticas.puntos < 0 ? 'jugador-card negativo' :
                                     (lateralIzquierdo.estadisticas.puntos <= 5 ? 'jugador-card bronce' :
@@ -555,10 +636,12 @@
                         <div th:unless="${lateralIzquierdo.estadisticas.haJugado}"
                              class="jugador-puntos-container puntos-sin-jugar">-</div>
                     </div>
+                    </a>
                 </div>
 
                 <!-- LATERAL DERECHO -->
                 <div th:if="${lateralDerecho != null}" class="jugador lateral-der">
+                    <a th:href="@{/liga/{ligaId}/jugador/{jugadorId}(ligaId=${ligaId}, jugadorId=${lateralDerecho.jugador.idJugador})}" class="jugador-link">
                     <div th:class="${lateralDerecho.estadisticas.haJugado ?
                                    (lateralDerecho.estadisticas.puntos < 0 ? 'jugador-card negativo' :
                                     (lateralDerecho.estadisticas.puntos <= 5 ? 'jugador-card bronce' :
@@ -579,10 +662,12 @@
                         <div th:unless="${lateralDerecho.estadisticas.haJugado}"
                              class="jugador-puntos-container puntos-sin-jugar">-</div>
                     </div>
+                    </a>
                 </div>
 
                 <!-- DELANTERO IZQUIERDO -->
                 <div th:if="${delanteroIzquierdo != null}" class="jugador delantero-izq">
+                    <a th:href="@{/liga/{ligaId}/jugador/{jugadorId}(ligaId=${ligaId}, jugadorId=${delanteroIzquierdo.jugador.idJugador})}" class="jugador-link">
                     <div th:class="${delanteroIzquierdo.estadisticas.haJugado ?
                                    (delanteroIzquierdo.estadisticas.puntos < 0 ? 'jugador-card negativo' :
                                     (delanteroIzquierdo.estadisticas.puntos <= 5 ? 'jugador-card bronce' :
@@ -603,10 +688,12 @@
                         <div th:unless="${delanteroIzquierdo.estadisticas.haJugado}"
                              class="jugador-puntos-container puntos-sin-jugar">-</div>
                     </div>
+                    </a>
                 </div>
 
                 <!-- DELANTERO DERECHO -->
                 <div th:if="${delanteroDerecho != null}" class="jugador delantero-der">
+                    <a th:href="@{/liga/{ligaId}/jugador/{jugadorId}(ligaId=${ligaId}, jugadorId=${delanteroDerecho.jugador.idJugador})}" class="jugador-link">
                     <div th:class="${delanteroDerecho.estadisticas.haJugado ?
                                    (delanteroDerecho.estadisticas.puntos < 0 ? 'jugador-card negativo' :
                                     (delanteroDerecho.estadisticas.puntos <= 5 ? 'jugador-card bronce' :
@@ -627,10 +714,12 @@
                         <div th:unless="${delanteroDerecho.estadisticas.haJugado}"
                              class="jugador-puntos-container puntos-sin-jugar">-</div>
                     </div>
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
+            </div> <!-- Cierre de campo-container -->
+        </div> <!-- Cierre de th:if alineacion -->
+    </div> <!-- Cierre de main-content -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script th:replace="~{menu :: menuScripts}"></script>
