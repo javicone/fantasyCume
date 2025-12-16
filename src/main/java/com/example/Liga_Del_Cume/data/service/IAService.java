@@ -108,8 +108,7 @@ public class IAService {
         messages.add(userMessage);
 
         requestBody.put("messages", messages);
-        requestBody.put("max_tokens", 2000);
-        requestBody.put("temperature", 0.7);
+        requestBody.put("temperature", 0.2);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
