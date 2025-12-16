@@ -1,9 +1,13 @@
 package com.example.Liga_Del_Cume.data.service;
 
 import com.example.Liga_Del_Cume.data.model.Equipo;
+import com.example.Liga_Del_Cume.data.model.Jornada;
 import com.example.Liga_Del_Cume.data.model.LigaCume;
+import com.example.Liga_Del_Cume.data.model.Partido;
+import com.example.Liga_Del_Cume.data.repository.AlineacionRepository;
 import com.example.Liga_Del_Cume.data.repository.EquipoRepository;
 import com.example.Liga_Del_Cume.data.repository.LigaCumeRepository;
+import com.example.Liga_Del_Cume.data.repository.PartidoRepository;
 import com.example.Liga_Del_Cume.data.exceptions.EquipoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,15 @@ public class EquipoService {
 
     @Autowired
     private LigaCumeRepository ligaCumeRepository;
+
+    @Autowired
+    private PartidoRepository partidoRepository;
+
+    @Autowired
+    private JornadaService jornadaService;
+
+    @Autowired
+    private AlineacionRepository alineacionRepository;
 
     /**
      * Funcionalidad 1.1: Agregar un nuevo equipo a la liga
@@ -184,15 +197,16 @@ public class EquipoService {
     /**
      * Funcionalidad 1.3: Eliminar un equipo
      *
-     * Este método elimina un equipo del sistema. Es importante tener en cuenta
-     * que eliminar un equipo puede afectar a jugadores, partidos y estadísticas
-     * relacionadas, dependiendo de las configuraciones de cascada en las entidades.
+     * Este método elimina un equipo del sistema. Si la liga ha sido reiniciada
+     * (no hay resultados en ningún partido), elimina todas las dependencias
+     * (alineaciones, partidos, jornadas) y regenera los cuadros de competición.
      *
      * Validaciones:
      * 1. Verifica que el ID no sea nulo
      * 2. Verifica que el ID sea un valor positivo
      * 3. Verifica que el equipo exista en la base de datos
-     * 4. Opcionalmente, verifica si el equipo tiene jugadores asociados (advertencia)
+     * 4. Verifica si la liga ha sido reiniciada (sin resultados)
+     * 5. Si está reiniciada, elimina dependencias y regenera jornadas
      *
      * @param id ID del equipo a eliminar
      * @throws EquipoException Si alguna validación falla
@@ -214,19 +228,140 @@ public class EquipoService {
                     "No existe ningún equipo con ID: " + id + ". No se puede eliminar."
                 ));
 
-        // Validación 4 (opcional): Verificar si el equipo tiene jugadores asociados
-        // Esto es una advertencia útil para el usuario
-        if (equipo.getJugadores() != null && !equipo.getJugadores().isEmpty()) {
-            // Nota: Dependiendo de la configuración de cascada, los jugadores
-            // pueden eliminarse automáticamente o puede generarse un error
-            int cantidadJugadores = equipo.getJugadores().size();
-            // Se podría lanzar una excepción aquí si no se desea permitir
-            // la eliminación de equipos con jugadores
-            // Por ahora, solo se procede con la eliminación
+        // Obtener la liga del equipo
+        LigaCume liga = equipo.getLiga();
+        if (liga == null) {
+            throw new EquipoException("El equipo no tiene una liga asociada");
         }
 
-        // Si todas las validaciones pasan, eliminar el equipo
-        equipoRepository.deleteById(id);
+        // Validación 4: Verificar si la liga ha sido reiniciada (sin resultados)
+        boolean ligaReiniciada = verificarLigaReiniciada(liga.getIdLigaCume());
+
+        if (ligaReiniciada) {
+            // La liga está reiniciada, eliminamos todas las dependencias
+            // 1. Eliminar todas las alineaciones de las jornadas de la liga
+            List<Jornada> jornadas = jornadaService.listarJornadasPorLiga(liga.getIdLigaCume());
+            for (Jornada jornada : jornadas) {
+                List<com.example.Liga_Del_Cume.data.model.Alineacion> alineaciones =
+                    alineacionRepository.findByJornadaIdJornada(jornada.getIdJornada());
+                if (alineaciones != null && !alineaciones.isEmpty()) {
+                    alineacionRepository.deleteAll(alineaciones);
+                }
+            }
+
+            // 2. Eliminar todas las jornadas (esto eliminará los partidos en cascada)
+            for (Jornada jornada : jornadas) {
+                jornadaService.eliminarJornada(jornada.getIdJornada());
+            }
+
+            // 3. Eliminar el equipo
+            equipoRepository.deleteById(id);
+
+            // 4. Regenerar cuadros de competición
+            regenerarCuadrosCompeticion(liga.getIdLigaCume());
+        } else {
+            // La liga tiene resultados, no se puede eliminar el equipo sin afectar la integridad
+            throw new EquipoException(
+                "No se puede eliminar el equipo porque la liga ya tiene resultados registrados. " +
+                "Para eliminar el equipo, primero debes reiniciar la liga (Generar Jornadas con force=true)."
+            );
+        }
+    }
+
+    /**
+     * Verifica si la liga ha sido reiniciada (todos los partidos tienen resultado 0-0)
+     *
+     * @param ligaId ID de la liga
+     * @return true si la liga está reiniciada, false en caso contrario
+     */
+    private boolean verificarLigaReiniciada(Long ligaId) {
+        List<Jornada> jornadas = jornadaService.listarJornadasPorLiga(ligaId);
+
+        // Si no hay jornadas, consideramos que está reiniciada
+        if (jornadas == null || jornadas.isEmpty()) {
+            return true;
+        }
+
+        // Verificar que todos los partidos tengan resultado 0-0
+        for (Jornada jornada : jornadas) {
+            List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornada.getIdJornada());
+            for (Partido partido : partidos) {
+                if (partido.getGolesLocal() != 0 || partido.getGolesVisitante() != 0) {
+                    return false; // Hay al menos un partido con resultados
+                }
+            }
+        }
+
+        return true; // Todos los partidos están a 0-0
+    }
+
+    /**
+     * Regenera los cuadros de competición para una liga
+     *
+     * @param ligaId ID de la liga
+     */
+    private void regenerarCuadrosCompeticion(Long ligaId) {
+        try {
+            // Obtener la liga
+            LigaCume liga = ligaCumeRepository.findById(ligaId)
+                    .orElseThrow(() -> new EquipoException("No se encontró la liga con ID: " + ligaId));
+
+            // Obtener equipos
+            List<Equipo> equipos = listarEquiposPorLiga(ligaId);
+
+            // Si hay menos de 2 equipos, no se pueden generar jornadas
+            if (equipos == null || equipos.size() < 2) {
+                return; // No hay suficientes equipos para generar jornadas
+            }
+
+            // Preparar lista; si impar añadimos bye (null)
+            List<Equipo> lista = new java.util.ArrayList<>(equipos);
+            if (lista.size() % 2 == 1) {
+                lista.add(null);
+            }
+
+            int n = lista.size();
+            int rondas = n - 1;
+            int partidosPorRonda = n / 2;
+
+            // Construir emparejamientos para cada ronda (primera vuelta)
+            List<List<Equipo[]>> rondasEmparejamientos = new java.util.ArrayList<>();
+            List<Equipo> rotantes = new java.util.ArrayList<>(lista);
+            for (int r = 0; r < rondas; r++) {
+                List<Equipo[]> emparejamientos = new java.util.ArrayList<>();
+                for (int i = 0; i < partidosPorRonda; i++) {
+                    Equipo local = rotantes.get(i);
+                    Equipo visitante = rotantes.get(n - 1 - i);
+                    if (local == null || visitante == null) continue; // bye
+                    emparejamientos.add(new Equipo[]{local, visitante});
+                }
+                rondasEmparejamientos.add(emparejamientos);
+                // rotar sublista manteniendo índice 0 fijo
+                if (rotantes.size() > 1) {
+                    java.util.Collections.rotate(rotantes.subList(1, rotantes.size()), 1);
+                }
+            }
+
+            // Crear jornadas para la primera vuelta
+            for (List<Equipo[]> emparejamientos : rondasEmparejamientos) {
+                Jornada jornada = jornadaService.crearJornada(liga);
+                for (Equipo[] pair : emparejamientos) {
+                    Partido partido = new Partido(pair[0], pair[1], 0, 0, jornada);
+                    partidoRepository.save(partido);
+                }
+            }
+
+            // Crear jornadas para la segunda vuelta (vuelta: invertir local/visitante)
+            for (List<Equipo[]> emparejamientos : rondasEmparejamientos) {
+                Jornada jornada = jornadaService.crearJornada(liga);
+                for (Equipo[] pair : emparejamientos) {
+                    Partido partido = new Partido(pair[1], pair[0], 0, 0, jornada);
+                    partidoRepository.save(partido);
+                }
+            }
+        } catch (Exception e) {
+            throw new EquipoException("Error al regenerar cuadros de competición: " + e.getMessage());
+        }
     }
 
     /**

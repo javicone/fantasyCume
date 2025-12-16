@@ -138,11 +138,12 @@ public class EquipoController {
             RedirectAttributes redirectAttributes) {
         try {
             equipoService.eliminarEquipo(id);
-            redirectAttributes.addFlashAttribute("success", "Equipo eliminado exitosamente");
+            redirectAttributes.addFlashAttribute("success",
+                "Equipo eliminado exitosamente. Los cuadros de competición han sido regenerados automáticamente.");
         } catch (EquipoException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el equipo");
+            redirectAttributes.addFlashAttribute("error", "Error al eliminar el equipo: " + e.getMessage());
         }
 
         return "redirect:/liga/" + ligaId + "/admin/equipos";
