@@ -210,7 +210,7 @@
                         <div class="team-badge">
                             <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/80'}"
                                  th:alt="${equipo.nombreEquipo}"
-                                 onerror="this.src='https://via.placeholder.com/80?text=Escudo'">
+                                 >
                         </div>
                         <div>
                             <h2 class="team-name" th:text="${equipo.nombreEquipo}">Nombre del Equipo</h2>

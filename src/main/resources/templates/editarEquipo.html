@@ -312,7 +312,7 @@
                 <div class="team-badge-large">
                     <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/120'}"
                          th:alt="${equipo.nombreEquipo}"
-                         onerror="this.src='https://via.placeholder.com/120?text=Escudo'">
+                        >
                 </div>
 
                 <div class="team-info-header">
@@ -349,7 +349,7 @@
                         <div class="player-avatar">
                             <img th:src="${jugador.avatarUrl != null ? jugador.avatarUrl : 'https://via.placeholder.com/60'}"
                                  th:alt="${jugador.nombreJugador}"
-                                 onerror="this.src='https://via.placeholder.com/60?text=J'">
+                                 >
                         </div>
                         <div class="player-details">
                             <h3 class="player-name" th:text="${jugador.nombreJugador}">Nombre del Jugador</h3>
