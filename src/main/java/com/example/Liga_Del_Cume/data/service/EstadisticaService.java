@@ -50,6 +50,7 @@ public class EstadisticaService {
      *
      * Este método registra las estadísticas de rendimiento de un jugador en un partido específico.
      * Las estadísticas incluyen goles, asistencias, tarjetas, minutos jugados y puntos obtenidos.
+     * También actualiza el precio del jugador basándose en los puntos obtenidos.
      *
      * Validaciones:
      * 1. Verifica que el jugador no sea nulo
@@ -151,8 +152,14 @@ public class EstadisticaService {
         estadistica.setGolesRecibidos(golesRecibidos);
         estadistica.setPuntosJornada(puntosJornada);
 
-        // Guardar y retornar la estadística creada
-        return estadisticaRepository.save(estadistica);
+        // Guardar la estadística
+        EstadisticaJugadorPartido estadisticaGuardada = estadisticaRepository.save(estadistica);
+
+        // Actualizar el precio del jugador basándose en los puntos obtenidos
+        actualizarPrecioJugador(jugador, puntosJornada);
+
+        // Retornar la estadística creada
+        return estadisticaGuardada;
     }
 
     /**
@@ -160,6 +167,7 @@ public class EstadisticaService {
      *
      * Este método permite actualizar las estadísticas de un jugador en un partido específico.
      * Es flexible: puede modificar solo algunos campos, pasando null en los que no se desea cambiar.
+     * Si se modifican los puntos de jornada, se actualiza el precio del jugador ajustando la diferencia.
      *
      * Validaciones:
      * 1. Verifica que los IDs no sean nulos
@@ -286,10 +294,15 @@ public class EstadisticaService {
             cambiosRealizados = true;
         }
 
-        // Si se proporciona puntos de jornada, actualizar
+        // Si se proporciona puntos de jornada, actualizar y ajustar precio
         if (puntosJornada != null) {
+            int puntosAnteriores = estadistica.getPuntosJornada();
             estadistica.setPuntosJornada(puntosJornada);
             cambiosRealizados = true;
+
+            // Ajustar el precio del jugador: revertir puntos anteriores y aplicar nuevos
+            int diferenciaPuntos = puntosJornada - puntosAnteriores;
+            actualizarPrecioJugador(jugador, diferenciaPuntos);
         }
 
         // Validación 8: Verificar que se haya realizado al menos un cambio
@@ -549,6 +562,40 @@ public class EstadisticaService {
     }
 
     /**
+     * Actualiza el precio de mercado de un jugador basándose en los puntos obtenidos en un partido.
+     *
+     * Lógica de actualización de precios:
+     * - Si los puntos son positivos: se suman (puntos * 1000) al precio actual
+     * - Si los puntos son negativos: se restan (|puntos| * 1000) del precio actual
+     * - El precio nunca puede ser menor que 0
+     *
+     * Ejemplos:
+     * - Jugador con precio 5000, obtiene 3 puntos: nuevo precio = 5000 + (3 * 1000) = 8000
+     * - Jugador con precio 5000, obtiene -2 puntos: nuevo precio = 5000 - (2 * 1000) = 3000
+     * - Jugador con precio 1000, obtiene -3 puntos: nuevo precio = max(0, 1000 - 3000) = 0
+     *
+     * @param jugador Jugador cuyo precio se actualizará
+     * @param puntosJornada Puntos obtenidos en la jornada (pueden ser positivos o negativos)
+     */
+    private void actualizarPrecioJugador(Jugador jugador, int puntosJornada) {
+        if (jugador == null) {
+            return;
+        }
+
+        float precioActual = jugador.getPrecioMercado();
+        float cambio = puntosJornada * 1000.0f;
+        float nuevoPrecio = precioActual + cambio;
+
+        // Asegurar que el precio nunca sea negativo
+        if (nuevoPrecio < 0) {
+            nuevoPrecio = 0;
+        }
+
+        jugador.setPrecioMercado(nuevoPrecio);
+        jugadorRepository.save(jugador);
+    }
+
+    /**
      * Resetea todas las estadísticas de los jugadores y los resultados de los partidos
      * pertenecientes a una liga concreta. No elimina equipos ni jugadores.
      *
@@ -557,6 +604,8 @@ public class EstadisticaService {
      * - Para cada jornada obtener sus partidos
      * - Eliminar todas las estadísticas asociadas a cada partido
      * - Poner los goles de cada partido a 0 (resultado reseteado)
+     * - Resetear puntos acumulados de todos los usuarios a 0
+     * - Resetear precio de mercado de todos los jugadores a 100,000
      *
      * @param ligaId ID de la liga
      */
@@ -590,5 +639,9 @@ public class EstadisticaService {
             usuario.setPuntosAcumulados(0);
             usuarioRepository.save(usuario);
         }
+
+        // Resetear precio de mercado de todos los jugadores de la liga a 100,000
+        // Usando una actualización masiva en una sola query para mayor eficiencia
+        jugadorRepository.resetPreciosJugadoresPorLiga(ligaId);
     }
 }

@@ -137,7 +137,10 @@
     </nav>
 </div>
 
-<style th:fragment="menuStyles">
+<th:block th:fragment="menuStyles">
+    <!-- Bootstrap Icons - necesario para los iconos del menú -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
     /* MENÚ LATERAL - Nueva Paleta #282828 #03DAC6 #6200EE #BB86FC */
     .sidebar {
         position: fixed;
@@ -290,7 +293,8 @@
             position: relative;
         }
     }
-</style>
+    </style>
+</th:block>
 
 <script th:fragment="menuScripts" th:inline="javascript">
 /*<![CDATA[*/

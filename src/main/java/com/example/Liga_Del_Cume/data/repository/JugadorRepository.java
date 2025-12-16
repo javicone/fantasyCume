@@ -4,6 +4,7 @@ import com.example.Liga_Del_Cume.data.model.Alineacion;
 import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.Jugador;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -71,5 +72,15 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
 
     // Buscar jugadores y ordenarlos por puntos en todas las jornadas
     List<Jugador> findAllByOrderByEstadisticasPuntosJornadaDesc();
+
+    /**
+     * Resetea el precio de mercado de todos los jugadores de una liga a 100,000.
+     * Este método ejecuta una actualización masiva en una sola query SQL.
+     *
+     * @param ligaId ID de la liga cuyos jugadores serán actualizados
+     */
+    @Modifying
+    @Query("UPDATE Jugador j SET j.precioMercado = 100000.0 WHERE j.equipo.liga.idLigaCume = :ligaId")
+    void resetPreciosJugadoresPorLiga(@Param("ligaId") Long ligaId);
 
 }

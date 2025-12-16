@@ -289,10 +289,17 @@ public class AgregarResultadosController {
                 EstadisticaJugadorPartido estadistica = estadisticaRepository
                     .findByJugadorIdJugadorAndPartidoIdPartido(idJugador, partidoId);
 
+                int puntosAnteriores = 0;
+                boolean esActualizacion = false;
+
                 if (estadistica == null) {
                     estadistica = new EstadisticaJugadorPartido();
                     estadistica.setJugador(jugador);
                     estadistica.setPartido(partido);
+                } else {
+                    // Si la estadística ya existía, guardamos los puntos anteriores para ajustar el precio
+                    puntosAnteriores = estadistica.getPuntosJornada();
+                    esActualizacion = true;
                 }
 
                 estadistica.setGolesAnotados(goles);
@@ -304,6 +311,16 @@ public class AgregarResultadosController {
                 estadistica.setPuntosJornada(puntosJornada);
 
                 estadisticaRepository.save(estadistica);
+
+                // Actualizar precio del jugador basado en los puntos obtenidos
+                if (esActualizacion) {
+                    // Si es actualización, ajustar la diferencia
+                    int diferenciaPuntos = puntosJornada - puntosAnteriores;
+                    actualizarPrecioJugador(jugador, diferenciaPuntos);
+                } else {
+                    // Si es nueva estadística, aplicar los puntos completos
+                    actualizarPrecioJugador(jugador, puntosJornada);
+                }
             }
 
             // Actualizar marcador del partido
@@ -520,6 +537,40 @@ public class AgregarResultadosController {
             System.err.println("Error al mover alineaciones futuras: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Actualiza el precio de mercado de un jugador basándose en los puntos obtenidos en un partido.
+     *
+     * Lógica de actualización de precios:
+     * - Si los puntos son positivos: se suman (puntos * 1000) al precio actual
+     * - Si los puntos son negativos: se restan (|puntos| * 1000) del precio actual
+     * - El precio nunca puede ser menor que 0
+     *
+     * Ejemplos:
+     * - Jugador con precio 5000, obtiene 3 puntos: nuevo precio = 5000 + (3 * 1000) = 8000
+     * - Jugador con precio 5000, obtiene -2 puntos: nuevo precio = 5000 - (2 * 1000) = 3000
+     * - Jugador con precio 1000, obtiene -3 puntos: nuevo precio = max(0, 1000 - 3000) = 0
+     *
+     * @param jugador Jugador cuyo precio se actualizará
+     * @param puntosJornada Puntos obtenidos en la jornada (pueden ser positivos o negativos)
+     */
+    private void actualizarPrecioJugador(Jugador jugador, int puntosJornada) {
+        if (jugador == null) {
+            return;
+        }
+
+        float precioActual = jugador.getPrecioMercado();
+        float cambio = puntosJornada * 1000.0f;
+        float nuevoPrecio = precioActual + cambio;
+
+        // Asegurar que el precio nunca sea negativo
+        if (nuevoPrecio < 0) {
+            nuevoPrecio = 0;
+        }
+
+        jugador.setPrecioMercado(nuevoPrecio);
+        jugadorRepository.save(jugador);
     }
 }
 
