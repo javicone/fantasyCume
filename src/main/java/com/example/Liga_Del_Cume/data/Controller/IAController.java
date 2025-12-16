@@ -33,7 +33,7 @@ public class IAController {
     /**
      * Muestra la página de recomendación de IA con la sugerencia de alineación
      *
-     * @param idLiga ID de la liga
+     * @param ligaId ID de la liga
      * @param usuarioId ID del usuario que solicita la recomendación
      * @param model Modelo para pasar datos a la vista
      * @param redirectAttributes Atributos para redirección
@@ -41,33 +41,34 @@ public class IAController {
      */
     @GetMapping("/alineacion-sugeria")
     public String mostrarRecomendacionIA(
-            @PathVariable Long idLiga,
+            @PathVariable("idLiga") Long ligaId,
             @RequestParam Long usuarioId,
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        System.out.println("\t GET /liga/" + idLiga + "/alineacion-sugeria - Usuario ID: " + usuarioId);
+        System.out.println("\t GET /liga/" + ligaId + "/alineacion-sugeria - Usuario ID: " + usuarioId);
 
         try {
             // Obtener información del usuario
             Usuario usuario = usuarioService.buscarUsuarioPorId(usuarioId);
             if (usuario == null) {
                 redirectAttributes.addFlashAttribute("error", "Usuario no encontrado");
-                return "redirect:/liga/" + idLiga + "/ranking";
+                return "redirect:/liga/" + ligaId + "/ranking";
             }
 
             // Generar recomendación personalizada
             String recomendacion = iaService.generarRecomendacionPersonalizada(
-                idLiga,
+                ligaId,
                 usuario.getNombreUsuario()
             );
 
-            // Agregar datos al modelo
-            model.addAttribute("idLiga", idLiga);
+            // Agregar datos al modelo (usando ligaId para consistencia con el menú)
+            model.addAttribute("ligaId", ligaId);
             model.addAttribute("usuarioId", usuarioId);
             model.addAttribute("nombreUsuario", usuario.getNombreUsuario());
             model.addAttribute("recomendacion", recomendacion);
             model.addAttribute("asistenteName", "Guardiol-IA");
+            model.addAttribute("currentPage", "alineacionIA");
 
             System.out.println("\t ✓ Recomendación generada exitosamente");
 
@@ -79,14 +80,14 @@ public class IAController {
 
             redirectAttributes.addFlashAttribute("error",
                 "Error al generar la recomendación: " + e.getMessage());
-            return "redirect:/liga/" + idLiga + "/ranking";
+            return "redirect:/liga/" + ligaId + "/ranking";
         }
     }
 
     /**
      * Endpoint alternativo para regenerar la recomendación
      *
-     * @param idLiga ID de la liga
+     * @param ligaId ID de la liga
      * @param usuarioId ID del usuario
      * @param model Modelo para la vista
      * @param redirectAttributes Atributos de redirección
@@ -94,15 +95,15 @@ public class IAController {
      */
     @GetMapping("/alineacion-sugeria/regenerar")
     public String regenerarRecomendacion(
-            @PathVariable Long idLiga,
+            @PathVariable("idLiga") Long ligaId,
             @RequestParam Long usuarioId,
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        System.out.println("\t GET /liga/" + idLiga + "/alineacion-sugeria/regenerar");
+        System.out.println("\t GET /liga/" + ligaId + "/alineacion-sugeria/regenerar");
 
         // Redirigir al método principal para generar una nueva recomendación
-        return mostrarRecomendacionIA(idLiga, usuarioId, model, redirectAttributes);
+        return mostrarRecomendacionIA(ligaId, usuarioId, model, redirectAttributes);
     }
 }
 
