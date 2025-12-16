@@ -32,6 +32,14 @@
             Alineación Futura
         </a>
 
+        <a th:href="@{/liga/{id}/alineacion-sugeria(id=${ligaId}, usuarioId=${session.usuario?.idUsuario})}"
+           class="nav-item"
+           th:classappend="${currentPage == 'alineacionIA'} ? 'active' : ''"
+           style="background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);">
+            <i class="bi bi-robot"></i>
+            Alineación SugerIA
+        </a>
+
         <a th:href="@{/liga/{id}/clasificacion(id=${ligaId})}"
            class="nav-item"
            th:classappend="${currentPage == 'clasificacion'} ? 'active' : ''">

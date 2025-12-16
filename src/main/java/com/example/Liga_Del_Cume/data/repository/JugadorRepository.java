@@ -43,18 +43,14 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
     Object[] obtenerEstadisticasTotalesJugador(@Param("nombreJugador") String nombreJugador);
 
     //obtener totales basicos de un jugador dada una jornada
-    @Query("SELECT e.golesAnotados," +
-            " e.asistencias," +
-            " e.tarjetaRojas," +
-            " e.tarjetaAmarillas," +
-            " e.golesRecibidos," +
-            " e.minMinutosJugados" +
-            " FROM EstadisticaJugadorPartido e " +
-            " WHERE e.jugador.nombreJugador = :nombreJugador " +
-            " AND e.partido.jornada.idJornada = :numeroJornada")
-    Object[] obtenerEstadisticaPorJornadaDeJugador(@Param("nombreJugador") String nombre, @Param("idJornada") int numeroJornada);
-
-
+    @Query("SELECT e.golesAnotados, e.asistencias, e.tarjetaRojas, e.tarjetaAmarillas, e.golesRecibidos, e.minMinutosJugados " +
+            "FROM EstadisticaJugadorPartido e " +
+            "WHERE e.jugador.nombreJugador = :nombreJugador " +
+            "AND e.partido.jornada.idJornada = :numeroJornada")
+    Object[] obtenerEstadisticaPorJornadaDeJugador(
+            @Param("nombreJugador") String nombre,    // Esto conecta con :nombreJugador
+            @Param("numeroJornada") int jornada       // Esto conecta con :numeroJornada
+    );
     //Buscar jugadores ordenados por precio de mercado ascendente
     List<Jugador> findAllByOrderByPrecioMercadoAsc();
 
