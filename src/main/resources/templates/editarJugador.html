@@ -52,7 +52,7 @@
             background: linear-gradient(135deg, #6200EE 0%, #BB86FC 100%);
             border-radius: 30px;
             padding: 3rem;
-            max-width: 700px;
+            max-width: 1200px;
             width: 100%;
             box-shadow: 0 15px 40px rgba(98, 0, 238, 0.4);
             position: relative;
@@ -102,6 +102,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .player-avatar-large img {
@@ -113,7 +114,6 @@
 
         .team-info-box {
             text-align: center;
-            background: rgba(255, 255, 255, 0.15);
             padding: 1rem;
             border-radius: 15px;
         }
@@ -132,6 +132,7 @@
             height: 100%;
             object-fit: contain;
             object-position: center;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
         }
 
         .team-name-small {
@@ -139,6 +140,24 @@
             font-size: 1rem;
             font-weight: 700;
             margin: 0;
+        }
+
+        .form-content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .form-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 968px) {
+            .form-content-wrapper {
+                grid-template-columns: 1fr;
+            }
         }
 
         .form-label {
@@ -304,74 +323,82 @@
                   method="post"
                   id="editarJugadorForm">
 
-                <div class="mb-3">
-                    <label for="nombreJugador" class="form-label">
-                        <i class="bi bi-person-fill form-icon"></i>
-                        Nombre
-                    </label>
-                    <input type="text"
-                           class="form-control"
-                           id="nombreJugador"
-                           name="nombreJugador"
-                           th:value="${jugador.nombreJugador}"
-                           required
-                           maxlength="100">
-                </div>
+                <div class="form-content-wrapper">
+                    <!-- Columna izquierda -->
+                    <div class="form-column">
+                        <div class="mb-3">
+                            <label for="nombreJugador" class="form-label">
+                                <i class="bi bi-person-fill form-icon"></i>
+                                Nombre
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="nombreJugador"
+                                   name="nombreJugador"
+                                   th:value="${jugador.nombreJugador}"
+                                   required
+                                   maxlength="100">
+                        </div>
 
-                <div class="mb-3">
-                    <label for="precioMercado" class="form-label">
-                        <i class="bi bi-currency-euro form-icon"></i>
-                        Precio
-                    </label>
-                    <input type="number"
-                           class="form-control"
-                           id="precioMercado"
-                           name="precioMercado"
-                           th:value="${jugador.precioMercado}"
-                           required
-                           step="0.01"
-                           min="0">
-                    <small style="color: rgba(255, 255, 255, 0.8); display: block; margin-top: 0.5rem;">
-                        Valor en euros (€)
-                    </small>
-                </div>
+                        <div class="mb-3">
+                            <label for="precioMercado" class="form-label">
+                                <i class="bi bi-currency-euro form-icon"></i>
+                                Precio
+                            </label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="precioMercado"
+                                   name="precioMercado"
+                                   th:value="${jugador.precioMercado}"
+                                   required
+                                   step="0.01"
+                                   min="0">
+                            <small style="color: rgba(255, 255, 255, 0.8); display: block; margin-top: 0.5rem;">
+                                Valor en euros (€)
+                            </small>
+                        </div>
+                    </div>
 
-                <div class="mb-3">
-                    <label for="avatarUrl" class="form-label">
-                        <i class="bi bi-image-fill form-icon"></i>
-                        URL de la Foto
-                    </label>
-                    <input type="url"
-                           class="form-control"
-                           id="avatarUrl"
-                           name="avatarUrl"
-                           th:value="${jugador.avatarUrl}"
-                           required
-                           onchange="actualizarVistaPrevia()">
-                </div>
+                    <!-- Columna derecha -->
+                    <div class="form-column">
+                        <div class="mb-3">
+                            <label for="avatarUrl" class="form-label">
+                                <i class="bi bi-image-fill form-icon"></i>
+                                URL de la Foto
+                            </label>
+                            <input type="url"
+                                   class="form-control"
+                                   id="avatarUrl"
+                                   name="avatarUrl"
+                                   th:value="${jugador.avatarUrl}"
+                                   required
+                                   onchange="actualizarVistaPrevia()">
+                        </div>
 
-                <div class="mb-3">
-                    <label for="esPortero" class="form-label">
-                        <i class="bi bi-shield-fill form-icon"></i>
-                        Posición
-                    </label>
-                    <!-- Campo hidden cuando está bloqueado para enviar el valor -->
-                    <input th:if="${jugador.esPortero and numPorteros <= 1}"
-                           type="hidden"
-                           name="esPortero"
-                           value="true">
-                    <select class="form-select"
-                            id="esPortero"
-                            th:name="${jugador.esPortero and numPorteros <= 1} ? '' : 'esPortero'"
-                            required
-                            th:disabled="${jugador.esPortero and numPorteros <= 1}">
-                        <option value="true" th:selected="${jugador.esPortero}">Portero</option>
-                        <option value="false" th:selected="${!jugador.esPortero}">Jugador de Campo</option>
-                    </select>
-                    <small th:if="${jugador.esPortero and numPorteros <= 1}"
-                           style="color: #ffeb3b; display: block; margin-top: 0.5rem; font-weight: 600;">
-                        <i class="bi bi-lock-fill"></i> Campo bloqueado: Único portero del equipo
-                    </small>
+                        <div class="mb-3">
+                            <label for="esPortero" class="form-label">
+                                <i class="bi bi-shield-fill form-icon"></i>
+                                Posición
+                            </label>
+                            <!-- Campo hidden cuando está bloqueado para enviar el valor -->
+                            <input th:if="${jugador.esPortero and numPorteros <= 1}"
+                                   type="hidden"
+                                   name="esPortero"
+                                   value="true">
+                            <select class="form-select"
+                                    id="esPortero"
+                                    th:name="${jugador.esPortero and numPorteros <= 1} ? '' : 'esPortero'"
+                                    required
+                                    th:disabled="${jugador.esPortero and numPorteros <= 1}">
+                                <option value="true" th:selected="${jugador.esPortero}">Portero</option>
+                                <option value="false" th:selected="${!jugador.esPortero}">Jugador de Campo</option>
+                            </select>
+                            <small th:if="${jugador.esPortero and numPorteros <= 1}"
+                                   style="color: #ffeb3b; display: block; margin-top: 0.5rem; font-weight: 600;">
+                                <i class="bi bi-lock-fill"></i> Campo bloqueado: Único portero del equipo
+                            </small>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="btn-container">
