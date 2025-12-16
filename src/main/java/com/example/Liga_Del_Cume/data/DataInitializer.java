@@ -51,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
         // 1. Crear Liga
         LigaCume liga = new LigaCume();
         liga.setNombreLiga("LigaCume Fantasy 2024-2025");
-        liga.setPresupuestoMaximo(100000000L);
+        liga.setPresupuestoMaximo(500000L);
         liga = ligaCumeRepository.save(liga);
         System.out.println("✓ Liga creada: " + liga.getNombreLiga());
 

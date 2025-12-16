@@ -306,9 +306,9 @@ public class LigaController {
                 return response;
             }
 
-            if (nuevoPresupuesto < 1000000) {
+            if (nuevoPresupuesto < 500000) {
                 response.put("success", false);
-                response.put("error", "El presupuesto mínimo es de 1.000.000€");
+                response.put("error", "El presupuesto mínimo es de 500.000€");
                 return response;
             }
 
