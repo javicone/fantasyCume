@@ -438,13 +438,10 @@ Sistema de seguridad completo basado en Spring Security 6.4 con autenticación p
 
 #### Configuración de seguridad implementada:
 
-**Roles:**
-- 👤 **USER**: Usuarios normales (managers)
-- 👨‍💼 **ADMIN**: Administradores de la liga
+
 
 **Protección de rutas:**
 - ✅ `/liga/**` - Requiere autenticación (cualquier usuario logueado)
-- ✅ `/admin/**` - Solo administradores
 - ✅ `/`, `/index`, `/error` - Acceso público
 - ✅ `/usuario/login`, `/usuario/registro` - Acceso público
 - ✅ Recursos estáticos (`/css/**`, `/js/**`, `/images/**`, `/static/**`) - Acceso público

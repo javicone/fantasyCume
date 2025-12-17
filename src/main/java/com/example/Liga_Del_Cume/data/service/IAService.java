@@ -57,7 +57,7 @@ public class IAService {
     public String generarRecomendacionAlineacion(Long ligaId) throws Exception {
         // Validar que la liga existe
         LigaCume liga = ligaRepository.findById(ligaId)
-            .orElseThrow(() -> new RuntimeException("Liga no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Liga no encontrada"));
 
         // Obtener presupuesto máximo
         Long presupuestoMaximo = liga.getPresupuestoMaximo();
@@ -86,12 +86,12 @@ public class IAService {
         // Validar que la API key esté configurada
         if (apiKey == null || apiKey.isEmpty() || apiKey.startsWith("${")) {
             throw new Exception("API key de OpenRouter no configurada. " +
-                "Por favor, configura la variable de entorno OPENROUTER_API_KEY");
+                    "Por favor, configura la variable de entorno OPENROUTER_API_KEY");
         }
 
         // Configurar timeouts para la petición (30 segundos de conexión, 120 segundos de lectura)
         org.springframework.http.client.SimpleClientHttpRequestFactory factory =
-            new org.springframework.http.client.SimpleClientHttpRequestFactory();
+                new org.springframework.http.client.SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(30000);  // 30 segundos para conectar
         factory.setReadTimeout(120000);    // 120 segundos para leer la respuesta (las IAs pueden tardar)
 
@@ -110,8 +110,8 @@ public class IAService {
         Map<String, String> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
         systemMessage.put("content", "Eres Guardiol-IA, un asistente experto en Fantasy Fútbol Sala. " +
-            "Debes recomendar la mejor alineación posible de 5 jugadores (1 portero + 4 jugadores de campo) " +
-            "basándote en estadísticas y rendimiento. Siempre respeta el presupuesto máximo disponible.");
+                "Debes recomendar la mejor alineación posible de 5 jugadores (1 portero + 4 jugadores de campo) " +
+                "basándote en estadísticas y rendimiento. Siempre respeta el presupuesto máximo disponible.");
         messages.add(systemMessage);
 
         Map<String, String> userMessage = new HashMap<>();
@@ -133,10 +133,10 @@ public class IAService {
             long startTime = System.currentTimeMillis();
 
             ResponseEntity<String> response = restTemplate.exchange(
-                apiUrl,
-                HttpMethod.POST,
-                entity,
-                String.class
+                    apiUrl,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
             );
 
             long endTime = System.currentTimeMillis();
@@ -147,9 +147,9 @@ public class IAService {
             System.out.println("📩 Respuesta recibida de OpenRouter API");
             System.out.println("   Status: " + response.getStatusCode());
             System.out.println("   Body (primeros 500 chars): " +
-                (responseBody != null && responseBody.length() > 500
-                    ? responseBody.substring(0, 500) + "..."
-                    : responseBody));
+                    (responseBody != null && responseBody.length() > 500
+                            ? responseBody.substring(0, 500) + "..."
+                            : responseBody));
 
             // Parsear la respuesta JSON
             ObjectMapper mapper = new ObjectMapper();
@@ -159,15 +159,15 @@ public class IAService {
             if (root.has("error")) {
                 JsonNode error = root.get("error");
                 String errorMessage = error.has("message")
-                    ? error.get("message").asText()
-                    : "Error desconocido de la API";
+                        ? error.get("message").asText()
+                        : "Error desconocido de la API";
                 throw new Exception("Error de OpenRouter API: " + errorMessage);
             }
 
             // Verificar que exista el campo "choices"
             if (!root.has("choices") || root.get("choices").isEmpty()) {
                 throw new Exception("La respuesta de OpenRouter API no contiene 'choices'. " +
-                    "Respuesta completa: " + responseBody);
+                        "Respuesta completa: " + responseBody);
             }
 
             // Extraer el texto de la respuesta de forma segura
@@ -229,17 +229,17 @@ public class IAService {
 
         // Separar porteros y jugadores de campo
         List<Jugador> porteros = jugadores.stream()
-            .filter(Jugador::isEsPortero)
-            .collect(Collectors.toList());
+                .filter(Jugador::isEsPortero)
+                .collect(Collectors.toList());
 
         List<Jugador> jugadoresCampo = jugadores.stream()
-            .filter(j -> !j.isEsPortero())
-            .collect(Collectors.toList());
+                .filter(j -> !j.isEsPortero())
+                .collect(Collectors.toList());
 
         // Se envían TODOS los jugadores sin limitaciones
         System.out.println("📊 Estadísticas del prompt:");
         System.out.println("   Total jugadores: " + jugadores.size() +
-                         " (Porteros: " + porteros.size() + ", Campo: " + jugadoresCampo.size() + ")");
+                " (Porteros: " + porteros.size() + ", Campo: " + jugadoresCampo.size() + ")");
 
         // Información de porteros (formato compacto)
         contexto.append("PORTEROS:\n");
@@ -279,18 +279,18 @@ public class IAService {
 
         // Formato compacto: Nombre (Equipo) - €X | Stats
         info.append("• ").append(jugador.getNombreJugador())
-            .append(" (").append(jugador.getEquipo().getNombreEquipo())
-            .append(") - ").append(jugador.getPrecioMercado()).append("€ | ");
+                .append(" (").append(jugador.getEquipo().getNombreEquipo())
+                .append(") - ").append(jugador.getPrecioMercado()).append("€ | ");
 
         if (esPortero) {
             info.append("GR:").append(stats.get("golesRecibidos"));
         } else {
             info.append("G:").append(stats.get("goles"))
-                .append(" A:").append(stats.get("asistencias"));
+                    .append(" A:").append(stats.get("asistencias"));
         }
 
         info.append(" Pts:").append(stats.get("puntos"))
-            .append(" TA:").append(stats.get("amarillas"));
+                .append(" TA:").append(stats.get("amarillas"));
 
         if (stats.get("rojas") > 0) {
             info.append(" TR:").append(stats.get("rojas"));
@@ -311,7 +311,7 @@ public class IAService {
         Map<String, Integer> totales = new HashMap<>();
 
         List<EstadisticaJugadorPartido> estadisticas =
-            estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
+                estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
 
         int goles = 0;
         int asistencias = 0;
@@ -354,11 +354,10 @@ public class IAService {
 
         // Personalizar el saludo inicial
         String saludoPersonalizado = "¡Hola " + nombreUsuario + "! " +
-            "Soy Guardiol-IA, tu asistente personal de Fantasy Fútbol Sala.\n\n" +
-            "He analizado todos los jugadores disponibles usando IA avanzada (Nemotron) " +
-            "y aquí está mi recomendación de alineación para maximizar tus puntos en la próxima jornada:\n\n";
+                "Soy Guardiol-IA, tu asistente personal de Fantasy Fútbol Sala.\n\n" +
+                "He analizado todos los jugadores disponibles usando IA avanzada (Nemotron) " +
+                "y aquí está mi recomendación de alineación para maximizar tus puntos en la próxima jornada:\n\n";
 
         return saludoPersonalizado + recomendacion;
     }
 }
-
