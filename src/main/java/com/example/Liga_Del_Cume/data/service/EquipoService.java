@@ -263,7 +263,7 @@ public class EquipoService {
             // La liga tiene resultados, no se puede eliminar el equipo sin afectar la integridad
             throw new EquipoException(
                 "No se puede eliminar el equipo porque la liga ya tiene resultados registrados. " +
-                "Para eliminar el equipo, primero debes reiniciar la liga (Generar Jornadas con force=true)."
+                "Para eliminar el equipo, primero debes reiniciar la liga."
             );
         }
     }

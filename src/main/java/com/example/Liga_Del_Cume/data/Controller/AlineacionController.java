@@ -560,13 +560,50 @@ public class AlineacionController {
                 return "historialAlineaciones";
             }
 
-            // Si no se especifica jornada, usar la primera (más reciente)
-            Jornada jornadaSeleccionada;
+            // Si no se especifica jornada, usar la ÚLTIMA JORNADA JUGADA (no la primera)
+            Jornada jornadaSeleccionada = null;
+
             if (jornadaId == null) {
-                jornadaSeleccionada = jornadas.get(0);
+                // Buscar la última jornada que tenga partidos jugados
+                jornadaSeleccionada = obtenerUltimaJornadaJugada(jornadas);
+
+                // Si no hay ninguna jornada jugada, ordenar por numeroJornada y usar la primera
+                if (jornadaSeleccionada == null) {
+                    List<Jornada> jornadasOrdenadas = new ArrayList<>(jornadas);
+                    jornadasOrdenadas.sort((j1, j2) -> {
+                        if (j1.getNumeroJornada() == null) return 1;
+                        if (j2.getNumeroJornada() == null) return -1;
+                        return j1.getNumeroJornada().compareTo(j2.getNumeroJornada());
+                    });
+                    jornadaSeleccionada = jornadasOrdenadas.get(0);
+                }
             } else {
-                jornadaSeleccionada = jornadaRepository.findById(jornadaId)
-                    .orElse(jornadas.get(0));
+                // Si se especificó una jornada, buscarla por ID
+                jornadaSeleccionada = jornadaRepository.findById(jornadaId).orElse(null);
+
+                // Si no se encuentra, usar la última jugada como fallback
+                if (jornadaSeleccionada == null) {
+                    jornadaSeleccionada = obtenerUltimaJornadaJugada(jornadas);
+
+                    // Si aún no hay ninguna, usar la primera
+                    if (jornadaSeleccionada == null && !jornadas.isEmpty()) {
+                        List<Jornada> jornadasOrdenadas = new ArrayList<>(jornadas);
+                        jornadasOrdenadas.sort((j1, j2) -> {
+                            if (j1.getNumeroJornada() == null) return 1;
+                            if (j2.getNumeroJornada() == null) return -1;
+                            return j1.getNumeroJornada().compareTo(j2.getNumeroJornada());
+                        });
+                        jornadaSeleccionada = jornadasOrdenadas.get(0);
+                    }
+                }
+            }
+
+            // Validación final: asegurar que tenemos una jornada seleccionada
+            if (jornadaSeleccionada == null) {
+                model.addAttribute("mensaje", "No se pudo determinar la jornada a mostrar");
+                model.addAttribute("ligaId", ligaId);
+                model.addAttribute("currentPage", "historial");
+                return "historialAlineaciones";
             }
 
             // Obtener usuario: primero intentar del parámetro, luego de la sesión, finalmente el primer usuario de la liga
@@ -642,7 +679,8 @@ public class AlineacionController {
                 model.addAttribute("dineroGastado", calcularDineroGastado(alineacion));
 
             } else {
-                model.addAttribute("mensaje", "No hay alineación para esta jornada");
+                // El usuario no hizo una alineación para esta jornada
+                model.addAttribute("mensaje", "No hiciste una alineación para esta jornada");
             }
 
             // Obtener el nombre de la liga
@@ -716,6 +754,70 @@ public class AlineacionController {
             total += jugador.getPrecioMercado();
         }
         return total;
+    }
+
+    /**
+     * Obtiene la última jornada que tiene partidos jugados (con resultados)
+     * Recorre las jornadas de la más reciente a la más antigua buscando la primera con resultados
+     *
+     * @param jornadas Lista de jornadas de la liga
+     * @return La última jornada jugada, o null si ninguna tiene resultados
+     */
+    private Jornada obtenerUltimaJornadaJugada(List<Jornada> jornadas) {
+        if (jornadas == null || jornadas.isEmpty()) {
+            return null;
+        }
+
+        // Ordenar jornadas por número de jornada descendente (de mayor a menor)
+        List<Jornada> jornadasOrdenadas = new ArrayList<>(jornadas);
+        jornadasOrdenadas.sort((j1, j2) -> {
+            Integer num1 = j1.getNumeroJornada();
+            Integer num2 = j2.getNumeroJornada();
+            if (num1 == null && num2 == null) return 0;
+            if (num1 == null) return 1;
+            if (num2 == null) return -1;
+            return num2.compareTo(num1); // Descendente
+        });
+
+        // Buscar desde la jornada más reciente hacia atrás
+        for (Jornada jornada : jornadasOrdenadas) {
+            if (jornada.getIdJornada() == null) {
+                continue;
+            }
+
+            List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornada.getIdJornada());
+
+            if (partidos == null || partidos.isEmpty()) {
+                continue;
+            }
+
+            // Verificar si AL MENOS UN partido ha sido jugado
+            for (Partido partido : partidos) {
+                boolean partidoJugado = false;
+
+                // Verificar goles
+                int golesLocal = partido.getGolesLocal();
+                int golesVisitante = partido.getGolesVisitante();
+
+                if (golesLocal != 0 || golesVisitante != 0) {
+                    partidoJugado = true;
+                } else {
+                    // Es 0-0, verificar estadísticas
+                    List<EstadisticaJugadorPartido> estadisticas =
+                        estadisticaRepository.findByPartidoIdPartido(partido.getIdPartido());
+                    if (estadisticas != null && !estadisticas.isEmpty()) {
+                        partidoJugado = true;
+                    }
+                }
+
+                if (partidoJugado) {
+                    return jornada;
+                }
+            }
+        }
+
+        // No se encontró ninguna jornada con partidos jugados
+        return null;
     }
 
     /**

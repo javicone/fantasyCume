@@ -211,7 +211,137 @@ Funcionalidad mejorada para reiniciar competiciones:
 
 ---
 
-### 🎨 **6. Mejoras Visuales Generales**
+### 🤖 **6. Alineación SugerIA (Recomendador con IA)**
+
+Sistema de recomendaciones de alineaciones usando **Inteligencia Artificial** (OpenRouter - Nemotron 70B Instruct).
+
+#### 🌟 Características principales
+
+- ✅ **IA de última generación** - Usa el modelo Nemotron 70B Instruct vía OpenRouter
+- ✅ **Análisis completo** - Evalúa todos los jugadores de la liga
+- ✅ **Recomendaciones personalizadas** - Saludo por nombre del manager
+- ✅ **Justificación detallada** - Explica por qué recomienda cada jugador
+- ✅ **Control de presupuesto** - Respeta el límite económico de la liga
+- ✅ **Regenerable** - Puedes solicitar nuevas recomendaciones
+
+#### 🛠️ Configuración
+
+Debes configurar tu API key de OpenRouter en `src/main/resources/application.properties`:
+
+```properties
+# --- Configuración de OpenRouter AI ---
+openrouter.api.key=sk-or-v1-TU_CLAVE_AQUI
+openrouter.api.url=https://openrouter.ai/api/v1/chat/completions
+openrouter.model=nvidia/llama-3.1-nemotron-70b-instruct
+```
+
+⚠️ **IMPORTANTE**: 
+- Nunca subas tu API key a repositorios públicos
+- OpenRouter ofrece créditos gratuitos para empezar
+- Puedes cambiar el modelo si lo deseas (ej: `anthropic/claude-3.5-sonnet`, `openai/gpt-4`, etc.)
+
+Para obtener una API key:
+1. Visita [OpenRouter](https://openrouter.ai/)
+2. Regístrate o inicia sesión
+3. Ve a la sección **"Keys"**
+4. Haz clic en **"Create Key"**
+5. Copia la clave generada (comienza con `sk-or-v1-...`)
+
+#### 📍 Uso desde la interfaz
+
+1. Accede a cualquier vista de la liga
+2. Inicia sesión como usuario
+3. En el menú lateral, haz clic en **"Alineación SugerIA"** (ícono de robot 🤖)
+4. Espera unos segundos mientras la IA analiza los datos
+5. Revisa la recomendación personalizada
+6. Puedes regenerar la recomendación si lo deseas
+
+#### 🧠 Cómo funciona
+
+##### Proceso de análisis
+
+1. **Recopilación de datos**: El servicio obtiene todos los jugadores de la liga con sus estadísticas
+2. **Construcción del contexto**: Se crea un prompt detallado con:
+   - Información de todos los porteros (goles recibidos, tarjetas, puntos)
+   - Información de jugadores de campo (goles, asistencias, tarjetas, puntos)
+   - Presupuesto máximo disponible
+   - Reglas y restricciones
+3. **Consulta a la IA**: Se envía el contexto a Nemotron 70B vía OpenRouter
+4. **Procesamiento de respuesta**: La IA devuelve una recomendación estructurada
+
+##### Criterios de evaluación de la IA
+
+La IA considera múltiples factores:
+
+- ✅ **Rendimiento**: Jugadores con más goles, asistencias y puntos
+- ✅ **Disciplina**: Evita jugadores con muchas tarjetas
+- ✅ **Porteros**: Prioriza los que menos goles reciben
+- ✅ **Presupuesto**: Optimiza el uso del dinero disponible
+- ✅ **Balance**: Busca un equipo equilibrado
+
+#### 📊 Formato de respuesta
+
+La IA devuelve una respuesta estructurada con:
+
+```
+🎯 ALINEACIÓN RECOMENDADA
+
+PORTERO:
+• Nombre - Equipo - Precio: X€
+  Razón: [Explicación]
+
+JUGADORES DE CAMPO:
+• Jugador 1 - Equipo - Precio: X€
+  Razón: [Explicación]
+• Jugador 2 - Equipo - Precio: X€
+  Razón: [Explicación]
+• Jugador 3 - Equipo - Precio: X€
+  Razón: [Explicación]
+• Jugador 4 - Equipo - Precio: X€
+  Razón: [Explicación]
+
+💰 RESUMEN ECONÓMICO:
+Coste Total: X€
+Presupuesto Disponible: X€
+Saldo Restante: X€
+
+📊 ANÁLISIS:
+[Explicación de por qué esta es la mejor alineación]
+```
+
+#### 🔧 Componentes técnicos
+
+- **IAService.java**: Gestiona la comunicación con OpenRouter API
+- **IAController.java**: Controlador REST que expone los endpoints
+- **alineacionSugerIA.html**: Vista Thymeleaf con diseño atractivo
+
+#### ⚠️ Limitaciones
+
+- 🔒 **Requiere conexión a Internet** para consultar la API
+- 💰 **Límites de uso**: OpenRouter tiene cuotas según tu plan
+- ⏱️ **Tiempo de respuesta**: Puede tardar 2-5 segundos
+- 🔐 **Seguridad**: La API key debe protegerse adecuadamente
+
+#### 🐛 Solución de problemas
+
+**Error: "API key not found"**
+- Verifica que hayas configurado correctamente la API key en `application.properties`
+
+**Error: "Failed to generate content"**
+- API key inválida o expirada
+- Límite de cuota excedido
+- Problemas de conexión a Internet
+
+#### 📚 Recursos adicionales
+
+- [Documentación oficial de OpenRouter](https://openrouter.ai/docs)
+- [OpenRouter Dashboard](https://openrouter.ai/)
+- [Modelos disponibles](https://openrouter.ai/models)
+- [Nemotron 70B Instruct](https://openrouter.ai/models/nvidia/llama-3.1-nemotron-70b-instruct)
+
+---
+
+### 🎨 **7. Mejoras Visuales Generales**
 
 **Menú Lateral:**
 - ✅ Nombre de la liga dinámico en el encabezado
@@ -239,7 +369,7 @@ Funcionalidad mejorada para reiniciar competiciones:
 
 ---
 
-### 🛠️ **7. Validaciones y Manejo de Errores**
+### 🛠️ **8. Validaciones y Manejo de Errores**
 
 **Gestión de Equipos:**
 - ✅ Validación de URLs de escudos (máximo 500 caracteres)
@@ -257,9 +387,42 @@ Funcionalidad mejorada para reiniciar competiciones:
 - ✅ Validación de datos antes de guardar
 - ✅ Manejo de errores de red con mensajes claros
 
+#### 🚨 Página de Error Personalizada
+
+Página de error profesional con diseño moderno integrada en toda la aplicación.
+
+**Características:**
+- ✅ Logo de la liga con animación pulse
+- ✅ Icono de error animado con efecto shake
+- ✅ Mensaje de error personalizado (parámetro GET)
+- ✅ Diseño responsive (móvil, tablet, desktop)
+- ✅ Botón para volver a la página principal
+- ✅ Fondo degradado consistente con el tema
+- ✅ Animaciones CSS suaves
+
+**Ubicación:** `/error?error=mensaje`
+
+**Uso desde código:**
+```java
+// Redirigir con mensaje personalizado
+return "redirect:/error?error=" + URLEncoder.encode("Tu mensaje aquí", "UTF-8");
+```
+
+**Ejemplos:**
+```
+http://localhost:8080/error?error=unauthorized
+http://localhost:8080/error?error=Sesión expirada
+http://localhost:8080/error?error=No tienes permisos
+```
+
+**Integración con Spring Security:**
+- Se activa automáticamente en errores de autenticación
+- Muestra mensajes claros al usuario
+- Redirección automática desde SecurityConfig
+
 ---
 
-### 📱 **8. Responsive Design**
+### 📱 **9. Responsive Design**
 
 Todas las nuevas funcionalidades son **completamente responsive**:
 - ✅ Adaptación automática a móviles, tablets y desktop
@@ -269,21 +432,153 @@ Todas las nuevas funcionalidades son **completamente responsive**:
 
 ---
 
-### 🔐 **9. Seguridad y Permisos**
+### 🔐 **10. Seguridad y Permisos (Spring Security)**
 
-**Opciones Admin:**
-- ✅ Solo accesibles para usuarios administradores
-- ✅ Validaciones en backend además del frontend
-- ✅ Protección contra operaciones no autorizadas
+Sistema de seguridad completo basado en Spring Security 6.4 con autenticación por sesión HTTP.
 
-**Integridad de Datos:**
-- ✅ Transacciones para operaciones críticas
-- ✅ Validaciones en cascada
-- ✅ Rollback automático en caso de error
+#### Configuración de seguridad implementada:
+
+**Roles:**
+- 👤 **USER**: Usuarios normales (managers)
+- 👨‍💼 **ADMIN**: Administradores de la liga
+
+**Protección de rutas:**
+- ✅ `/liga/**` - Requiere autenticación (cualquier usuario logueado)
+- ✅ `/admin/**` - Solo administradores
+- ✅ `/`, `/index`, `/error` - Acceso público
+- ✅ `/usuario/login`, `/usuario/registro` - Acceso público
+- ✅ Recursos estáticos (`/css/**`, `/js/**`, `/images/**`, `/static/**`) - Acceso público
+
+**Características:**
+- ✅ Autenticación mediante sesión HTTP
+- ✅ Contraseñas encriptadas con BCrypt
+- ✅ SessionAuthenticationFilter personalizado
+- ✅ Redirección automática según rol
+- ✅ Manejo de sesiones
+- ✅ Página de error personalizada para accesos no autorizados
+- ✅ Logout funcional con limpieza de sesión
+
+#### Flujo de autenticación
+
+```
+Usuario accede a /liga/1/ranking
+    ↓
+SessionAuthenticationFilter verifica la sesión HTTP
+    ↓
+¿Hay usuario en sesión?
+    ↓ SÍ                    ↓ NO
+Establecer autenticación   Spring Security bloquea
+en Spring Security         Redirige a /?error=unauthorized
+    ↓
+Permitir acceso ✅
+```
+
+#### Componentes
+
+1. **SecurityConfig.java**: Configuración principal de Spring Security
+2. **SessionAuthenticationFilter.java**: Filtro que integra sesiones HTTP con Spring Security
+3. **Usuario.java**: Entidad con campos `email`, `password` y `rol`
+4. **UsuarioController.java**: Maneja login, registro y logout
+
+**Acceso:**
+- Login: `http://localhost:8080/`
+- Registro: `http://localhost:8080/usuario/registro`
+
+#### Pruebas de seguridad
+
+**Test 1: Sin login (debe fallar)**
+```bash
+# Cierra el navegador completamente
+# Accede a: http://localhost:8080/liga/1/ranking
+# Resultado: Redirige a /?error=unauthorized ✅
+```
+
+**Test 2: Con login (debe funcionar)**
+```bash
+# Ve a: http://localhost:8080/
+# Haz login con usuario válido
+# Accede a: http://localhost:8080/liga/1/ranking
+# Resultado: Muestra la página correctamente ✅
+```
+
+**Test 3: Recursos estáticos (siempre accesibles)**
+```bash
+# Accede sin login a:
+http://localhost:8080/logoliga.png
+http://localhost:8080/css/styles.css
+# Resultado: Se cargan correctamente ✅
+```
 
 ---
 
-### 📈 **10. Rendimiento y Optimización**
+### 📦 **11. Sistema de Borrado de Equipos con Regeneración Automática**
+
+Sistema inteligente para el borrado de equipos que verifica si la liga ha sido reiniciada antes de permitir la eliminación.
+
+**Características:**
+- ✅ Verifica estado de la liga antes de eliminar
+- ✅ Si la liga está reiniciada (todos los partidos 0-0):
+  - Elimina todas las alineaciones de las jornadas
+  - Elimina todas las jornadas (y partidos en cascada)
+  - Elimina el equipo
+  - **Regenera automáticamente** los cuadros de competición para los equipos restantes
+- ✅ Si la liga tiene resultados: Lanza excepción indicando que debe reiniciar la liga primero
+- ✅ Usa el mismo algoritmo Round-Robin de generación de jornadas
+
+**Flujo:**
+```
+Usuario solicita eliminar equipo
+    ↓
+¿El equipo existe?
+    ↓ Sí
+¿La liga tiene una liga asociada?
+    ↓ Sí
+¿La liga está reiniciada? (todos los partidos 0-0)
+    ↓ Sí
+1. Eliminar alineaciones de todas las jornadas
+    ↓
+2. Eliminar todas las jornadas (partidos en cascada)
+    ↓
+3. Eliminar el equipo
+    ↓
+4. ¿Quedan al menos 2 equipos?
+    ↓ Sí
+5. Regenerar cuadros de competición (Round-Robin)
+    ↓
+Éxito: Equipo eliminado y jornadas regeneradas ✅
+```
+
+**Casos de uso:**
+
+**Caso 1: Liga Reiniciada con Suficientes Equipos**
+```
+Estado: Liga con 4 equipos, todos los partidos 0-0
+Acción: Eliminar "Equipo A"
+Resultado:
+  ✓ Se eliminan alineaciones
+  ✓ Se eliminan jornadas
+  ✓ Se elimina "Equipo A"
+  ✓ Se regeneran jornadas para los 3 equipos restantes
+```
+
+**Caso 2: Liga con Resultados**
+```
+Estado: Liga con 4 equipos, hay partidos con resultados
+Acción: Eliminar "Equipo A"
+Resultado:
+  ✗ Error: "No se puede eliminar el equipo porque la liga ya 
+    tiene resultados registrados. Para eliminar el equipo, 
+    primero debes reiniciar la liga."
+```
+
+**Integración:**
+- Compatible con JornadaController (mismo algoritmo Round-Robin)
+- Sin dependencias circulares
+- Validaciones en cascada correctas
+
+---
+
+### 📈 **12. Rendimiento y Optimización**
 
 - ✅ **Carga lazy** de relaciones en entidades JPA
 - ✅ **Queries optimizadas** para reducir consultas a BD
@@ -296,9 +591,11 @@ Todas las nuevas funcionalidades son **completamente responsive**:
 
 **Backend:**
 - Spring Boot 4.0.0
+- Spring Security 6.4
 - Spring Data JPA
 - Hibernate 7.1.8
 - MySQL 9.5
+- BCrypt Password Encoder
 
 **Frontend:**
 - Thymeleaf 3.1.3
@@ -306,6 +603,10 @@ Todas las nuevas funcionalidades son **completamente responsive**:
 - Bootstrap Icons 1.11.0
 - JavaScript ES6+
 - Fetch API para llamadas AJAX
+
+**IA:**
+- OpenRouter API
+- Modelo: Nemotron 70B Instruct (nvidia/llama-3.1-nemotron-70b-instruct)
 
 **Base de Datos:**
 - MySQL con soporte para URLs largas
@@ -739,6 +1040,96 @@ Suite de pruebas que valida las *operaciones básicas CRUD* (Crear, Leer, Actual
 Garantiza que todas las operaciones básicas de persistencia funcionan correctamente en la base de datos.
 
 ---
+
+## 🗄️ Inicialización de Base de Datos
+
+### 📋 Script de Datos Iniciales (DataInitializer)
+
+El proyecto incluye un script de inicialización automática que puebla la base de datos con datos de prueba para desarrollo.
+
+**⚠️ NOTA IMPORTANTE**: El DataInitializer ha sido actualizado recientemente. Algunas funciones descritas en documentación anterior pueden haber cambiado.
+
+#### Datos que crea el script:
+
+- **1 Liga**: "LigaCume Fantasy 2024-2025" con presupuesto de 100.000.000€
+- **3 Usuarios**: Ibai Llanos, ElRubius, DJMaRiiO (con contraseñas encriptadas)
+- **4 Equipos**: Real Madrid, FC Barcelona, Atlético Madrid, Sevilla FC
+- **20 Jugadores**: 5 por equipo (1 portero + 4 de campo) con precios realistas
+- **2 Jornadas** completas con partidos
+- **6 Alineaciones**: 3 usuarios × 2 jornadas
+- **22+ Estadísticas**: Estadísticas detalladas por jugador y partido
+
+#### 🚀 Cómo activar/desactivar el script
+
+**Opción 1: Activar con Perfil de Desarrollo (Recomendado)**
+
+Edita `src/main/resources/application.properties`:
+```properties
+# Activar perfil de desarrollo para cargar datos iniciales
+spring.profiles.active=dev
+```
+
+El script se ejecutará automáticamente al iniciar la aplicación si la base de datos está vacía.
+
+**Opción 2: Desactivar el Script**
+
+Para desactivar la inicialización automática:
+```properties
+# spring.profiles.active=dev  # COMENTADO
+```
+
+O cambiar a otro perfil:
+```properties
+spring.profiles.active=prod
+```
+
+#### 🔍 Verificación de Datos Existentes
+
+El script incluye verificación automática para evitar duplicados:
+```java
+if (ligaCumeRepository.count() > 0) {
+    System.out.println("⚠️  La base de datos ya contiene datos. Saltando inicialización.");
+    return;
+}
+```
+
+**Esto significa:**
+- ✅ Solo se ejecuta si la base de datos está **vacía**
+- ✅ No duplicará datos si ya existen
+- ✅ Seguro para re-ejecutar la aplicación
+
+#### ⚙️ Configuración de Base de Datos
+
+**Para Desarrollo:**
+```properties
+spring.profiles.active=dev
+spring.jpa.hibernate.ddl-auto=create-drop
+```
+- ✅ Recrea las tablas en cada inicio
+- ✅ Carga datos automáticamente
+- ⚠️ **PIERDE TODOS LOS DATOS al reiniciar**
+
+**Para Producción:**
+```properties
+# spring.profiles.active=dev  # COMENTADO
+spring.jpa.hibernate.ddl-auto=update
+```
+- ✅ Mantiene los datos existentes
+- ✅ Solo actualiza el esquema si es necesario
+- ✅ NO ejecuta el script de inicialización
+
+#### 📊 Usuarios de Prueba
+
+| Usuario | Email | Password | Rol |
+|---------|-------|----------|-----|
+| Ibai Llanos | ibai@fantasy.com | pass123 | ROLE_USER |
+| ElRubius | rubius@fantasy.com | pass123 | ROLE_USER |
+| DJMaRiiO | djmario@fantasy.com | pass123 | ROLE_USER |
+
+Puedes usar estos usuarios para probar la funcionalidad de login y alineaciones.
+
+---
+
 ## 📄 Licencia
 
 Proyecto académico - Centro Universitario de Mérida - Universidad de Extremadura

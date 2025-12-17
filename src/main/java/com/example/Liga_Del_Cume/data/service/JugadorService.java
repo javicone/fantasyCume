@@ -2,8 +2,11 @@ package com.example.Liga_Del_Cume.data.service;
 
 import com.example.Liga_Del_Cume.data.model.Equipo;
 import com.example.Liga_Del_Cume.data.model.Jugador;
+import com.example.Liga_Del_Cume.data.model.Jornada;
+import com.example.Liga_Del_Cume.data.model.Partido;
 import com.example.Liga_Del_Cume.data.repository.EquipoRepository;
 import com.example.Liga_Del_Cume.data.repository.JugadorRepository;
+import com.example.Liga_Del_Cume.data.repository.PartidoRepository;
 import com.example.Liga_Del_Cume.data.exceptions.JugadorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +27,16 @@ public class JugadorService {
 
     private JugadorRepository jugadorRepository;
     private EquipoRepository equipoRepository;
+    private JornadaService jornadaService;
+    private PartidoRepository partidoRepository;
 
     @Autowired
-    public JugadorService(JugadorRepository jugadorRepository, EquipoRepository equipoRepository) {
+    public JugadorService(JugadorRepository jugadorRepository, EquipoRepository equipoRepository,
+                         JornadaService jornadaService, PartidoRepository partidoRepository) {
         this.jugadorRepository = jugadorRepository;
         this.equipoRepository = equipoRepository;
+        this.jornadaService = jornadaService;
+        this.partidoRepository = partidoRepository;
     }
 
     /**
@@ -170,16 +178,58 @@ public class JugadorService {
      * Funcionalidad 2.3: Eliminar un jugador de un equipo
      *
      * @param id ID del jugador a eliminar
-     * @throws JugadorException si el ID es nulo o el jugador no existe
+     * @throws JugadorException si el ID es nulo, el jugador no existe o la liga tiene resultados
      */
     public void eliminarJugador(Long id) {
         if (id == null) {
             throw new JugadorException("El ID del jugador no puede ser nulo");
         }
-        if (!jugadorRepository.existsById(id)) {
-            throw new JugadorException("Jugador no encontrado con ID: " + id);
+
+        Jugador jugador = jugadorRepository.findById(id)
+                .orElseThrow(() -> new JugadorException("Jugador no encontrado con ID: " + id));
+
+        // Obtener el equipo del jugador y su liga
+        Equipo equipo = jugador.getEquipo();
+        if (equipo != null && equipo.getLiga() != null) {
+            Long ligaId = equipo.getLiga().getIdLigaCume();
+
+            // Verificar si la liga tiene resultados registrados
+            if (!verificarLigaReiniciada(ligaId)) {
+                throw new JugadorException(
+                    "No se puede eliminar el jugador porque la liga ya tiene resultados registrados. " +
+                    "Para eliminar el jugador, primero debes reiniciar la liga."
+                );
+            }
         }
+
         jugadorRepository.deleteById(id);
+    }
+
+    /**
+     * Verifica si la liga ha sido reiniciada (todos los partidos tienen resultado 0-0)
+     *
+     * @param ligaId ID de la liga
+     * @return true si la liga está reiniciada, false en caso contrario
+     */
+    private boolean verificarLigaReiniciada(Long ligaId) {
+        List<Jornada> jornadas = jornadaService.listarJornadasPorLiga(ligaId);
+
+        // Si no hay jornadas, consideramos que está reiniciada
+        if (jornadas == null || jornadas.isEmpty()) {
+            return true;
+        }
+
+        // Verificar que todos los partidos tengan resultado 0-0
+        for (Jornada jornada : jornadas) {
+            List<Partido> partidos = partidoRepository.findByJornadaIdJornada(jornada.getIdJornada());
+            for (Partido partido : partidos) {
+                if (partido.getGolesLocal() != 0 || partido.getGolesVisitante() != 0) {
+                    return false; // Hay al menos un partido con resultados
+                }
+            }
+        }
+
+        return true; // Todos los partidos están 0-0
     }
 
     /**
