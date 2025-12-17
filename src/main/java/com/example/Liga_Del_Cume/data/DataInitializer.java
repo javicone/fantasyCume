@@ -197,15 +197,14 @@ public class DataInitializer implements CommandLineRunner {
     private void generarYSimularJornadas(LigaCume liga, List<Equipo> equipos, List<Usuario> usuarios) {
         // Algoritmo Round Robin para 7 equipos (número impar - uno descansa cada jornada)
         int numEquipos = equipos.size(); // 7
-        int numJornadasIda = numEquipos; // 7 (uno descansa cada jornada)
 
         // Solo simulamos 6 jornadas como se solicitó
         int jornadasASimular = 6;
 
-        // Copia para rotar
+        // Copia para rotar - TODOS los equipos rotan
         List<Equipo> equiposRotacion = new ArrayList<>(equipos);
 
-        System.out.println("\n📅 Generando " + jornadasASimular + " jornadas...");
+        System.out.println("\n📅 Generando " + jornadasASimular + " jornadas con Round-Robin correcto...");
 
         for (int dia = 0; dia < jornadasASimular; dia++) {
             int numeroJornada = dia + 1;
@@ -216,23 +215,38 @@ public class DataInitializer implements CommandLineRunner {
 
             System.out.println("  ➜ Jornada " + numeroJornada + " (Simulada)");
 
-            // Con 7 equipos, uno descansa cada jornada (el primero de la lista rotativa)
-            // Se forman 3 partidos
-            for (int i = 1; i < numEquipos; i += 2) {
-                if (i + 1 < numEquipos) {
-                    Equipo local = equiposRotacion.get(i);
-                    Equipo visitante = equiposRotacion.get(i + 1);
+            // Con 7 equipos (impar), el último equipo de la lista descansa esta jornada
+            // Los demás equipos se emparejan de forma simétrica
+            int indexDescansa = numEquipos - 1; // El último equipo descansa
+            System.out.println("     Equipo que descansa: " + equiposRotacion.get(indexDescansa).getNombreEquipo());
 
-                    procesarPartido(jornada, local, visitante, true);
-                }
+            // Emparejar los equipos restantes de forma simétrica
+            // Con 7 equipos, se forman 3 partidos (6 equipos juegan, 1 descansa)
+            int numPartidos = (numEquipos - 1) / 2; // 3 partidos
+
+            for (int p = 0; p < numPartidos; p++) {
+                int indexVisitante = numEquipos - 2 - p; // -2 porque el último descansa
+
+                Equipo local = equiposRotacion.get(p);
+                Equipo visitante = equiposRotacion.get(indexVisitante);
+
+                System.out.println("     Partido " + (p + 1) + ": " +
+                    local.getNombreEquipo() + " vs " + visitante.getNombreEquipo());
+
+                // IMPORTANTE: Siempre simular con resultados (true)
+                procesarPartido(jornada, local, visitante, true);
             }
 
             // Simular alineaciones de usuarios
             simularAlineacionesUsuarios(usuarios, jornada);
 
-            // Rotar equipos para la siguiente jornada
+            // Rotar TODA la lista de equipos para la siguiente jornada
+            // Rotación circular: el último pasa al principio
             Collections.rotate(equiposRotacion, 1);
         }
+
+        System.out.println("✓ " + jornadasASimular + " jornadas generadas y simuladas correctamente");
+        System.out.println("✓ Todos los partidos tienen resultados");
     }
 
     private void procesarPartido(Jornada jornada, Equipo local, Equipo visitante, boolean simular) {
