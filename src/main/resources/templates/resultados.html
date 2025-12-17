@@ -299,15 +299,16 @@
                     </div>
 
                     <!-- Resultado -->
-                    <div class="resultado-section"><!-- Mostrar goles solo si el partido se ha jugado (al menos un equipo tiene goles o hay estadísticas) -->
-                        <span class="goles" th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
-                              th:text="${partido.golesLocal}">1</span>
-                        <span class="goles" th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                    <div class="resultado-section">
+                        <!-- Mostrar goles si el partido se ha jugado (tiene estadísticas) -->
+                        <span class="goles" th:if="${partido.estadisticas != null and !partido.estadisticas.isEmpty()}"
+                              th:text="${partido.golesLocal}">0</span>
+                        <span class="goles" th:unless="${partido.estadisticas != null and !partido.estadisticas.isEmpty()}"
                               style="visibility: hidden;">-</span>
                         <span class="separador">-</span>
-                        <span class="goles" th:if="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                        <span class="goles" th:if="${partido.estadisticas != null and !partido.estadisticas.isEmpty()}"
                               th:text="${partido.golesVisitante}">0</span>
-                        <span class="goles" th:unless="${partido.golesLocal > 0 or partido.golesVisitante > 0}"
+                        <span class="goles" th:unless="${partido.estadisticas != null and !partido.estadisticas.isEmpty()}"
                               style="visibility: hidden;">-</span>
                     </div>
 

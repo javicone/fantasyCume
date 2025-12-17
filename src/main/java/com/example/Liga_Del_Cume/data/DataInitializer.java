@@ -187,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
         j.setNombreJugador(nombre);
         j.setEsPortero(esPortero);
         j.setEquipo(equipo);
-        j.setPrecioMercado(100000); // Todos empiezan con 100.000
+        j.setPrecioMercado(100000f); // Todos empiezan con 100.000€ (float)
         j.setAvatarUrl(avatarUrl);
         jugadorRepository.save(j);
     }
@@ -197,15 +197,14 @@ public class DataInitializer implements CommandLineRunner {
     private void generarYSimularJornadas(LigaCume liga, List<Equipo> equipos, List<Usuario> usuarios) {
         // Algoritmo Round Robin para 7 equipos (número impar - uno descansa cada jornada)
         int numEquipos = equipos.size(); // 7
-        int numJornadasIda = numEquipos; // 7 (uno descansa cada jornada)
 
         // Solo simulamos 6 jornadas como se solicitó
         int jornadasASimular = 6;
 
-        // Copia para rotar
+        // Copia para rotar - TODOS los equipos rotan
         List<Equipo> equiposRotacion = new ArrayList<>(equipos);
 
-        System.out.println("\n📅 Generando " + jornadasASimular + " jornadas...");
+        System.out.println("\n📅 Generando " + jornadasASimular + " jornadas con Round-Robin correcto...");
 
         for (int dia = 0; dia < jornadasASimular; dia++) {
             int numeroJornada = dia + 1;
@@ -216,23 +215,43 @@ public class DataInitializer implements CommandLineRunner {
 
             System.out.println("  ➜ Jornada " + numeroJornada + " (Simulada)");
 
-            // Con 7 equipos, uno descansa cada jornada (el primero de la lista rotativa)
-            // Se forman 3 partidos
-            for (int i = 1; i < numEquipos; i += 2) {
-                if (i + 1 < numEquipos) {
-                    Equipo local = equiposRotacion.get(i);
-                    Equipo visitante = equiposRotacion.get(i + 1);
+            // Con 7 equipos (impar), el último equipo de la lista descansa esta jornada
+            // Los demás equipos se emparejan de forma simétrica
+            int indexDescansa = numEquipos - 1; // El último equipo descansa
+            System.out.println("     Equipo que descansa: " + equiposRotacion.get(indexDescansa).getNombreEquipo());
 
-                    procesarPartido(jornada, local, visitante, true);
-                }
+            // Emparejar los equipos restantes de forma simétrica
+            // Con 7 equipos, se forman 3 partidos (6 equipos juegan, 1 descansa)
+            int numPartidos = (numEquipos - 1) / 2; // 3 partidos
+
+            for (int p = 0; p < numPartidos; p++) {
+                int indexVisitante = numEquipos - 2 - p; // -2 porque el último descansa
+
+                Equipo local = equiposRotacion.get(p);
+                Equipo visitante = equiposRotacion.get(indexVisitante);
+
+                System.out.println("     Partido " + (p + 1) + ": " +
+                    local.getNombreEquipo() + " vs " + visitante.getNombreEquipo());
+
+                // IMPORTANTE: Siempre simular con resultados (true)
+                procesarPartido(jornada, local, visitante, true);
             }
 
             // Simular alineaciones de usuarios
             simularAlineacionesUsuarios(usuarios, jornada);
 
-            // Rotar equipos para la siguiente jornada
+            // Rotar TODA la lista de equipos para la siguiente jornada
+            // Rotación circular: el último pasa al principio
             Collections.rotate(equiposRotacion, 1);
         }
+
+        System.out.println("✓ " + jornadasASimular + " jornadas generadas y simuladas correctamente");
+        System.out.println("✓ Todos los partidos tienen resultados");
+
+        // Actualizar precios de jugadores UNA SOLA VEZ al final, basándose en el rendimiento total
+        System.out.println("\n💰 Actualizando precios de jugadores tras " + jornadasASimular + " jornadas...");
+        actualizarPreciosJugadoresFinal();
+        System.out.println("✓ Precios de jugadores actualizados según rendimiento total");
     }
 
     private void procesarPartido(Jornada jornada, Equipo local, Equipo visitante, boolean simular) {
@@ -301,7 +320,8 @@ public class DataInitializer implements CommandLineRunner {
             // Variación aleatoria de rendimiento
             puntos += (random.nextInt(5) - 2);
 
-            est.setPuntosJornada(Math.max(0, puntos)); // No negativos para este ejemplo
+            // PERMITIR PUNTOS NEGATIVOS para que el sistema de precios funcione correctamente
+            est.setPuntosJornada(puntos); // Puede ser negativo
             estadisticaRepository.save(est);
         }
     }
@@ -401,6 +421,68 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("   Jornadas: " + jornadaRepository.count());
         System.out.println("   Partidos: " + partidoRepository.count() + " (jugados en 6 jornadas)");
         System.out.println("   Estadísticas: " + estadisticaRepository.count());
+    }
+
+    // ==================== SISTEMA DE PRECIOS DINÁMICOS ====================
+
+    /**
+     * Actualiza los precios de todos los jugadores basándose en su rendimiento TOTAL en todas las jornadas
+     *
+     * Reglas:
+     * - Por cada punto mayor que 0: +1000€
+     * - Por cada punto menor que 0: -1000€
+     * - Con 0 puntos: precio no varía
+     *
+     * Este método se ejecuta UNA SOLA VEZ al final de todas las jornadas para mejorar el rendimiento
+     *
+     * Ejemplo:
+     * - Jugador con 15 puntos totales: +15000€
+     * - Jugador con 0 puntos totales: sin cambio
+     * - Jugador con -5 puntos totales: -5000€
+     */
+    private void actualizarPreciosJugadoresFinal() {
+        // Obtener todos los jugadores de la liga
+        List<Jugador> todosJugadores = jugadorRepository.findAll();
+
+        // Mapa para acumular los puntos totales por jugador
+        java.util.Map<Long, Integer> puntosTotalesPorJugador = new java.util.HashMap<>();
+
+        // Recorrer todas las estadísticas y sumar puntos por jugador
+        for (Jugador jugador : todosJugadores) {
+            List<EstadisticaJugadorPartido> estadisticas =
+                estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
+
+            int puntosTotal = 0;
+            for (EstadisticaJugadorPartido est : estadisticas) {
+                puntosTotal += est.getPuntosJornada();
+            }
+
+            puntosTotalesPorJugador.put(jugador.getIdJugador(), puntosTotal);
+        }
+
+        // Aplicar los cambios de precio a cada jugador
+        int jugadoresActualizados = 0;
+        for (Jugador jugador : todosJugadores) {
+            Integer puntosTotal = puntosTotalesPorJugador.get(jugador.getIdJugador());
+
+            if (puntosTotal != null && puntosTotal != 0) {
+                float precioAnterior = jugador.getPrecioMercado();
+
+                // Calcular cambio de precio: 1000€ por cada punto (positivo o negativo)
+                float cambioPrecio = puntosTotal * 1000f;
+                float precioNuevo = precioAnterior + cambioPrecio;
+
+                // Asegurar que el precio no sea negativo (mínimo 1000€)
+                precioNuevo = Math.max(1000f, precioNuevo);
+
+                jugador.setPrecioMercado(precioNuevo);
+                jugadorRepository.save(jugador);
+
+                jugadoresActualizados++;
+            }
+        }
+
+        System.out.println("   → " + jugadoresActualizados + " jugadores actualizaron su precio");
     }
 
     // ==================== HELPERS SIMPLES ====================
