@@ -174,7 +174,7 @@ Funcionalidad para modificar el presupuesto de la liga:
 - ✅ **Modal interactivo** con JavaScript
 - ✅ **Input numérico** con formato y validación
 - ✅ **Validaciones en cliente y servidor**:
-  - Presupuesto mínimo: 1.000.000€
+  - Presupuesto mínimo: 500.000€
   - Validación de valores no nulos
   - Confirmación antes de guardar
 - ✅ **Actualización en tiempo real** en todas las vistas

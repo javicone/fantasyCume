@@ -63,26 +63,24 @@ public class Usuario {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Usuario usuario = (Usuario) o;
-        return puntosAcumulados == usuario.puntosAcumulados && Objects.equals(idUsuario, usuario.idUsuario) && Objects.equals(liga, usuario.liga) && Objects.equals(nombreUsuario, usuario.nombreUsuario) && Objects.equals(password, usuario.password) && Objects.equals(email, usuario.email) && Objects.equals(alineaciones, usuario.alineaciones);
+        return Objects.equals(idUsuario, usuario.idUsuario);
     }
 
     @Override
     public String toString() {
         return "Usuario{" +
                 "idUsuario=" + idUsuario +
-                ", liga=" + liga +
                 ", nombreUsuario='" + nombreUsuario + '\'' +
-                ", password='" + password + '\'' +
-                ", puntosAcumulados=" + puntosAcumulados +
                 ", email='" + email + '\'' +
-                ", alineaciones=" + alineaciones +
+                ", puntosAcumulados=" + puntosAcumulados +
                 '}';
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idUsuario, liga, nombreUsuario, password, puntosAcumulados, email, alineaciones);
+        return Objects.hash(idUsuario);
     }
 }

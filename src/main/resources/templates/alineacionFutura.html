@@ -817,7 +817,7 @@
             const inputUsuario = document.createElement('input');
             inputUsuario.type = 'hidden';
             inputUsuario.name = 'usuarioId';
-            inputUsuario.value = /*[[${usuario.idUsuario}]]*/ 1;
+            inputUsuario.value = /*[[${usuario?.idUsuario ?: 0}]]*/ 1;
             form.appendChild(inputUsuario);
 
             // Agregar jugadores

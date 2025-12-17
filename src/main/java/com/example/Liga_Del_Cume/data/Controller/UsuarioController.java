@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,7 +28,7 @@ public class UsuarioController {
                         @RequestParam String password,
                         Model model,
                         RedirectAttributes redirectAttributes,
-                        HttpSession session) { // <--- Inyectar HttpSession)
+                        HttpSession session) {
 
         System.out.println("\t Peticion POST de login - Email: " + email);
 

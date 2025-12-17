@@ -107,11 +107,20 @@ public class IAController {
 
             String errorMsg = e.getMessage() != null ? e.getMessage() : "Error de conexión con el servicio de IA.";
 
+            // Mensaje especial si es problema de configuración de API key
+            if (errorMsg.contains("API key") || errorMsg.contains("OPENROUTER_API_KEY")) {
+                errorMsg = "⚠️ El servicio de IA no está configurado correctamente.\n\n" +
+                          "Para usar Guardiol-IA necesitas:\n" +
+                          "1. Obtener una API key gratuita en https://openrouter.ai/\n" +
+                          "2. Configurar la variable de entorno OPENROUTER_API_KEY\n\n" +
+                          "Consulta el archivo SERVICIO_IA_README.md para más detalles.";
+            }
+
             return org.springframework.http.ResponseEntity
                 .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(java.util.Map.of(
                     "success", false,
-                    "error", "No se pudo generar la recomendación. " + errorMsg
+                    "error", errorMsg
                 ));
         }
     }
