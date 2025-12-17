@@ -305,14 +305,14 @@
                     <img th:src="${jugador.avatarUrl != null ? jugador.avatarUrl : 'https://via.placeholder.com/150'}"
                          th:alt="${jugador.nombreJugador}"
                          id="currentAvatar"
-                         onerror="this.src='https://via.placeholder.com/150?text=Jugador'">
+                         >
                 </div>
 
                 <div class="team-info-box">
                     <div class="team-badge-mini">
                         <img th:src="${equipo.escudoURL != null ? equipo.escudoURL : 'https://via.placeholder.com/60'}"
                              th:alt="${equipo.nombreEquipo}"
-                             onerror="this.src='https://via.placeholder.com/60?text=Escudo'">
+                             >
                     </div>
                     <p class="team-name-small" th:text="${equipo.nombreEquipo}">Nombre del Equipo</p>
                 </div>
