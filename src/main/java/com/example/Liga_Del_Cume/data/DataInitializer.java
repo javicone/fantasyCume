@@ -187,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
         j.setNombreJugador(nombre);
         j.setEsPortero(esPortero);
         j.setEquipo(equipo);
-        j.setPrecioMercado(100000); // Todos empiezan con 100.000
+        j.setPrecioMercado(100000f); // Todos empiezan con 100.000€ (float)
         j.setAvatarUrl(avatarUrl);
         jugadorRepository.save(j);
     }
@@ -247,6 +247,11 @@ public class DataInitializer implements CommandLineRunner {
 
         System.out.println("✓ " + jornadasASimular + " jornadas generadas y simuladas correctamente");
         System.out.println("✓ Todos los partidos tienen resultados");
+
+        // Actualizar precios de jugadores UNA SOLA VEZ al final, basándose en el rendimiento total
+        System.out.println("\n💰 Actualizando precios de jugadores tras " + jornadasASimular + " jornadas...");
+        actualizarPreciosJugadoresFinal();
+        System.out.println("✓ Precios de jugadores actualizados según rendimiento total");
     }
 
     private void procesarPartido(Jornada jornada, Equipo local, Equipo visitante, boolean simular) {
@@ -315,7 +320,8 @@ public class DataInitializer implements CommandLineRunner {
             // Variación aleatoria de rendimiento
             puntos += (random.nextInt(5) - 2);
 
-            est.setPuntosJornada(Math.max(0, puntos)); // No negativos para este ejemplo
+            // PERMITIR PUNTOS NEGATIVOS para que el sistema de precios funcione correctamente
+            est.setPuntosJornada(puntos); // Puede ser negativo
             estadisticaRepository.save(est);
         }
     }
@@ -415,6 +421,68 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("   Jornadas: " + jornadaRepository.count());
         System.out.println("   Partidos: " + partidoRepository.count() + " (jugados en 6 jornadas)");
         System.out.println("   Estadísticas: " + estadisticaRepository.count());
+    }
+
+    // ==================== SISTEMA DE PRECIOS DINÁMICOS ====================
+
+    /**
+     * Actualiza los precios de todos los jugadores basándose en su rendimiento TOTAL en todas las jornadas
+     *
+     * Reglas:
+     * - Por cada punto mayor que 0: +1000€
+     * - Por cada punto menor que 0: -1000€
+     * - Con 0 puntos: precio no varía
+     *
+     * Este método se ejecuta UNA SOLA VEZ al final de todas las jornadas para mejorar el rendimiento
+     *
+     * Ejemplo:
+     * - Jugador con 15 puntos totales: +15000€
+     * - Jugador con 0 puntos totales: sin cambio
+     * - Jugador con -5 puntos totales: -5000€
+     */
+    private void actualizarPreciosJugadoresFinal() {
+        // Obtener todos los jugadores de la liga
+        List<Jugador> todosJugadores = jugadorRepository.findAll();
+
+        // Mapa para acumular los puntos totales por jugador
+        java.util.Map<Long, Integer> puntosTotalesPorJugador = new java.util.HashMap<>();
+
+        // Recorrer todas las estadísticas y sumar puntos por jugador
+        for (Jugador jugador : todosJugadores) {
+            List<EstadisticaJugadorPartido> estadisticas =
+                estadisticaRepository.findByJugadorIdJugador(jugador.getIdJugador());
+
+            int puntosTotal = 0;
+            for (EstadisticaJugadorPartido est : estadisticas) {
+                puntosTotal += est.getPuntosJornada();
+            }
+
+            puntosTotalesPorJugador.put(jugador.getIdJugador(), puntosTotal);
+        }
+
+        // Aplicar los cambios de precio a cada jugador
+        int jugadoresActualizados = 0;
+        for (Jugador jugador : todosJugadores) {
+            Integer puntosTotal = puntosTotalesPorJugador.get(jugador.getIdJugador());
+
+            if (puntosTotal != null && puntosTotal != 0) {
+                float precioAnterior = jugador.getPrecioMercado();
+
+                // Calcular cambio de precio: 1000€ por cada punto (positivo o negativo)
+                float cambioPrecio = puntosTotal * 1000f;
+                float precioNuevo = precioAnterior + cambioPrecio;
+
+                // Asegurar que el precio no sea negativo (mínimo 1000€)
+                precioNuevo = Math.max(1000f, precioNuevo);
+
+                jugador.setPrecioMercado(precioNuevo);
+                jugadorRepository.save(jugador);
+
+                jugadoresActualizados++;
+            }
+        }
+
+        System.out.println("   → " + jugadoresActualizados + " jugadores actualizaron su precio");
     }
 
     // ==================== HELPERS SIMPLES ====================
